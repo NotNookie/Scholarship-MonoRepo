@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Primary — Municipal Blue ── */
+  --color-primary-dark: #002576;
+  --color-primary: #0038a8;
+  --color-primary-light: #e8effe;
+  --color-primary-muted: rgba(0, 56, 168, 0.08);
+  --color-on-primary: #ffffff;
+
+  /* ── Secondary — Honor Gold ── */
+  --color-secondary-dark: #735c00;
+  --color-secondary: #fecc00;
+  --color-secondary-light: #fff9e0;
+  --color-on-secondary: #735c00;
+
+  /* ── Tertiary — Progress Green ── */
+  --color-tertiary-dark: #004f1e;
+  --color-tertiary: #61c574;
+  --color-tertiary-light: #eaf7ed;
+
+  /* ── Status ── */
+  --color-success: #61c574;
+  --color-success-dark: #004f1e;
+  --color-success-light: #eaf7ed;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fffbeb;
+  --color-danger: #ef4444;
+  --color-danger-light: #fef2f2;
+  --color-info: #3b82f6;
+  --color-info-light: #eff6ff;
+
+  /* ── Surface & Neutral ── */
+  --color-surface: #ffffff;
+  --color-surface-alt: #f8f9fc;
+  --color-border: #e2e8f0;
+  --color-border-muted: #f1f5f9;
+
+  /* ── Content (Text) ── */
+  --color-content: #0f172a;
+  --color-content-muted: #64748b;
+  --color-content-disabled: #94a3b8;
+
+  /* ── Typography ── */
+  --font-sans: "Inter", system-ui, sans-serif;
+
+  /* ── Shadows ── */
+  --shadow-card: 0px 4px 12px rgba(0, 56, 168, 0.05);
+  --shadow-modal: 0px 12px 32px rgba(0, 0, 0, 0.1);
+  --shadow-dropdown: 0px 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    margin: 0;
+    background-color: #f8f9fc;
+    color: #0f172a;
+  }
+
+  #root {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  :focus-visible {
+    outline: 2px solid #0038a8;
+    outline-offset: 2px;
+  }
+}

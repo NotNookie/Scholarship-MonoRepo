@@ -1,0 +1,10 @@
+{
+  "name": "scholarship",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "web": "npm run dev --prefix apps/web",
+    "web:build": "npm run build --prefix apps/web",
+    "web:lint": "npm run lint --prefix apps/web"
+  }
+}
