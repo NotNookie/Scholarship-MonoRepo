@@ -17,7 +17,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && !error.config.url.startsWith('/auth/')) {
       const role = useAuthStore.getState().user?.role
       useAuthStore.getState().logout()
       const isAdmin = role && role !== 'student'

@@ -16,8 +16,10 @@ import { FormsPage } from '../pages/public/FormsPage'
 
 // Auth pages
 import { LoginPage } from '../pages/auth/LoginPage'
+import { LoginVerifyPage } from '../pages/auth/LoginVerifyPage'
 import { RegisterPage } from '../pages/auth/RegisterPage'
 import { AdminLoginPage } from '../pages/auth/AdminLoginPage'
+import { AdminLoginVerifyPage } from '../pages/auth/AdminLoginVerifyPage'
 
 // Student pages
 import { StudentDashboardPage } from '../pages/student/StudentDashboardPage'
@@ -51,6 +53,7 @@ export const router = createBrowserRouter([
 
   // ── Auth pages (standalone, no shared layout) ───────────────
   { path: '/login', element: <LoginPage /> },
+  { path: '/login/verify', element: <LoginVerifyPage /> },
   { path: '/register', element: <RegisterPage /> },
 
   // ── Student portal ──────────────────────────────────────────
@@ -72,6 +75,7 @@ export const router = createBrowserRouter([
 
   // ── Admin login (standalone) ────────────────────────────────
   { path: '/admin/login', element: <AdminLoginPage /> },
+  { path: '/admin/login/verify', element: <AdminLoginVerifyPage /> },
 
   // ── Admin portal ────────────────────────────────────────────
   {

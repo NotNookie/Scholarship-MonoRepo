@@ -1,152 +1,227 @@
 import { useQuery } from '@tanstack/react-query'
-import { CheckCircle2, FileText, AlertCircle, ExternalLink } from 'lucide-react'
+import { CheckCircle2, FileText, AlertCircle, GraduationCap, UserPlus, Upload, Search } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 
 const FALLBACK_QUALIFICATIONS = [
-  'Official resident of Sta. Cruz, Laguna',
-  'Currently enrolled in School Year 2026–2027',
-  'General weighted average of at least 85% (or equivalent)',
-  'With good moral character and no pending administrative case',
-  'Not a recipient of another government scholarship',
+  {
+    label: 'Residency',
+    text: 'Must be a bona fide resident of Sta. Cruz, Laguna for at least three (3) years.',
+  },
+  {
+    label: 'Academic Standing',
+    text: 'General Weighted Average (GWA) of at least 85% or its equivalent, with no failing grades.',
+  },
+  {
+    label: 'Income Bracket',
+    text: 'Combined annual family income must not exceed ₱250,000.',
+  },
+  {
+    label: 'Enrollment Status',
+    text: 'Must be enrolled or intending to enroll in a recognized State University or College (SUC) or CHED-accredited institution.',
+  },
 ]
 
 const FALLBACK_DOCUMENTS = [
-  { name: 'Accomplished Application Form', note: 'Download from the Forms page' },
-  { name: 'Certificate of Residency (Barangay)', note: 'Issued by your barangay hall' },
-  { name: 'Certified True Copy of Grades / Form 137', note: 'Certified by your school registrar' },
-  { name: 'Certificate of Enrollment / Acceptance Letter', note: 'For the current school year' },
-  { name: 'Barangay Certificate of Indigency / ITR of parents', note: 'Income Tax Return as alternative' },
-  { name: '2x2 ID Picture (white background)', note: 'Taken within the last 6 months' },
-  { name: 'Photocopy of valid government ID of guardian', note: 'Any government-issued ID' },
+  { name: 'PSA Birth Certificate',              note: 'Clear scanned copy of the original PSA document.' },
+  { name: 'Official Report Card / Form 138',    note: 'Most recent semester or academic year, signed by the principal/registrar.' },
+  { name: 'Barangay Certificate of Indigency',  note: "Must state the purpose: 'For Scholarship Application'. Issued within the last 3 months." },
+  { name: "Voter's Registration / Certification", note: "Applicant or Parent's Comelec Certification from Sta. Cruz." },
+  { name: 'ITR or Tax Exemption Certificate',   note: "Parents' Income Tax Return (ITR) or Certificate of Tax Exemption from BIR." },
+]
+
+const HOW_TO_STEPS = [
+  { n: 1, Icon: UserPlus,  title: 'Create an Account',   desc: 'Register on the Iskolar ng Bayan portal using a valid email address.' },
+  { n: 2, Icon: FileText,  title: 'Prepare Documents',   desc: 'Scan all required documents clearly and save them in PDF format.' },
+  { n: 3, Icon: Upload,    title: 'Submit Online',        desc: 'Fill out the digital application form and upload your documents securely.' },
+  { n: 4, Icon: Search,    title: 'Track Status',         desc: 'Monitor your dashboard for evaluation updates and interview schedules.' },
 ]
 
 export function RequirementsPage() {
-  const { data, isPending, isError } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: queryKeys.requirements.all,
     queryFn: () => api.get('/requirements').then((r) => r.data),
+    placeholderData: { qualifications: FALLBACK_QUALIFICATIONS, documents: FALLBACK_DOCUMENTS },
     retry: false,
   })
 
-  const useFallback = !isPending && (isError || !data?.qualifications?.length)
-  const qualifications = useFallback ? FALLBACK_QUALIFICATIONS : (data?.qualifications ?? [])
-  const documents = useFallback ? FALLBACK_DOCUMENTS : (data?.documents ?? [])
+  const qualifications = data?.qualifications?.length ? data.qualifications : FALLBACK_QUALIFICATIONS
+  const documents = data?.documents?.length ? data.documents : FALLBACK_DOCUMENTS
 
   return (
     <>
       {/* ── Page header ────────────────────────────────────── */}
       <section className="bg-primary-dark text-on-primary">
-        <div className="max-w-6xl mx-auto px-6 py-12">
-          <h1 className="text-3xl font-bold mb-2">Scholarship Requirements</h1>
-          <p className="text-on-primary/70 text-sm">
-            Review the qualifications and required documents before you apply.
-          </p>
+        <div className="max-w-6xl mx-auto px-6 py-12 flex flex-col md:flex-row items-center gap-8 md:gap-12">
+          <div className="flex-1 min-w-0">
+            <div className="inline-flex items-center gap-2 bg-white/10 text-secondary text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
+              <span className="w-1.5 h-1.5 bg-secondary rounded-full shrink-0" />
+              AY 2026–2027
+            </div>
+            <h1 className="text-3xl font-bold mb-3">Iskolar ng Bayan Requirements</h1>
+            <p className="text-on-primary/70 text-sm leading-relaxed max-w-lg mb-6">
+              Prepare your documents early. Review the eligibility criteria and comprehensive list of
+              requirements below to ensure a smooth application process for the Municipal Youth
+              Development Office scholarship program in Sta. Cruz, Laguna.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                to="/register"
+                className="inline-flex items-center gap-2 bg-primary text-on-primary text-sm px-5 py-2.5 rounded font-semibold hover:bg-primary-light hover:text-primary transition-colors border border-on-primary/20"
+              >
+                <UserPlus size={15} />
+                Start Application
+              </Link>
+              <button
+                disabled
+                title="Download coming soon"
+                className="inline-flex items-center gap-2 border border-on-primary/30 text-on-primary/60 text-sm px-5 py-2.5 rounded font-medium cursor-not-allowed"
+              >
+                <FileText size={15} />
+                Download Checklist
+              </button>
+            </div>
+          </div>
+
+          {/* Right — illustration placeholder */}
+          <div className="hidden md:flex w-56 h-56 rounded-2xl bg-white/10 items-center justify-center shrink-0 border border-white/10">
+            <GraduationCap size={72} strokeWidth={1.2} className="text-on-primary/30" />
+          </div>
         </div>
       </section>
 
-      {/* ── Main content ───────────────────────────────────── */}
+      {/* ── Requirements columns ───────────────────────────── */}
       <section className="max-w-6xl mx-auto px-6 py-12">
         <div className="grid md:grid-cols-2 gap-8 items-start">
 
-          {/* Qualifications */}
+          {/* Eligibility Criteria */}
           <div className="bg-surface rounded-xl shadow-card p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-primary-light rounded-lg flex items-center justify-center shrink-0">
                 <CheckCircle2 size={20} className="text-primary" />
               </div>
               <div>
-                <h2 className="text-base font-semibold text-content">Qualifications</h2>
+                <h2 className="text-base font-semibold text-content">Eligibility Criteria</h2>
                 <p className="text-xs text-content-muted">All criteria must be met</p>
               </div>
             </div>
 
             {isPending ? (
-              <div className="space-y-3">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Skeleton key={i} className="h-5 w-full" />
+              <div className="space-y-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="space-y-1.5">
+                    <Skeleton className="h-4 w-28" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-5/6" />
+                  </div>
                 ))}
               </div>
             ) : (
-              <ul className="space-y-4">
-                {qualifications.map((item, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <CheckCircle2 size={16} className="text-success shrink-0 mt-0.5" />
-                    <span className="text-sm text-content leading-snug">
-                      {typeof item === 'string' ? item : item.text}
-                    </span>
-                  </li>
-                ))}
+              <ul className="space-y-5">
+                {qualifications.map((item, i) => {
+                  const label = typeof item === 'string' ? null : item.label
+                  const text = typeof item === 'string' ? item : item.text
+                  return (
+                    <li key={i} className="flex items-start gap-3">
+                      <CheckCircle2 size={16} className="text-success shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        {label && (
+                          <p className="text-xs font-semibold text-primary mb-0.5">{label}</p>
+                        )}
+                        <p className="text-sm text-content leading-snug">{text}</p>
+                      </div>
+                    </li>
+                  )
+                })}
               </ul>
             )}
           </div>
 
           {/* Required Documents */}
           <div className="bg-surface rounded-xl shadow-card p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-light rounded-lg flex items-center justify-center shrink-0">
-                <FileText size={20} className="text-primary" />
+            <div className="flex items-center justify-between gap-3 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary-light rounded-lg flex items-center justify-center shrink-0">
+                  <FileText size={20} className="text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-base font-semibold text-content">Required Documents</h2>
+                  <p className="text-xs text-content-muted">
+                    {isPending ? '—' : `${documents.length} documents required`}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-base font-semibold text-content">Required Documents</h2>
-                <p className="text-xs text-content-muted">
-                  {isPending ? '—' : `${documents.length} documents required`}
-                </p>
-              </div>
+              <span className="text-xs bg-border text-content-muted px-2 py-1 rounded font-medium shrink-0">
+                Format: PDF only
+              </span>
             </div>
 
             {isPending ? (
               <div className="space-y-3">
-                {Array.from({ length: 7 }).map((_, i) => (
-                  <Skeleton key={i} className="h-14 w-full rounded-md" />
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} className="h-16 w-full rounded-md" />
                 ))}
               </div>
             ) : (
-              <ol className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {documents.map((doc, i) => {
                   const name = typeof doc === 'string' ? doc : doc.name
                   const note = typeof doc === 'string' ? null : doc.note
                   return (
-                    <li
+                    <div
                       key={i}
-                      className="flex items-start gap-3 bg-surface-alt rounded-md px-4 py-3"
+                      className="bg-surface-alt rounded-lg p-3 flex flex-col gap-1"
                     >
-                      <span className="w-5 h-5 bg-primary text-on-primary text-xs font-bold rounded flex items-center justify-center shrink-0 mt-0.5">
-                        {i + 1}
-                      </span>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-content leading-snug">{name}</p>
-                        {note && (
-                          <p className="text-xs text-content-muted mt-0.5">{note}</p>
-                        )}
+                      <div className="flex items-start gap-2">
+                        <FileText size={14} className="text-primary shrink-0 mt-0.5" />
+                        <p className="text-xs font-semibold text-content leading-snug">{name}</p>
                       </div>
-                    </li>
+                      {note && (
+                        <p className="text-xs text-content-muted leading-snug pl-5">{note}</p>
+                      )}
+                    </div>
                   )
                 })}
-              </ol>
+              </div>
             )}
           </div>
         </div>
 
-        {/* Download form callout */}
-        <div className="mt-8 bg-primary-light rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-primary">Need the Application Form?</p>
-            <p className="text-xs text-content-muted mt-0.5">
-              Download the official scholarship application form from the Forms page.
-            </p>
+        {/* ── How to Apply ─────────────────────────────────── */}
+        <div className="mt-12">
+          <h2 className="text-xl font-semibold text-content text-center mb-2">How to Apply</h2>
+          <p className="text-sm text-content-muted text-center mb-10">
+            Follow these steps to complete your scholarship application.
+          </p>
+
+          <div className="relative flex flex-col md:flex-row items-stretch md:items-start gap-6 md:gap-0">
+            <div className="hidden md:block absolute top-6 left-[12%] right-[12%] h-px bg-border z-0" />
+            {HOW_TO_STEPS.map(({ n, Icon, title, desc }) => (
+              <div
+                key={n}
+                className="flex-1 flex flex-row md:flex-col items-start md:items-center gap-4 md:gap-3 relative z-10 md:px-4"
+              >
+                <div className="relative shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
+                    <Icon size={20} className="text-on-primary" />
+                  </div>
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-secondary text-on-secondary text-xs font-bold rounded-full flex items-center justify-center">
+                    {n}
+                  </span>
+                </div>
+                <div className="md:text-center">
+                  <p className="text-sm font-semibold text-content">{title}</p>
+                  <p className="text-xs text-content-muted mt-0.5 md:max-w-[130px]">{desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
-          <Link
-            to="/forms"
-            className="inline-flex items-center gap-2 bg-primary text-on-primary text-sm px-5 py-2.5 rounded font-medium hover:bg-primary-dark transition-colors shrink-0"
-          >
-            Download Forms <ExternalLink size={13} />
-          </Link>
         </div>
 
         {/* Disclaimer */}
-        <div className="mt-6 flex items-start gap-3 bg-warning-light border border-warning/20 rounded-lg p-4">
+        <div className="mt-10 flex items-start gap-3 bg-warning-light border border-warning/20 rounded-lg p-4">
           <AlertCircle size={16} className="text-warning shrink-0 mt-0.5" />
           <p className="text-xs text-content leading-relaxed">
             Requirements are managed by the LYDO office and may be updated without prior notice. Always

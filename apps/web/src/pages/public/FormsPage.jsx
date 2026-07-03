@@ -37,14 +37,14 @@ const FALLBACK_FORMS = [
 ]
 
 export function FormsPage() {
-  const { data, isPending, isError } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: queryKeys.forms.all,
     queryFn: () => api.get('/forms').then((r) => r.data),
+    placeholderData: { data: FALLBACK_FORMS },
     retry: false,
   })
 
-  const useFallback = !isPending && (isError || !data?.data?.length)
-  const forms = isPending ? [] : useFallback ? FALLBACK_FORMS : data.data
+  const forms = data?.data?.length ? data.data : FALLBACK_FORMS
 
   return (
     <>

@@ -7,10 +7,8 @@ import {
   Upload,
   Search,
   Award,
-  Users,
-  TrendingUp,
-  Clock,
   Megaphone,
+  Users,
 } from 'lucide-react'
 import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
@@ -18,119 +16,91 @@ import { AnnouncementCard } from '../../components/shared/AnnouncementCard'
 import { Skeleton } from '../../components/shared/Skeleton'
 
 const STEPS = [
-  { n: 1, Icon: UserPlus, title: 'Register', desc: 'Create your free account on the portal.' },
-  { n: 2, Icon: FileText, title: 'Apply Online', desc: 'Fill in the scholarship application form.' },
-  { n: 3, Icon: Upload, title: 'Upload Documents', desc: 'Submit your supporting documents digitally.' },
-  { n: 4, Icon: Search, title: 'Track Status', desc: 'Monitor your application in real time.' },
-  { n: 5, Icon: Award, title: 'Receive Scholarship', desc: 'Get notified and receive your grant.' },
-]
-
-const STAT_TILES = [
-  { key: 'active_scholars', label: 'Active Scholars', Icon: Users, colorClass: 'text-primary' },
-  { key: 'new_applicants', label: 'New Applicants', Icon: TrendingUp, colorClass: 'text-secondary-dark' },
-  { key: 'doc_accuracy', label: 'Doc. Accuracy', Icon: FileText, colorClass: 'text-success-dark', suffix: '%' },
-  { key: 'availability', label: 'Online Support', Icon: Clock, colorClass: 'text-primary', fallback: '24/7' },
+  { n: 1, Icon: UserPlus,  title: 'Register',            desc: 'Create your free account on the portal.' },
+  { n: 2, Icon: FileText,  title: 'Apply Online',         desc: 'Fill in the scholarship application form.' },
+  { n: 3, Icon: Upload,    title: 'Upload Documents',     desc: 'Submit your supporting documents digitally.' },
+  { n: 4, Icon: Search,    title: 'Track Status',         desc: 'Monitor your application in real time.' },
+  { n: 5, Icon: Award,     title: 'Receive Scholarship',  desc: 'Get notified and receive your grant.' },
 ]
 
 export function LandingPage() {
-  const statsQuery = useQuery({
-    queryKey: queryKeys.stats.public(),
-    queryFn: () => api.get('/stats/public').then((r) => r.data),
-    retry: false,
-  })
-
   const announcementsQuery = useQuery({
     queryKey: queryKeys.announcements.list({ per_page: 3 }),
     queryFn: () => api.get('/announcements?per_page=3&sort=desc').then((r) => r.data),
     retry: false,
   })
 
-  const stats = statsQuery.data
   const announcements = announcementsQuery.data?.data ?? []
 
   return (
     <>
       {/* ── Hero ─────────────────────────────────────────────── */}
       <section className="bg-primary-dark text-on-primary">
-        <div className="max-w-6xl mx-auto px-6 py-16 md:py-24 flex flex-col md:flex-row items-start md:items-center gap-10 md:gap-16">
+        <div className="max-w-6xl mx-auto px-6 py-16 md:py-20 flex flex-col md:flex-row items-center gap-10 md:gap-16">
 
           {/* Left — headline + CTAs */}
           <div className="flex-1 min-w-0">
             <div className="inline-flex items-center gap-2 bg-white/10 text-secondary text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
               <span className="w-1.5 h-1.5 bg-secondary rounded-full shrink-0" />
-              Iskolar ng Bayan Scholarship Program
+              Applications now open for AY 2026–2027
             </div>
 
             <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4">
               Iskolar ng Bayan
             </h1>
-            <p className="text-on-primary/80 text-base md:text-lg leading-relaxed mb-2">
-              Digital scholarship management for the municipalities of{' '}
-              <span className="text-secondary font-medium">
-                Sta. Cruz, Laguna
-              </span>
-            </p>
-            <p className="text-on-primary/60 text-sm mb-8">
-              Apply online, upload your requirements, and track your application — all in one place.
+            <p className="text-on-primary/80 text-base leading-relaxed mb-8 max-w-lg">
+              The official Digital Scholarship Management Platform for the Iskolar ng Bayan program
+              of the Municipality of Sta. Cruz, Laguna. Empowering the youth of our municipality
+              through accessible education.
             </p>
 
             <div className="flex flex-wrap gap-3">
               <Link
                 to="/register"
-                className="inline-flex items-center gap-2 bg-secondary text-on-secondary px-6 py-3 rounded font-semibold text-sm hover:bg-secondary-light transition-colors"
+                className="inline-flex items-center gap-2 bg-secondary text-on-secondary px-6 py-3 rounded font-semibold text-sm hover:opacity-90 transition-opacity"
               >
-                Apply Now
-                <ChevronRight size={15} />
+                Apply Now <ChevronRight size={15} />
               </Link>
               <Link
-                to="/requirements"
-                className="inline-flex items-center gap-2 border border-on-primary/30 text-on-primary px-6 py-3 rounded font-medium text-sm hover:bg-primary transition-colors"
+                to="/login"
+                className="inline-flex items-center gap-2 border border-on-primary/30 text-on-primary px-6 py-3 rounded font-medium text-sm hover:bg-white/10 transition-colors"
               >
-                View Requirements
+                <Users size={15} />
+                Student Login
               </Link>
             </div>
           </div>
 
-          {/* Right — stats card */}
-          <div className="w-full md:w-64 bg-surface rounded-xl shadow-modal p-6 text-content shrink-0">
-            <p className="text-xs font-semibold text-content-muted uppercase tracking-wider mb-5">
-              Program Overview
-            </p>
-            <div className="grid grid-cols-2 gap-5">
-              {STAT_TILES.map(({ key, label, Icon, colorClass, suffix, fallback }) => (
-                <div key={key} className="text-center">
-                  <Icon size={18} className={`${colorClass} mx-auto mb-1.5`} />
-                  {statsQuery.isPending ? (
-                    <Skeleton className="h-8 w-12 mx-auto mb-1" />
-                  ) : (
-                    <p className={`text-2xl font-bold leading-none mb-1 ${colorClass}`}>
-                      {stats?.[key] != null
-                        ? `${stats[key]}${suffix ?? ''}`
-                        : (fallback ?? '—')}
-                    </p>
-                  )}
-                  <p className="text-xs text-content-muted leading-tight">{label}</p>
-                </div>
-              ))}
+          {/* Right — illustration placeholder */}
+          <div className="hidden md:flex w-[380px] aspect-[4/3] rounded-2xl bg-white/10 items-center justify-center shrink-0 overflow-hidden border border-white/10">
+            <div className="flex flex-col items-center gap-3 text-on-primary/30">
+              <Users size={72} strokeWidth={1.2} />
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── How to Apply ─────────────────────────────────────── */}
+      {/* ── About the Program ────────────────────────────────── */}
       <section className="bg-surface border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-14">
-          <div className="text-center mb-10">
-            <h2 className="text-xl font-semibold text-content">How to Apply</h2>
-            <p className="text-sm text-content-muted mt-1">Five simple steps to get your scholarship</p>
+          <div className="text-center mb-3">
+            <h2 className="text-xl font-semibold text-content">About the Program</h2>
           </div>
+          <p className="text-sm text-content-muted text-center max-w-xl mx-auto mb-10 leading-relaxed">
+            The Municipal Youth Development Office of Sta. Cruz, Laguna is committed to ensuring
+            every deserving student has access to higher education through a streamlined and
+            transparent application process.
+          </p>
 
           <div className="relative flex flex-col md:flex-row items-stretch md:items-start gap-6 md:gap-0">
             {/* Connecting line on desktop */}
             <div className="hidden md:block absolute top-6 left-[10%] right-[10%] h-px bg-border z-0" />
 
             {STEPS.map(({ n, Icon, title, desc }) => (
-              <div key={n} className="flex-1 flex flex-row md:flex-col items-start md:items-center gap-4 md:gap-3 relative z-10 md:px-2">
+              <div
+                key={n}
+                className="flex-1 flex flex-row md:flex-col items-start md:items-center gap-4 md:gap-3 relative z-10 md:px-2"
+              >
                 <div className="relative shrink-0">
                   <div className="w-12 h-12 rounded-full bg-primary-light flex items-center justify-center">
                     <Icon size={20} className="text-primary" />
