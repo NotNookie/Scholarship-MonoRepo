@@ -1,52 +1,112 @@
-import { Outlet, Link, NavLink } from 'react-router-dom'
+import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom'
+import { LogOut } from 'lucide-react'
+import { useAuthStore } from '../../store/authStore'
 
-const NAV_LINKS = [
-  { to: '/', label: 'Home' },
-  { to: '/requirements', label: 'Requirements' },
-  { to: '/announcements', label: 'Announcements' },
-  { to: '/forms', label: 'Forms' },
+const PUBLIC_NAV_ALWAYS = [
+  { to: '/', label: 'Home', end: true },
+  { to: '/scholarships', label: 'Scholarships', end: false },
+  { to: '/requirements', label: 'Requirements', end: false },
+]
+
+const PUBLIC_NAV_ANNOUNCEMENTS = { to: '/announcements', label: 'Announcements', end: false }
+
+const STUDENT_NAV = [
+  { to: '/dashboard', label: 'Dashboard', end: false },
+  { to: '/applications', label: 'Applications', end: false },
+  { to: '/documents', label: 'Documents', end: false },
+  { to: '/student/announcements', label: 'Announcements', end: false },
 ]
 
 const FOOTER_LINKS = ['Privacy Policy', 'Terms of Service', 'Contact Us', 'FAQ']
 
+const navLinkCls = ({ isActive }) =>
+  isActive
+    ? 'text-primary font-semibold border-b-2 border-primary pb-0.5'
+    : 'text-content-muted hover:text-content transition-colors'
+
 export function PublicLayout() {
+  const user = useAuthStore((s) => s.user)
+  const logout = useAuthStore((s) => s.logout)
+  const navigate = useNavigate()
+
+  const isStudent = user?.role === 'student'
+  const firstName = user?.first_name ?? user?.name?.split(' ')[0] ?? null
+
+  function handleLogout() {
+    logout()
+    navigate('/')
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="h-16 bg-surface border-b border-border flex items-center px-6 shrink-0">
-        <Link to="/" className="text-primary font-bold text-sm tracking-wide shrink-0">
+      <header className="h-16 bg-surface border-b border-border flex items-center px-6 shrink-0 sticky top-0 z-30">
+        <Link to={isStudent ? '/dashboard' : '/'} className="text-primary font-bold text-sm tracking-wide shrink-0 flex-1">
           Iskolar ng Bayan
         </Link>
 
-        <div className="ml-auto flex items-center gap-3 text-sm">
-          <nav className="hidden md:flex items-center gap-6 mr-3">
-            {NAV_LINKS.map(({ to, label }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={to === '/'}
-                className={({ isActive }) =>
-                  isActive
-                    ? 'text-primary font-semibold border-b-2 border-primary pb-0.5'
-                    : 'text-content-muted hover:text-content transition-colors'
-                }
+        {/* Nav — centered */}
+        <nav className="hidden md:flex items-center gap-5 text-sm shrink-0">
+          {/* Public tabs — always shown */}
+          {PUBLIC_NAV_ALWAYS.map(({ to, label, end }) => (
+            <NavLink key={to} to={to} end={end} className={navLinkCls}>
+              {label}
+            </NavLink>
+          ))}
+
+          {!isStudent && (
+            <NavLink to={PUBLIC_NAV_ANNOUNCEMENTS.to} end={PUBLIC_NAV_ANNOUNCEMENTS.end} className={navLinkCls}>
+              {PUBLIC_NAV_ANNOUNCEMENTS.label}
+            </NavLink>
+          )}
+
+          {/* Separator + student tabs */}
+          {isStudent && (
+            <>
+              <span className="w-px h-4 bg-border shrink-0" />
+              {STUDENT_NAV.map(({ to, label, end }) => (
+                <NavLink key={to} to={to} end={end} className={navLinkCls}>
+                  {label}
+                </NavLink>
+              ))}
+            </>
+          )}
+        </nav>
+
+        {/* Right side */}
+        <div className="flex flex-1 items-center gap-3 text-sm justify-end shrink-0">
+          {isStudent ? (
+            <>
+              {firstName && (
+                <span className="hidden sm:block text-xs text-content-muted font-medium">
+                  Hi, {firstName}
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex items-center gap-1.5 border border-border text-content-muted px-3 py-1.5 rounded text-xs font-medium hover:border-danger hover:text-danger transition-colors"
               >
-                {label}
-              </NavLink>
-            ))}
-          </nav>
-          <Link
-            to="/admin/login"
-            className="border border-border text-content px-4 py-1.5 rounded font-medium hover:border-primary hover:text-primary transition-colors"
-          >
-            Admin Portal
-          </Link>
-          <Link
-            to="/login"
-            className="bg-primary text-on-primary px-4 py-1.5 rounded font-semibold hover:bg-primary-dark transition-colors"
-          >
-            Student Login
-          </Link>
-        </div>{/* end ml-auto group */}
+                <LogOut size={13} />
+                Log Out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/admin/login"
+                className="border border-border text-content px-4 py-1.5 rounded font-medium hover:border-primary hover:text-primary transition-colors"
+              >
+                Admin Portal
+              </Link>
+              <Link
+                to="/login"
+                className="bg-primary text-on-primary px-4 py-1.5 rounded font-semibold hover:bg-primary-dark transition-colors"
+              >
+                Student Login
+              </Link>
+            </>
+          )}
+        </div>
       </header>
 
       <main className="flex-1">
