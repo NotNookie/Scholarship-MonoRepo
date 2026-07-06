@@ -1,4 +1,4 @@
-# Iskolar Link — Digital Scholarship Management Platform
+# Digital Scholarship Management Platform
 
 A web-based scholarship management system for the Municipality of Sta. Cruz, Laguna (LYDO). Built as a capstone project.
 
