@@ -70,7 +70,8 @@ export function RegisterPage() {
   })
 
   const onSubmit = handleSubmit((data) => {
-    const { password_confirmation, ...payload } = data
+    const payload = { ...data }
+    delete payload.password_confirmation
     registerMutation.mutate(payload)
   })
 

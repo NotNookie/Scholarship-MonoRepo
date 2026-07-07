@@ -5,9 +5,6 @@ import {
   Map,
   ChevronDown,
   Download,
-  UserPlus,
-  Upload,
-  Search,
   Play,
   Clock,
 } from 'lucide-react'

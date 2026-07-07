@@ -460,7 +460,7 @@ function Step4Essay({ register, errors }) {
 
 // ── Step 5: Document Upload ───────────────────────────────────
 
-function UploadCard({ doc, index }) {
+function UploadCard({ doc }) {
   const [uploaded, setUploaded] = useState(null)
   const name = typeof doc === 'string' ? doc : doc.name
   const note = typeof doc === 'string' ? null : doc.note
@@ -522,8 +522,6 @@ function UploadCard({ doc, index }) {
 }
 
 function Step5Documents({ register, errors, documents, values }) {
-  const uploadedCount = 0
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Upload cards */}
@@ -535,7 +533,7 @@ function Step5Documents({ register, errors, documents, values }) {
           </p>
         </div>
         {documents.map((doc, i) => (
-          <UploadCard key={i} doc={doc} index={i} />
+          <UploadCard key={i} doc={doc} />
         ))}
       </div>
 

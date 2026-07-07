@@ -5,9 +5,7 @@ import {
   FileText,
   Megaphone,
   ChevronRight,
-  Clock,
   CheckCircle2,
-  AlertCircle,
   CalendarCheck,
   Banknote,
   BookOpen,
@@ -18,29 +16,12 @@ import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { AnnouncementCard } from '../../components/shared/AnnouncementCard'
 import { Skeleton } from '../../components/shared/Skeleton'
+import { StatusPill } from '../../components/shared/StatusPill'
+import { APPLICATION_STATUS } from '../../components/shared/statusConfig'
 
 // ── Helpers ───────────────────────────────────────────────────
 
-const STATUS_CONFIG = {
-  draft:       { label: 'Draft',           Icon: FileText,     color: 'text-content-muted',   bg: 'bg-surface-alt',    border: 'border-border' },
-  submitted:   { label: 'Under Review',    Icon: Clock,        color: 'text-on-secondary',    bg: 'bg-secondary-light', border: 'border-secondary/30' },
-  interview:   { label: 'For Interview',   Icon: CalendarCheck, color: 'text-primary',        bg: 'bg-primary-light',  border: 'border-primary/20' },
-  approved:    { label: 'Approved',        Icon: CheckCircle2, color: 'text-tertiary-dark',   bg: 'bg-tertiary-light', border: 'border-tertiary/30' },
-  rejected:    { label: 'Not Approved',    Icon: AlertCircle,  color: 'text-danger',          bg: 'bg-danger-light',   border: 'border-danger/30' },
-}
-
 const APPLICATION_STEPS = ['Draft', 'Submitted', 'Interview', 'Decision', 'Awarded']
-
-function StatusPill({ status }) {
-  const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.draft
-  const { Icon, label, color, bg, border } = cfg
-  return (
-    <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border ${color} ${bg} ${border}`}>
-      <Icon size={13} />
-      {label}
-    </span>
-  )
-}
 
 function StatCard({ Icon, label, value, sub, accent }) {
   return (
@@ -219,7 +200,7 @@ export function StudentDashboardPage() {
             <StatCard
               Icon={FileText}
               label="Application Status"
-              value={STATUS_CONFIG[application?.status]?.label ?? 'No Application'}
+              value={APPLICATION_STATUS[application?.status]?.label ?? 'No Application'}
               sub={application ? `AY ${application.academic_year ?? '2026–2027'}` : 'Start your application today'}
             />
             <StatCard

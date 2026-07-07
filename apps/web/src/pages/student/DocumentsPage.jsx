@@ -3,9 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import {
   FileText,
   CheckCircle2,
-  Clock,
   AlertCircle,
-  CalendarCheck,
   ChevronLeft,
   Upload,
   Download,
@@ -16,36 +14,9 @@ import {
 import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
-
-// ── Status configs ────────────────────────────────────────────
-
-const APP_STATUS = {
-  draft:     { label: 'Draft',        Icon: FileText,      color: 'text-content-muted', bg: 'bg-surface-alt',     border: 'border-border' },
-  submitted: { label: 'Under Review', Icon: Clock,         color: 'text-on-secondary',  bg: 'bg-secondary-light', border: 'border-secondary/30' },
-  interview: { label: 'For Interview', Icon: CalendarCheck, color: 'text-primary',      bg: 'bg-primary-light',   border: 'border-primary/20' },
-  approved:  { label: 'Approved',     Icon: CheckCircle2,  color: 'text-tertiary-dark', bg: 'bg-tertiary-light',  border: 'border-tertiary/30' },
-  rejected:  { label: 'Not Approved', Icon: AlertCircle,   color: 'text-danger',        bg: 'bg-danger-light',    border: 'border-danger/30' },
-}
-
-const DOC_STATUS = {
-  verified: { label: 'Verified', Icon: CheckCircle2, color: 'text-tertiary-dark', bg: 'bg-tertiary-light',  border: 'border-tertiary/30' },
-  pending:  { label: 'Pending',  Icon: Clock,        color: 'text-on-secondary',  bg: 'bg-secondary-light', border: 'border-secondary/30' },
-  rejected: { label: 'Rejected', Icon: AlertCircle,  color: 'text-danger',        bg: 'bg-danger-light',    border: 'border-danger/30' },
-}
+import { StatusPill } from '../../components/shared/StatusPill'
 
 const APPLICATION_STEPS = ['Draft', 'Submitted', 'Interview', 'Decision', 'Awarded']
-
-function StatusPill({ status, map = APP_STATUS, size = 'md' }) {
-  const cfg = map[status] ?? Object.values(map)[0]
-  const { Icon, label, color, bg, border } = cfg
-  const pad = size === 'sm' ? 'text-xs px-2.5 py-1' : 'text-xs px-3 py-1.5'
-  return (
-    <span className={`inline-flex items-center gap-1.5 font-semibold rounded-full border ${pad} ${color} ${bg} ${border}`}>
-      <Icon size={size === 'sm' ? 11 : 13} strokeWidth={2.5} />
-      {label}
-    </span>
-  )
-}
 
 function formatDate(value) {
   if (!value) return '—'
@@ -126,7 +97,7 @@ function DocumentRow({ doc }) {
         )}
       </div>
       <div className="flex items-center gap-3 shrink-0">
-        <StatusPill status={doc.status} map={DOC_STATUS} size="sm" />
+        <StatusPill status={doc.status} kind="document" size="sm" />
         {isRejected ? (
           <Link
             to="/apply"

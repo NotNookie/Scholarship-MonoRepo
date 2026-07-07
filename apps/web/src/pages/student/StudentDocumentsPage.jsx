@@ -1,25 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
-import { FileText, CheckCircle2, Clock, AlertCircle, Upload, ChevronRight } from 'lucide-react'
+import { FileText, Upload, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { api } from '../../lib/axios'
 import { Skeleton } from '../../components/shared/Skeleton'
-
-const STATUS_CONFIG = {
-  verified:  { label: 'Verified',    Icon: CheckCircle2, color: 'text-tertiary-dark', bg: 'bg-tertiary-light', border: 'border-tertiary/30' },
-  pending:   { label: 'Pending',     Icon: Clock,        color: 'text-on-secondary',  bg: 'bg-secondary-light', border: 'border-secondary/30' },
-  rejected:  { label: 'Rejected',    Icon: AlertCircle,  color: 'text-danger',        bg: 'bg-danger-light',   border: 'border-danger/30' },
-}
-
-function DocStatusPill({ status }) {
-  const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.pending
-  const { Icon, label, color, bg, border } = cfg
-  return (
-    <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${color} ${bg} ${border}`}>
-      <Icon size={11} strokeWidth={2.5} />
-      {label}
-    </span>
-  )
-}
+import { StatusPill } from '../../components/shared/StatusPill'
 
 export function StudentDocumentsPage() {
   const { data, isPending } = useQuery({
@@ -65,7 +49,7 @@ export function StudentDocumentsPage() {
                   Uploaded {doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
                 </p>
               </div>
-              <DocStatusPill status={doc.status} />
+              <StatusPill status={doc.status} kind="document" size="sm" />
             </div>
           ))}
         </div>
