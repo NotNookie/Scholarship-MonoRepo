@@ -16,7 +16,7 @@ import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { StatusPill } from '../../components/shared/StatusPill'
 
-const APPLICATION_STEPS = ['Draft', 'Submitted', 'Interview', 'Decision', 'Awarded']
+const APPLICATION_STEPS = ['Draft', 'Submitted', 'Under Review', 'Decision', 'Awarded']
 
 function formatDate(value) {
   if (!value) return '—'
@@ -26,7 +26,7 @@ function formatDate(value) {
 // ── Progress tracker ──────────────────────────────────────────
 
 function ProgressTracker({ status }) {
-  const currentStep = { draft: 0, submitted: 1, interview: 2, approved: 3, rejected: 3 }[status] ?? 0
+  const currentStep = { draft: 0, submitted: 2, incomplete: 2, approved: 3, rejected: 3 }[status] ?? 0
 
   return (
     <div className="px-6 py-6">

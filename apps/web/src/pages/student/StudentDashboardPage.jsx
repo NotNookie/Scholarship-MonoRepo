@@ -21,7 +21,7 @@ import { APPLICATION_STATUS } from '../../components/shared/statusConfig'
 
 // ── Helpers ───────────────────────────────────────────────────
 
-const APPLICATION_STEPS = ['Draft', 'Submitted', 'Interview', 'Decision', 'Awarded']
+const APPLICATION_STEPS = ['Draft', 'Submitted', 'Under Review', 'Decision', 'Awarded']
 
 function StatCard({ Icon, label, value, sub, accent }) {
   return (
@@ -65,7 +65,7 @@ function ApplicationTracker({ application }) {
   }
 
   const statusIndex = {
-    draft: 0, submitted: 1, interview: 2, approved: 3, rejected: 3,
+    draft: 0, submitted: 2, incomplete: 2, approved: 3, rejected: 3,
   }[application.status] ?? 0
 
   const currentStep = statusIndex
