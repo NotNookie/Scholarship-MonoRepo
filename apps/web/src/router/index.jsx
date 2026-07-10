@@ -40,6 +40,9 @@ import { AdminAnnouncementsPage } from '../pages/admin/AdminAnnouncementsPage'
 import { ReportsPage } from '../pages/admin/ReportsPage'
 import { UsersPage } from '../pages/admin/UsersPage'
 import { MaintenancePage } from '../pages/admin/MaintenancePage'
+import { MaintenancePoliciesPage } from '../pages/admin/MaintenancePoliciesPage'
+import { MaintenanceCyclesPage } from '../pages/admin/MaintenanceCyclesPage'
+import { MaintenanceProfilePage } from '../pages/admin/MaintenanceProfilePage'
 
 const student = (element) => (
   <RequireAuth roles={['student']}>{element}</RequireAuth>
@@ -95,7 +98,10 @@ export const router = createBrowserRouter([
       { path: 'announcements', element: <AdminAnnouncementsPage /> },
       { path: 'reports',       element: <ReportsPage /> },
       { path: 'users',         element: <UsersPage /> },
-      { path: 'maintenance',   element: <MaintenancePage /> },
+      { path: 'maintenance',          element: <MaintenancePage /> },
+      { path: 'maintenance/policies', element: <MaintenancePoliciesPage /> },
+      { path: 'maintenance/cycles',   element: <MaintenanceCyclesPage /> },
+      { path: 'maintenance/profile',  element: <MaintenanceProfilePage /> },
     ],
   },
 

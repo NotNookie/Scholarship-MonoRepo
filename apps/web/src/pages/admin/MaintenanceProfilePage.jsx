@@ -1,0 +1,212 @@
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  ChevronLeft,
+  Palette,
+  Building2,
+  Contact,
+  UploadCloud,
+  Check,
+  Loader2,
+} from 'lucide-react'
+import toast from 'react-hot-toast'
+import { api } from '../../lib/axios'
+import { queryKeys } from '../../lib/queryKeys'
+import { Skeleton } from '../../components/shared/Skeleton'
+
+// Theme presets are STORED ONLY for now — they do not live-swap the app tokens.
+const THEMES = [
+  { value: 'corporate_blue', label: 'Corporate Blue (Default)', dots: ['bg-primary-dark', 'bg-primary', 'bg-primary-light'] },
+  { value: 'civic_green', label: 'Civic Green', dots: ['bg-tertiary-dark', 'bg-tertiary', 'bg-tertiary-light'] },
+]
+
+const DEFAULTS = {
+  portal_name: 'Iskolar ng Bayan',
+  tagline: 'Empowering Youth Through Education',
+  office_address: '',
+  support_email: '',
+  hotline: '',
+  theme: 'corporate_blue',
+  logo_name: '',
+}
+
+const inputCls = 'w-full text-sm px-3 py-2.5 rounded-lg border border-border bg-surface focus:outline-none focus:border-primary'
+
+function Field({ id, label, children }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-sm font-medium text-content">{label}</label>
+      {children}
+    </div>
+  )
+}
+
+export function MaintenanceProfilePage() {
+  const queryClient = useQueryClient()
+  // Only local edits are tracked; the live form derives from server data + edits.
+  const [edits, setEdits] = useState({})
+
+  const { data, isPending } = useQuery({
+    queryKey: queryKeys.maintenance.settings(),
+    queryFn: () => api.get('/admin/maintenance/settings').then((r) => r.data?.data ?? r.data),
+    retry: false,
+  })
+
+  const form = { ...DEFAULTS, ...(data ?? {}), ...edits }
+  const setForm = (updater) => setEdits((prev) => updater({ ...DEFAULTS, ...(data ?? {}), ...prev }))
+  const set = (k) => (e) => setEdits((prev) => ({ ...prev, [k]: e.target.value }))
+
+  const saveMutation = useMutation({
+    mutationFn: (payload) => api.put('/admin/maintenance/settings', payload),
+    onSuccess: () => {
+      toast.success('Settings saved.')
+      queryClient.invalidateQueries({ queryKey: queryKeys.maintenance.settings() })
+    },
+    onError: (e) => toast.error(e?.response?.data?.message ?? 'Could not save settings.'),
+  })
+
+  if (isPending) {
+    return (
+      <div className="flex flex-col gap-6">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-96 w-full rounded-xl" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <Link to="/admin/maintenance" className="inline-flex items-center gap-1.5 text-sm text-content-muted hover:text-primary transition-colors mb-3">
+            <ChevronLeft size={15} /> Maintenance Hub
+          </Link>
+          <h1 className="text-2xl font-bold text-content">Branding &amp; System Settings</h1>
+          <p className="text-sm text-content-muted mt-1">Configure the public appearance and contact details of the scholarship portal.</p>
+        </div>
+        <button
+          onClick={() => saveMutation.mutate(form)}
+          disabled={saveMutation.isPending}
+          className="inline-flex items-center gap-2 bg-primary text-on-primary text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 shrink-0"
+        >
+          {saveMutation.isPending ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />} Save Changes
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left: forms */}
+        <div className="lg:col-span-2 flex flex-col gap-6">
+          {/* General branding */}
+          <section className="bg-surface border border-border rounded-xl shadow-card p-6">
+            <h2 className="text-base font-bold text-content inline-flex items-center gap-2 pb-4 mb-5 border-b border-border">
+              <Palette size={17} className="text-primary" /> General Branding
+            </h2>
+            <div className="flex flex-col gap-5">
+              <div>
+                <p className="text-sm font-medium text-content mb-2">Municipal Logo</p>
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-lg border-2 border-dashed border-border flex items-center justify-center text-content-disabled bg-surface-alt shrink-0">
+                    <Building2 size={22} />
+                  </div>
+                  <label className="inline-flex items-center gap-2 text-sm font-semibold text-content border border-border px-4 py-2 rounded-lg cursor-pointer hover:border-primary hover:text-primary transition-colors">
+                    <UploadCloud size={15} /> Browse Files
+                    <input
+                      type="file"
+                      accept=".png,.svg,.jpg,.jpeg"
+                      className="hidden"
+                      onChange={(e) => setForm((s) => ({ ...s, logo_name: e.target.files?.[0]?.name ?? s.logo_name }))}
+                    />
+                  </label>
+                  {form.logo_name && <span className="text-xs text-content-muted truncate">{form.logo_name}</span>}
+                </div>
+                <p className="text-xs text-content-muted mt-2">Square PNG or SVG, max 2MB.</p>
+              </div>
+              <Field id="portal_name" label="Portal Name / Header Text">
+                <input id="portal_name" type="text" value={form.portal_name} onChange={set('portal_name')} className={inputCls} />
+              </Field>
+              <Field id="tagline" label="Tagline">
+                <input id="tagline" type="text" value={form.tagline} onChange={set('tagline')} className={inputCls} />
+              </Field>
+            </div>
+          </section>
+
+          {/* Office contact */}
+          <section className="bg-surface border border-border rounded-xl shadow-card p-6">
+            <h2 className="text-base font-bold text-content inline-flex items-center gap-2 pb-4 mb-5 border-b border-border">
+              <Contact size={17} className="text-primary" /> Office Contact Information
+            </h2>
+            <div className="flex flex-col gap-5">
+              <Field id="office_address" label="Municipal Office Address">
+                <textarea id="office_address" rows={2} value={form.office_address} onChange={set('office_address')} placeholder="LYDO, Municipal Hall, Sta. Cruz, Laguna" className={`${inputCls} resize-none`} />
+              </Field>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Field id="support_email" label="Support Email">
+                  <input id="support_email" type="email" value={form.support_email} onChange={set('support_email')} placeholder="scholarships@stacruz.gov.ph" className={inputCls} />
+                </Field>
+                <Field id="hotline" label="Hotline Number">
+                  <input id="hotline" type="text" value={form.hotline} onChange={set('hotline')} placeholder="(049) 000-0000" className={inputCls} />
+                </Field>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* Right: theme + preview */}
+        <aside className="flex flex-col gap-6">
+          <section className="bg-surface border border-border rounded-xl shadow-card p-6">
+            <h2 className="text-base font-bold text-content inline-flex items-center gap-2 mb-4">
+              <Palette size={17} className="text-primary" /> UI Theme Preset
+            </h2>
+            <div className="flex flex-col gap-3">
+              {THEMES.map((t) => {
+                const active = form.theme === t.value
+                return (
+                  <button
+                    key={t.value}
+                    onClick={() => setForm((s) => ({ ...s, theme: t.value }))}
+                    className={`flex items-center justify-between p-4 rounded-lg border transition-colors text-left ${active ? 'border-primary bg-primary-light/40' : 'border-border hover:border-primary'}`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${active ? 'border-primary' : 'border-border'}`}>
+                        {active && <span className="w-2 h-2 rounded-full bg-primary" />}
+                      </span>
+                      <span className="text-sm font-medium text-content">{t.label}</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      {t.dots.map((d, i) => <span key={i} className={`w-3.5 h-3.5 rounded-full ${d}`} />)}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+            <p className="text-xs text-content-muted mt-3">Saved with settings. Live theme switching is not yet applied to the interface.</p>
+          </section>
+
+          {/* Preview */}
+          <section className="bg-surface border border-border rounded-xl shadow-card p-5">
+            <p className="text-xs font-semibold text-content-muted uppercase tracking-wide mb-3">Applicant View Preview</p>
+            <div className="border border-border rounded-lg p-4">
+              <div className="flex items-center gap-2 pb-3 border-b border-border">
+                <div className="w-7 h-7 rounded bg-primary-light flex items-center justify-center"><Building2 size={14} className="text-primary" /></div>
+                <div>
+                  <p className="text-sm font-bold text-primary leading-tight">{form.portal_name || 'Portal Name'}</p>
+                  <p className="text-xs text-content-muted">{form.tagline || 'Tagline'}</p>
+                </div>
+              </div>
+              <div className="space-y-2 mt-3">
+                <div className="h-2 w-3/4 rounded bg-surface-alt" />
+                <div className="h-2 w-full rounded bg-surface-alt" />
+                <div className="flex gap-2 mt-3">
+                  <span className="h-6 w-16 rounded bg-surface-alt" />
+                  <span className="h-6 w-16 rounded bg-primary" />
+                </div>
+              </div>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  )
+}
