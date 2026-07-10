@@ -34,6 +34,7 @@ import { StudentAnnouncementsPage } from '../pages/student/StudentAnnouncementsP
 import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage'
 import { QueuePage } from '../pages/admin/QueuePage'
 import { ApplicantsPage } from '../pages/admin/ApplicantsPage'
+import { AppealsPage } from '../pages/admin/AppealsPage'
 import { SchedulingPage } from '../pages/admin/SchedulingPage'
 import { AdminAnnouncementsPage } from '../pages/admin/AdminAnnouncementsPage'
 import { ReportsPage } from '../pages/admin/ReportsPage'
@@ -89,6 +90,7 @@ export const router = createBrowserRouter([
       { path: 'dashboard',     element: <AdminDashboardPage /> },
       { path: 'applications',  element: <QueuePage /> },
       { path: 'applicants',    element: <ApplicantsPage /> },
+      { path: 'appeals',       element: <AppealsPage /> },
       { path: 'schedules',     element: <SchedulingPage /> },
       { path: 'announcements', element: <AdminAnnouncementsPage /> },
       { path: 'reports',       element: <ReportsPage /> },
