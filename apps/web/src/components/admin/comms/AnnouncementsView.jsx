@@ -2,9 +2,10 @@ import { useState, useMemo } from 'react'
 import ReactMarkdown from 'react-markdown'
 import {
   Search, Megaphone, Pin, PinOff, PencilLine, Trash2, Clock, FileText, Download,
-  CalendarDays, MapPin, Users,
+  CalendarDays, MapPin, Users, Send,
 } from 'lucide-react'
 import { Skeleton } from '../../shared/Skeleton'
+import { CalendarPane } from './CalendarPane'
 import { CATEGORIES, CATEGORY_STYLES, formatDate, formatDateTime, relative, fileSize, isEvent } from './postUtils'
 
 function CategoryBadge({ category }) {
@@ -17,7 +18,7 @@ function CategoryBadge({ category }) {
 
 // ── Detail ────────────────────────────────────────────────────
 
-function Detail({ post, onEdit, onDelete, onTogglePin, busy }) {
+function Detail({ post, onEdit, onDelete, onTogglePin, onPublish, busy }) {
   return (
     <div className="flex flex-col h-full min-h-0">
       <div className="px-6 py-5 border-b border-border shrink-0">
@@ -29,6 +30,12 @@ function Detail({ post, onEdit, onDelete, onTogglePin, busy }) {
             {post.pinned && <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-primary-light text-primary border border-primary/20"><Pin size={11} /> Pinned</span>}
           </div>
           <div className="flex items-center gap-1 shrink-0">
+            {post.status === 'draft' && (
+              <button onClick={() => onPublish(post)} disabled={busy}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold bg-primary text-on-primary px-3 py-1.5 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 mr-1">
+                <Send size={13} /> Publish
+              </button>
+            )}
             <button onClick={() => onTogglePin(post)} disabled={busy} className="p-2 text-content-muted hover:text-primary transition-colors disabled:opacity-50" aria-label={post.pinned ? 'Unpin' : 'Pin to top'}>
               {post.pinned ? <PinOff size={16} /> : <Pin size={16} />}
             </button>
@@ -82,20 +89,22 @@ function Detail({ post, onEdit, onDelete, onTogglePin, busy }) {
 
 // ── View ──────────────────────────────────────────────────────
 
-export function AnnouncementsView({ posts, isPending, selectedId, onSelect, onEdit, onDelete, onTogglePin, busy }) {
+export function AnnouncementsView({ posts, isPending, selectedId, onSelect, onEdit, onDelete, onTogglePin, onPublish, busy }) {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('All')
+  const [eventsOnly, setEventsOnly] = useState(false)
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
     return posts
       .filter((p) => (category === 'All' || p.category === category))
+      .filter((p) => !eventsOnly || isEvent(p))
       .filter((p) => !q || p.title?.toLowerCase().includes(q) || p.body?.toLowerCase().includes(q))
       .sort((a, b) => {
         if (a.pinned !== b.pinned) return a.pinned ? -1 : 1
         return new Date(b.published_at ?? b.created_at) - new Date(a.published_at ?? a.created_at)
       })
-  }, [posts, search, category])
+  }, [posts, search, category, eventsOnly])
 
   const selected = filtered.find((p) => p.id === selectedId) ?? null
 
@@ -109,6 +118,13 @@ export function AnnouncementsView({ posts, isPending, selectedId, onSelect, onEd
               className="w-full text-sm pl-9 pr-3 py-2 rounded-lg border border-border bg-surface-alt focus:outline-none focus:border-primary" />
           </div>
           <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
+            <button
+              onClick={() => setEventsOnly((v) => !v)}
+              className={`inline-flex items-center gap-1 whitespace-nowrap text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${eventsOnly ? 'bg-primary text-on-primary border-primary' : 'bg-surface text-content-muted border-border hover:border-primary hover:text-primary'}`}
+            >
+              <CalendarDays size={12} /> Events
+            </button>
+            <span className="w-px h-4 bg-border shrink-0" />
             {['All', ...CATEGORIES].map((c) => (
               <button key={c} onClick={() => setCategory(c)}
                 className={`whitespace-nowrap text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${category === c ? 'bg-primary text-on-primary border-primary' : 'bg-surface text-content-muted border-border hover:border-primary hover:text-primary'}`}>
@@ -149,12 +165,9 @@ export function AnnouncementsView({ posts, isPending, selectedId, onSelect, onEd
 
       <section className={`${selected ? 'flex' : 'hidden lg:flex'} flex-1 bg-surface border border-border rounded-xl shadow-card min-w-0 min-h-0 overflow-hidden`}>
         {selected ? (
-          <Detail post={selected} busy={busy} onEdit={onEdit} onDelete={onDelete} onTogglePin={onTogglePin} />
+          <Detail post={selected} busy={busy} onEdit={onEdit} onDelete={onDelete} onTogglePin={onTogglePin} onPublish={onPublish} />
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 p-8">
-            <Megaphone size={38} className="text-content-disabled" />
-            <p className="text-sm text-content-muted">Select an announcement to read it, or create a new one.</p>
-          </div>
+          <CalendarPane posts={posts} onSelect={onSelect} />
         )}
       </section>
     </div>

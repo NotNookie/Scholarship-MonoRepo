@@ -6,17 +6,9 @@ import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { PostModal } from '../../components/admin/comms/PostModal'
 import { AnnouncementsView } from '../../components/admin/comms/AnnouncementsView'
-import { EventsView } from '../../components/admin/comms/EventsView'
-import { isEvent } from '../../components/admin/comms/postUtils'
-
-const TABS = [
-  { key: 'announcements', label: 'Announcements' },
-  { key: 'events', label: 'Events/Schedules' },
-]
 
 export function CommunicationsPage() {
   const queryClient = useQueryClient()
-  const [tab, setTab] = useState('announcements')
   const [selectedId, setSelectedId] = useState(null)
   const [composing, setComposing] = useState(false)
   const [editing, setEditing] = useState(null)
@@ -75,7 +67,6 @@ export function CommunicationsPage() {
   })
 
   const busy = saveMutation.isPending || patchMutation.isPending || deleteMutation.isPending
-  const eventCount = posts.filter(isEvent).length
 
   const handlers = {
     onEdit: (p) => setEditing(p),
@@ -102,34 +93,17 @@ export function CommunicationsPage() {
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-1 border-b border-border">
-        {TABS.map((t) => (
-          <button key={t.key} onClick={() => setTab(t.key)}
-            className={`text-sm font-semibold px-4 py-2.5 -mb-px border-b-2 transition-colors ${tab === t.key ? 'border-primary text-primary' : 'border-transparent text-content-muted hover:text-content'}`}>
-            {t.label}
-            {t.key === 'events' && eventCount > 0 && (
-              <span className="ml-1.5 text-xs bg-surface-alt text-content-muted rounded-full px-1.5 py-0.5">{eventCount}</span>
-            )}
-          </button>
-        ))}
+      {/* Single view — list + (detail | schedule overview) */}
+      <div className="flex flex-col min-h-0 h-[calc(100vh-13rem)]">
+        <AnnouncementsView
+          posts={posts}
+          isPending={isPending}
+          busy={busy}
+          selectedId={selectedId}
+          onSelect={setSelectedId}
+          {...handlers}
+        />
       </div>
-
-      {/* Views — both read the same posts */}
-      {tab === 'announcements' ? (
-        <div className="flex flex-col min-h-0 h-[calc(100vh-16rem)]">
-          <AnnouncementsView
-            posts={posts}
-            isPending={isPending}
-            busy={busy}
-            selectedId={selectedId}
-            onSelect={setSelectedId}
-            {...handlers}
-          />
-        </div>
-      ) : (
-        <EventsView posts={posts} isPending={isPending} busy={busy} {...handlers} />
-      )}
 
       {/* Single create/edit modal */}
       {(composing || editing) && (
