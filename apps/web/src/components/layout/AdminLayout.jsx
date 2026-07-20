@@ -16,8 +16,8 @@ import { useAuthStore } from '../../store/authStore'
 
 const navItems = [
   { to: '/admin/dashboard', label: 'Dashboard', Icon: LayoutDashboard },
-  { to: '/admin/applicants', label: 'Applications', Icon: ClipboardList },
-  { to: '/admin/applications', label: 'Verification', Icon: ShieldCheck },
+  { to: '/admin/applicants', label: 'Applicant Records', Icon: ClipboardList },
+  { to: '/admin/applications', label: 'Verification Queue', Icon: ShieldCheck },
   { to: '/admin/appeals', label: 'Appeals', Icon: Gavel },
   { to: '/admin/schedules', label: 'Scheduling', Icon: CalendarDays },
   { to: '/admin/announcements', label: 'Announcements', Icon: Megaphone },
