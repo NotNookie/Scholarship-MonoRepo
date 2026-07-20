@@ -35,8 +35,7 @@ import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage'
 import { QueuePage } from '../pages/admin/QueuePage'
 import { ApplicantsPage } from '../pages/admin/ApplicantsPage'
 import { AppealsPage } from '../pages/admin/AppealsPage'
-import { SchedulingPage } from '../pages/admin/SchedulingPage'
-import { AdminAnnouncementsPage } from '../pages/admin/AdminAnnouncementsPage'
+import { CommunicationsPage } from '../pages/admin/CommunicationsPage'
 import { ReportsPage } from '../pages/admin/ReportsPage'
 import { UsersPage } from '../pages/admin/UsersPage'
 import { MaintenancePage } from '../pages/admin/MaintenancePage'
@@ -94,8 +93,10 @@ export const router = createBrowserRouter([
       { path: 'applications',  element: <QueuePage /> },
       { path: 'applicants',    element: <ApplicantsPage /> },
       { path: 'appeals',       element: <AppealsPage /> },
-      { path: 'schedules',     element: <SchedulingPage /> },
-      { path: 'announcements', element: <AdminAnnouncementsPage /> },
+      { path: 'communications', element: <CommunicationsPage /> },
+      // Legacy routes — merged into Announcements & Events
+      { path: 'schedules',      element: <Navigate to="/admin/communications" replace /> },
+      { path: 'announcements',  element: <Navigate to="/admin/communications" replace /> },
       { path: 'reports',       element: <ReportsPage /> },
       { path: 'users',         element: <UsersPage /> },
       { path: 'maintenance',          element: <MaintenancePage /> },
