@@ -117,7 +117,7 @@ function MarkdownEditor({ value, onChange }) {
 
 // ── Compose pane ──────────────────────────────────────────────
 
-function ComposePane({ item, isPending, onClose, onSubmit }) {
+function ComposeModal({ item, isPending, onClose, onSubmit }) {
   const editing = !!item?.id
   const [form, setForm] = useState({
     category: item?.category ?? 'General',
@@ -129,8 +129,10 @@ function ComposePane({ item, isPending, onClose, onSubmit }) {
   const canSave = form.title.trim() && form.body.trim()
 
   return (
-    <div className="flex flex-col h-full min-h-0">
-      <div className="px-6 py-4 border-b border-border bg-primary-light/40 flex items-center justify-between shrink-0">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative bg-surface rounded-xl shadow-modal w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
+      <div className="px-6 py-4 border-b border-border flex items-center justify-between shrink-0">
         <h2 className="text-base font-bold text-content">{editing ? 'Edit Announcement' : 'Create New Announcement'}</h2>
         <button onClick={onClose} className="text-content-muted hover:text-content" aria-label="Close"><X size={18} /></button>
       </div>
@@ -196,6 +198,7 @@ function ComposePane({ item, isPending, onClose, onSubmit }) {
         <button disabled={!canSave || isPending} onClick={() => onSubmit({ ...form, files }, 'published')} className="inline-flex items-center gap-2 bg-primary text-on-primary text-sm font-semibold px-5 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50">
           {isPending ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />} Publish Announcement
         </button>
+      </div>
       </div>
     </div>
   )
@@ -324,7 +327,7 @@ export function AnnouncementsPanel({ composing, onCloseCompose }) {
   return (
     <div className="flex gap-6 min-h-0 flex-1">
       {/* ── List ─────────────────────────────────────────────── */}
-      <aside className={`${showCompose || selected ? 'hidden lg:flex' : 'flex'} w-full lg:w-95 flex-col bg-surface border border-border rounded-xl shadow-card shrink-0 min-h-0 overflow-hidden`}>
+      <aside className={`${selected ? 'hidden lg:flex' : 'flex'} w-full lg:w-95 flex-col bg-surface border border-border rounded-xl shadow-card shrink-0 min-h-0 overflow-hidden`}>
         <div className="p-4 border-b border-border shrink-0 space-y-3">
           <div className="relative">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-content-muted" />
@@ -371,15 +374,8 @@ export function AnnouncementsPanel({ composing, onCloseCompose }) {
       </aside>
 
       {/* ── Detail / Compose ─────────────────────────────────── */}
-      <section className={`${showCompose || selected ? 'flex' : 'hidden lg:flex'} flex-1 bg-surface border border-border rounded-xl shadow-card min-w-0 min-h-0 overflow-hidden`}>
-        {showCompose ? (
-          <ComposePane
-            item={editing}
-            isPending={saveMutation.isPending}
-            onClose={() => { setEditing(null); onCloseCompose() }}
-            onSubmit={(form, status) => saveMutation.mutate({ form, status })}
-          />
-        ) : selected ? (
+      <section className={`${selected ? 'flex' : 'hidden lg:flex'} flex-1 bg-surface border border-border rounded-xl shadow-card min-w-0 min-h-0 overflow-hidden`}>
+        {selected ? (
           <DetailPane
             item={selected}
             busy={busy}
@@ -394,6 +390,16 @@ export function AnnouncementsPanel({ composing, onCloseCompose }) {
           </div>
         )}
       </section>
+
+      {/* Compose / edit modal */}
+      {showCompose && (
+        <ComposeModal
+          item={editing}
+          isPending={saveMutation.isPending}
+          onClose={() => { setEditing(null); onCloseCompose() }}
+          onSubmit={(form, status) => saveMutation.mutate({ form, status })}
+        />
+      )}
 
       {/* Delete confirm */}
       {deleting && (
