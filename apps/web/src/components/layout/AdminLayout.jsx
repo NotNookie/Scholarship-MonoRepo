@@ -4,6 +4,7 @@ import {
   ClipboardList,
   ShieldCheck,
   Gavel,
+  LineChart,
   Megaphone,
   BarChart2,
   UserCog,
@@ -18,6 +19,7 @@ const navItems = [
   { to: '/admin/applicants', label: 'Applicant Records', Icon: ClipboardList },
   { to: '/admin/applications', label: 'Verification Queue', Icon: ShieldCheck },
   { to: '/admin/appeals', label: 'Appeals', Icon: Gavel },
+  { to: '/admin/scholars', label: 'Scholar Monitoring', Icon: LineChart },
   { to: '/admin/communications', label: 'Announcements & Events', Icon: Megaphone },
   { to: '/admin/reports', label: 'Reports', Icon: BarChart2 },
 ]
