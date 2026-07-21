@@ -227,7 +227,7 @@ export function StudentDashboardPage() {
         <div className="lg:col-span-2 flex flex-col gap-6">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-content">My Application</h2>
-            <Link to="/applications" className="text-xs text-primary hover:underline flex items-center gap-1">
+            <Link to="/scholarship" className="text-xs text-primary hover:underline flex items-center gap-1">
               View all <ChevronRight size={13} />
             </Link>
           </div>
@@ -245,14 +245,14 @@ export function StudentDashboardPage() {
           {/* Quick links */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Link
-              to="/applications"
+              to="/scholarship"
               className="bg-surface border border-border rounded-xl p-5 shadow-card flex items-center gap-4 hover:border-primary group transition-colors"
             >
               <div className="w-10 h-10 bg-primary-light rounded-lg flex items-center justify-center shrink-0">
                 <FileText size={18} className="text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-content group-hover:text-primary transition-colors">My Applications</p>
+                <p className="text-sm font-semibold text-content group-hover:text-primary transition-colors">My Scholarship</p>
                 <p className="text-xs text-content-muted mt-0.5">View history & documents</p>
               </div>
               <ChevronRight size={15} className="text-content-muted group-hover:text-primary transition-colors" />

@@ -5,10 +5,13 @@ import {
 } from 'recharts'
 import {
   GraduationCap, Banknote, BadgeCheck, CalendarClock, AlertTriangle, ArrowRight,
-  CheckCircle2, Circle, FilePlus, IdCard,
+  CheckCircle2, Circle, FilePlus, IdCard, History, ChevronRight, ShieldAlert,
 } from 'lucide-react'
 import { api } from '../../lib/axios'
+import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
+import { StatusPill } from '../../components/shared/StatusPill'
+import { APPLICATION_STATUS } from '../../components/shared/statusConfig'
 
 const SCHOLAR_STATUS = {
   active:      { label: 'Active Scholar', dot: 'bg-tertiary',  text: 'text-tertiary-dark' },
@@ -19,16 +22,18 @@ const SCHOLAR_STATUS = {
   graduated:   { label: 'Graduated',      dot: 'bg-primary',   text: 'text-primary' },
 }
 
+// The journey starts at the application — the scholarship is its continuation.
+const JOURNEY_STEPS = ['Applied', 'Submitted', 'Under Review', 'Decision', 'Awarded']
+const STEP_INDEX = { draft: 0, submitted: 2, under_review: 2, incomplete: 2, approved: 3, rejected: 3 }
+
 function formatDate(v) {
   if (!v) return '—'
   return new Date(v).toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' })
 }
-
 function daysUntil(v) {
   if (!v) return null
   return Math.ceil((new Date(v) - new Date()) / 86400000)
 }
-
 /** Direction-aware: lower-is-better (1.00–5.00) vs higher-is-better (percentage). */
 function gwaPasses(gwa, required, direction) {
   if (gwa == null || required == null) return null
@@ -50,14 +55,131 @@ function StatCard({ Icon, label, value, sub, chip, chipCls, accent }) {
   )
 }
 
+// ── Application-phase tracker ─────────────────────────────────
+
+function ApplicationStage({ application }) {
+  const current = STEP_INDEX[application.status] ?? 0
+  return (
+    <section className="bg-surface border border-border rounded-xl shadow-card overflow-hidden">
+      <div className="px-6 py-5 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-base font-bold text-content">{application.scholarship_name ?? 'Scholarship Application'}</h2>
+          <div className="flex items-center gap-x-4 gap-y-1 flex-wrap mt-1 text-xs text-content-muted">
+            <span>A.Y. {application.academic_year ?? '—'}</span>
+            {application.reference_no && <span className="font-mono">Ref: {application.reference_no}</span>}
+            <span>Submitted {formatDate(application.submitted_at ?? application.created_at)}</span>
+          </div>
+        </div>
+        <StatusPill status={application.status} />
+      </div>
+
+      {/* Progress */}
+      <div className="px-6 py-6">
+        <div className="relative flex items-center">
+          <div className="absolute top-4 left-0 right-0 h-px bg-border z-0" />
+          <div className="absolute top-4 left-0 h-px bg-primary z-0 transition-all duration-700"
+            style={{ width: `${(current / (JOURNEY_STEPS.length - 1)) * 100}%` }} />
+          <div className="relative z-10 flex justify-between w-full">
+            {JOURNEY_STEPS.map((label, i) => {
+              const done = i < current
+              const active = i === current
+              return (
+                <div key={label} className="flex flex-col items-center gap-2">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 text-xs font-bold transition-colors ${
+                    done ? 'bg-primary border-primary text-on-primary'
+                      : active ? 'bg-surface border-primary text-primary'
+                      : 'bg-surface border-border text-content-muted'}`}>
+                    {done ? <CheckCircle2 size={14} strokeWidth={2.5} /> : i + 1}
+                  </div>
+                  <span className={`text-xs font-medium text-center leading-tight ${active ? 'text-primary' : done ? 'text-content' : 'text-content-muted'}`}>
+                    {label}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="px-6 pb-5 flex flex-wrap gap-3">
+        {application.status === 'draft' ? (
+          <Link to="/apply" className="text-xs font-semibold bg-primary text-on-primary px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors">
+            Continue Application
+          </Link>
+        ) : (
+          <Link to={`/applications/${application.id}`} className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary border border-primary px-4 py-2 rounded-lg hover:bg-primary-light transition-colors">
+            View Details <ChevronRight size={13} />
+          </Link>
+        )}
+        {application.status === 'rejected' && (
+          <Link to={`/appeal/${application.id}`} className="inline-flex items-center gap-1.5 text-xs font-semibold bg-danger text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">
+            <ShieldAlert size={13} /> File an Appeal
+          </Link>
+        )}
+      </div>
+    </section>
+  )
+}
+
+// ── History ───────────────────────────────────────────────────
+
+function HistorySection({ applications, renewals }) {
+  if (applications.length === 0 && renewals.length === 0) return null
+  return (
+    <section className="bg-surface border border-border rounded-xl shadow-card p-6">
+      <h2 className="text-base font-bold text-content pb-4 mb-4 border-b border-border inline-flex items-center gap-2">
+        <History size={16} className="text-primary" /> Application &amp; Renewal History
+      </h2>
+      <div className="divide-y divide-border">
+        {applications.map((a) => (
+          <Link key={`a-${a.id}`} to={`/applications/${a.id}`} className="flex items-center gap-4 py-3 hover:bg-surface-alt -mx-2 px-2 rounded-lg transition-colors group">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-content truncate group-hover:text-primary transition-colors">
+                {a.scholarship_name ?? 'Scholarship Application'}
+              </p>
+              <p className="text-xs text-content-muted">A.Y. {a.academic_year ?? '—'} · {formatDate(a.submitted_at ?? a.created_at)}</p>
+            </div>
+            <StatusPill status={a.status} size="sm" />
+            <ChevronRight size={15} className="text-content-disabled group-hover:text-primary transition-colors shrink-0" />
+          </Link>
+        ))}
+        {renewals.map((r, i) => (
+          <div key={`r-${i}`} className="flex items-center gap-4 py-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-content truncate">Renewal — {r.term ?? r.label}</p>
+              <p className="text-xs text-content-muted">{formatDate(r.date)}{r.gwa ? ` · GWA ${r.gwa}` : ''}</p>
+            </div>
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-tertiary-light text-tertiary-dark border border-tertiary/30">
+              {r.status ?? 'Renewed'}
+            </span>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+// ── Main ──────────────────────────────────────────────────────
+
 export function MyScholarshipPage() {
-  const { data, isPending } = useQuery({
+  const scholarshipQuery = useQuery({
     queryKey: ['student', 'scholarship'],
     queryFn: () => api.get('/student/scholarship').then((r) => r.data?.data ?? r.data),
     retry: false,
   })
+  const applicationsQuery = useQuery({
+    queryKey: queryKeys.applications.list(),
+    queryFn: () => api.get('/applications?sort=desc').then((r) => r.data),
+    retry: false,
+  })
 
-  const s = data ?? null
+  const isPending = scholarshipQuery.isPending || applicationsQuery.isPending
+  const s = scholarshipQuery.data ?? null
+  const applications = applicationsQuery.data?.data ?? []
+  const currentApplication = applications[0] ?? null
+  const pastApplications = s ? applications : applications.slice(1)
+  const renewals = s?.renewals ?? []
 
   if (isPending) {
     return (
@@ -71,8 +193,8 @@ export function MyScholarshipPage() {
     )
   }
 
-  // ── No active scholarship ────────────────────────────────────
-  if (!s) {
+  // ── Nothing yet ──────────────────────────────────────────────
+  if (!s && applications.length === 0) {
     return (
       <div className="max-w-3xl mx-auto px-6 py-16">
         <div className="bg-surface border border-border rounded-xl shadow-card p-12 flex flex-col items-center text-center gap-4">
@@ -80,17 +202,17 @@ export function MyScholarshipPage() {
             <GraduationCap size={24} className="text-primary" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-content">No active scholarship yet</h1>
+            <h1 className="text-lg font-bold text-content">You haven't applied yet</h1>
             <p className="text-sm text-content-muted mt-1 max-w-sm">
-              Once your application is approved, your scholarship status, grant, and renewal schedule will appear here.
+              Start a scholarship application and track everything — your status, documents, grant, and renewals — right here.
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Link to="/applications" className="text-sm font-semibold text-primary border border-primary px-5 py-2.5 rounded-lg hover:bg-primary-light transition-colors">
-              Check application status
+            <Link to="/requirements" className="text-sm font-semibold text-primary border border-primary px-5 py-2.5 rounded-lg hover:bg-primary-light transition-colors">
+              View requirements
             </Link>
             <Link to="/apply" className="inline-flex items-center gap-2 bg-primary text-on-primary text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-colors">
-              <FilePlus size={15} /> Apply now
+              <FilePlus size={15} /> Start application
             </Link>
           </div>
         </div>
@@ -98,6 +220,29 @@ export function MyScholarshipPage() {
     )
   }
 
+  // ── Application phase (not yet a scholar) ────────────────────
+  if (!s) {
+    const cfg = APPLICATION_STATUS[currentApplication.status]
+    return (
+      <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col gap-6">
+        <section className="relative rounded-2xl px-8 py-8 text-on-primary overflow-hidden shadow-modal">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary-dark" />
+          <div className="relative z-10">
+            <p className="text-xs font-semibold text-on-primary/70 uppercase tracking-widest">My Scholarship</p>
+            <h1 className="text-3xl font-bold mt-1">{cfg?.label ?? 'Application in progress'}</h1>
+            <p className="text-on-primary/70 text-sm mt-2">
+              Your scholarship journey starts with your application. Track its progress below.
+            </p>
+          </div>
+        </section>
+
+        <ApplicationStage application={currentApplication} />
+        <HistorySection applications={pastApplications} renewals={[]} />
+      </div>
+    )
+  }
+
+  // ── Scholar phase ────────────────────────────────────────────
   const status = SCHOLAR_STATUS[s.status] ?? SCHOLAR_STATUS.active
   const passes = gwaPasses(s.latest_gwa, s.required_gwa, s.gwa_direction)
   const remaining = daysUntil(s.renewal_deadline)
@@ -107,7 +252,7 @@ export function MyScholarshipPage() {
   return (
     <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col gap-6">
 
-      {/* ── Header band ───────────────────────────────────────── */}
+      {/* Header band */}
       <section className="relative rounded-2xl px-8 py-8 text-on-primary overflow-hidden shadow-modal">
         <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary-dark" />
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -126,7 +271,6 @@ export function MyScholarshipPage() {
         </div>
       </section>
 
-      {/* ── At-risk banner ────────────────────────────────────── */}
       {passes === false && (
         <div className="flex items-start gap-3 bg-danger-light border border-danger/30 rounded-xl px-5 py-4">
           <AlertTriangle size={17} className="text-danger shrink-0 mt-0.5" />
@@ -140,7 +284,6 @@ export function MyScholarshipPage() {
         </div>
       )}
 
-      {/* ── Stat cards ────────────────────────────────────────── */}
       <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard Icon={BadgeCheck} label="Current Status" value={status.label} sub={s.status_note ?? 'Valid for this semester'} />
         <StatCard Icon={Banknote} label="Grant Amount"
@@ -154,10 +297,7 @@ export function MyScholarshipPage() {
           accent={s.renewal_open ? 'border-primary/30' : undefined} />
       </section>
 
-      {/* ── Main grid ─────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        {/* Timeline */}
         <section className="bg-surface border border-border rounded-xl shadow-card p-6">
           <h2 className="text-base font-bold text-content pb-4 mb-4 border-b border-border">Scholarship Timeline</h2>
           {timeline.length > 0 ? (
@@ -185,10 +325,7 @@ export function MyScholarshipPage() {
           )}
         </section>
 
-        {/* Right column */}
         <div className="lg:col-span-2 flex flex-col gap-6">
-
-          {/* Renewal CTA */}
           {s.renewal_open && (
             <section className="bg-primary-light border border-primary/20 rounded-xl p-6 flex flex-col sm:flex-row sm:items-center gap-4">
               <div className="w-12 h-12 rounded-xl bg-surface flex items-center justify-center shrink-0">
@@ -209,7 +346,6 @@ export function MyScholarshipPage() {
             </section>
           )}
 
-          {/* Academic performance */}
           <section className="bg-surface border border-border rounded-xl shadow-card p-6">
             <div className="flex items-center justify-between gap-3 mb-4">
               <h2 className="text-base font-bold text-content">Academic Performance</h2>
@@ -226,9 +362,7 @@ export function MyScholarshipPage() {
                   <XAxis dataKey="term" tick={{ fill: 'var(--color-content-muted)', fontSize: 11 }} tickLine={false} axisLine={{ stroke: 'var(--color-border)' }} />
                   <YAxis tick={{ fill: 'var(--color-content-muted)', fontSize: 11 }} tickLine={false} axisLine={false} />
                   <Tooltip />
-                  {s.required_gwa != null && (
-                    <ReferenceLine y={Number(s.required_gwa)} stroke="var(--color-danger)" strokeDasharray="4 4" />
-                  )}
+                  {s.required_gwa != null && <ReferenceLine y={Number(s.required_gwa)} stroke="var(--color-danger)" strokeDasharray="4 4" />}
                   <Line type="monotone" dataKey="gwa" name="Your GWA" stroke="var(--color-primary)" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
                 </LineChart>
               </ResponsiveContainer>
@@ -241,6 +375,8 @@ export function MyScholarshipPage() {
           </section>
         </div>
       </div>
+
+      <HistorySection applications={pastApplications} renewals={renewals} />
     </div>
   )
 }

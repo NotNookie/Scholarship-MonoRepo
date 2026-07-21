@@ -139,8 +139,8 @@ export function DocumentsPage() {
     <div className="max-w-4xl mx-auto px-6 py-10 flex flex-col gap-8">
 
       {/* ── Back link ──────────────────────────────────────────── */}
-      <Link to="/applications" className="inline-flex items-center gap-1.5 text-sm text-content-muted hover:text-primary transition-colors w-fit">
-        <ChevronLeft size={15} /> Back to My Applications
+      <Link to="/scholarship" className="inline-flex items-center gap-1.5 text-sm text-content-muted hover:text-primary transition-colors w-fit">
+        <ChevronLeft size={15} /> Back to My Scholarship
       </Link>
 
       {isPending ? (
@@ -161,10 +161,10 @@ export function DocumentsPage() {
             </p>
           </div>
           <Link
-            to="/applications"
+            to="/scholarship"
             className="inline-flex items-center gap-2 text-sm font-semibold text-primary border border-primary px-5 py-2.5 rounded-lg hover:bg-primary-light transition-colors"
           >
-            Back to Applications
+            Back to My Scholarship
           </Link>
         </div>
       ) : (

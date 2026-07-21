@@ -24,7 +24,6 @@ import { AdminLoginVerifyPage } from '../pages/auth/AdminLoginVerifyPage'
 // Student pages
 import { StudentDashboardPage } from '../pages/student/StudentDashboardPage'
 import { ApplicationPage } from '../pages/student/ApplicationPage'
-import { ApplicationsPage } from '../pages/student/ApplicationsPage'
 import { DocumentsPage } from '../pages/student/DocumentsPage'
 import { StudentDocumentsPage } from '../pages/student/StudentDocumentsPage'
 import { AppealPage } from '../pages/student/AppealPage'
@@ -66,7 +65,6 @@ export const router = createBrowserRouter([
       // Student pages (auth-gated individually)
       { path: '/dashboard',              element: student(<StudentDashboardPage />) },
       { path: '/apply',                  element: student(<ApplicationPage />) },
-      { path: '/applications',           element: student(<ApplicationsPage />) },
       { path: '/applications/:id',       element: student(<DocumentsPage />) },
       { path: '/documents',              element: student(<StudentDocumentsPage />) },
       { path: '/appeal/:id',             element: student(<AppealPage />) },

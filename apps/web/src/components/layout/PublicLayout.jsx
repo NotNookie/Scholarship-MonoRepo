@@ -13,7 +13,6 @@ const PUBLIC_NAV_ANNOUNCEMENTS = { to: '/announcements', label: 'Announcements',
 const STUDENT_NAV = [
   { to: '/dashboard', label: 'Dashboard', end: false },
   { to: '/scholarship', label: 'My Scholarship', end: false },
-  { to: '/applications', label: 'Applications', end: false },
   { to: '/documents', label: 'Documents', end: false },
   { to: '/student/announcements', label: 'Announcements', end: false },
 ]
