@@ -29,6 +29,8 @@ import { DocumentsPage } from '../pages/student/DocumentsPage'
 import { StudentDocumentsPage } from '../pages/student/StudentDocumentsPage'
 import { AppealPage } from '../pages/student/AppealPage'
 import { StudentAnnouncementsPage } from '../pages/student/StudentAnnouncementsPage'
+import { MyScholarshipPage } from '../pages/student/MyScholarshipPage'
+import { RenewalPage } from '../pages/student/RenewalPage'
 
 // Admin pages
 import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage'
@@ -69,6 +71,8 @@ export const router = createBrowserRouter([
       { path: '/documents',              element: student(<StudentDocumentsPage />) },
       { path: '/appeal/:id',             element: student(<AppealPage />) },
       { path: '/student/announcements',  element: student(<StudentAnnouncementsPage />) },
+      { path: '/scholarship',            element: student(<MyScholarshipPage />) },
+      { path: '/scholarship/renew',      element: student(<RenewalPage />) },
     ],
   },
 
