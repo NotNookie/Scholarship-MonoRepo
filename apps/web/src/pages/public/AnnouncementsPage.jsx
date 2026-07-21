@@ -5,6 +5,8 @@ import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { EmptyState } from '../../components/shared/EmptyState'
+import { Markdown } from '../../components/shared/Markdown'
+import { AttachmentList } from '../../components/shared/AttachmentList'
 
 const FALLBACK_ANNOUNCEMENTS = [
   {
@@ -153,12 +155,12 @@ export function AnnouncementsPage() {
                 <h2 className="text-lg font-bold text-content leading-snug mb-3">
                   {featured.title}
                 </h2>
-                <p className="text-sm text-content-muted leading-relaxed mb-4">
+                <Markdown className="text-sm text-content-muted leading-relaxed">
                   {featured.body}
-                </p>
-                <button className="inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline">
-                  Read Full Details <ChevronRight size={14} />
-                </button>
+                </Markdown>
+                {featured.attachments?.length > 0 && (
+                  <AttachmentList files={featured.attachments} className="mt-5" />
+                )}
               </div>
             )}
 
