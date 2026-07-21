@@ -53,7 +53,7 @@ export function AdminLayout() {
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
-      <aside className="w-60 bg-primary-dark text-on-primary flex flex-col shrink-0">
+      <aside className="w-64 bg-primary-dark text-on-primary flex flex-col shrink-0">
 
         {/* User + New Announcement */}
         <div className="px-4 pt-5 pb-4 border-b border-white/10">
@@ -84,7 +84,7 @@ export function AdminLayout() {
               key={to}
               to={to}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg leading-tight transition-colors ${
                   isActive
                     ? 'bg-secondary text-primary-dark font-semibold'
                     : 'text-on-primary/70 hover:bg-white/10 hover:text-on-primary'
@@ -106,7 +106,7 @@ export function AdminLayout() {
                   key={to}
                   to={to}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                    `flex items-center gap-3 px-3 py-2.5 rounded-lg leading-tight transition-colors ${
                       isActive
                         ? 'bg-secondary text-primary-dark font-semibold'
                         : 'text-on-primary/70 hover:bg-white/10 hover:text-on-primary'
