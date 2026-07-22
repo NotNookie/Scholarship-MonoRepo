@@ -6,6 +6,7 @@ import {
 import {
   GraduationCap, Banknote, BadgeCheck, CalendarClock, AlertTriangle, ArrowRight,
   CheckCircle2, Circle, FilePlus, IdCard, History, ChevronRight, ShieldAlert,
+  FileText, Upload, Download,
 } from 'lucide-react'
 import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
@@ -160,6 +161,57 @@ function HistorySection({ applications, renewals }) {
   )
 }
 
+// ── Documents ─────────────────────────────────────────────────
+
+function DocumentsCard() {
+  const { data, isPending } = useQuery({
+    queryKey: ['student', 'documents'],
+    queryFn: () => api.get('/student/documents').then((r) => r.data),
+    retry: false,
+  })
+  const docs = data?.data ?? []
+
+  return (
+    <section className="bg-surface border border-border rounded-xl shadow-card p-6">
+      <h2 className="text-base font-bold text-content pb-4 mb-4 border-b border-border inline-flex items-center gap-2">
+        <FileText size={16} className="text-primary" /> My Documents
+      </h2>
+      {isPending ? (
+        <div className="space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-16 w-full rounded-lg" />)}</div>
+      ) : docs.length > 0 ? (
+        <div className="space-y-2.5">
+          {docs.map((doc) => {
+            const rejected = doc.status === 'rejected'
+            return (
+              <div key={doc.id ?? doc.name} className={`border rounded-lg p-4 flex items-center gap-3 ${rejected ? 'border-danger/30 bg-danger-light/30' : 'border-border'}`}>
+                <div className="w-9 h-9 rounded-lg bg-primary-light flex items-center justify-center shrink-0"><FileText size={16} className="text-primary" /></div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-content truncate">{doc.name}</p>
+                  <p className="text-xs text-content-muted">Uploaded {formatDate(doc.uploaded_at)}</p>
+                  {rejected && doc.remarks && <p className="text-xs text-danger mt-1 leading-snug"><span className="font-semibold">Reason:</span> {doc.remarks}</p>}
+                </div>
+                <StatusPill status={doc.status} kind="document" size="sm" />
+                {rejected ? (
+                  <Link to="/apply" className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary border border-primary px-3 py-1.5 rounded-lg hover:bg-primary-light transition-colors shrink-0">
+                    <Upload size={12} /> Re-upload
+                  </Link>
+                ) : doc.url ? (
+                  <a href={doc.url} target="_blank" rel="noopener noreferrer" className="text-content-muted hover:text-primary transition-colors shrink-0" aria-label="View document"><Download size={15} /></a>
+                ) : null}
+              </div>
+            )
+          })}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center text-center gap-2 py-8">
+          <Upload size={24} className="text-content-disabled" />
+          <p className="text-sm text-content-muted">Documents you submit with your application will appear here.</p>
+        </div>
+      )}
+    </section>
+  )
+}
+
 // ── Main ──────────────────────────────────────────────────────
 
 export function MyScholarshipPage() {
@@ -237,6 +289,7 @@ export function MyScholarshipPage() {
         </section>
 
         <ApplicationStage application={currentApplication} />
+        <DocumentsCard />
         <HistorySection applications={pastApplications} renewals={[]} />
       </div>
     )
@@ -376,6 +429,7 @@ export function MyScholarshipPage() {
         </div>
       </div>
 
+      <DocumentsCard />
       <HistorySection applications={pastApplications} renewals={renewals} />
     </div>
   )
