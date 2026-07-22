@@ -45,12 +45,14 @@ export function PublicLayout() {
 
         {/* Nav — centered */}
         <nav className="hidden md:flex items-center gap-5 text-sm shrink-0">
-          {/* Public tabs — always shown */}
-          {PUBLIC_NAV_ALWAYS.map(({ to, label, end }) => (
-            <NavLink key={to} to={to} end={end} className={navLinkCls}>
-              {label}
-            </NavLink>
-          ))}
+          {/* Public tabs — Scholarships is embedded in My Scholarship for students */}
+          {PUBLIC_NAV_ALWAYS
+            .filter(({ to }) => !(isStudent && to === '/scholarships'))
+            .map(({ to, label, end }) => (
+              <NavLink key={to} to={to} end={end} className={navLinkCls}>
+                {label}
+              </NavLink>
+            ))}
 
           {!isStudent && (
             <NavLink to={PUBLIC_NAV_ANNOUNCEMENTS.to} end={PUBLIC_NAV_ANNOUNCEMENTS.end} className={navLinkCls}>

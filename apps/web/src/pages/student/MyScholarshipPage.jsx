@@ -13,6 +13,8 @@ import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { StatusPill } from '../../components/shared/StatusPill'
 import { APPLICATION_STATUS } from '../../components/shared/statusConfig'
+import { ScholarshipCard } from '../../components/shared/ScholarshipCard'
+import { SCHOLARSHIPS } from '../../data/scholarships'
 
 const SCHOLAR_STATUS = {
   active:      { label: 'Active Scholar', dot: 'bg-tertiary',  text: 'text-tertiary-dark' },
@@ -212,6 +214,29 @@ function DocumentsCard() {
   )
 }
 
+// ── Available scholarships (embedded catalog) ─────────────────
+
+function AvailableScholarships({ compact }) {
+  const list = compact ? SCHOLARSHIPS.filter((s) => s.status !== 'closed') : SCHOLARSHIPS
+  if (list.length === 0) return null
+  return (
+    <section>
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div>
+          <h2 className="text-base font-bold text-content">{compact ? 'Explore Other Programs' : 'Available Scholarships'}</h2>
+          {!compact && <p className="text-sm text-content-muted mt-0.5">Programs you can apply for right now.</p>}
+        </div>
+        <Link to="/scholarships" className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline shrink-0">
+          View all <ChevronRight size={14} />
+        </Link>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        {list.map((s) => <ScholarshipCard key={s.id} scholarship={s} ctaTo="/apply" />)}
+      </div>
+    </section>
+  )
+}
+
 // ── Main ──────────────────────────────────────────────────────
 
 export function MyScholarshipPage() {
@@ -248,7 +273,7 @@ export function MyScholarshipPage() {
   // ── Nothing yet ──────────────────────────────────────────────
   if (!s && applications.length === 0) {
     return (
-      <div className="max-w-3xl mx-auto px-6 py-16">
+      <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col gap-8">
         <div className="bg-surface border border-border rounded-xl shadow-card p-12 flex flex-col items-center text-center gap-4">
           <div className="w-14 h-14 bg-primary-light rounded-full flex items-center justify-center">
             <GraduationCap size={24} className="text-primary" />
@@ -256,7 +281,7 @@ export function MyScholarshipPage() {
           <div>
             <h1 className="text-lg font-bold text-content">You haven't applied yet</h1>
             <p className="text-sm text-content-muted mt-1 max-w-sm">
-              Start a scholarship application and track everything — your status, documents, grant, and renewals — right here.
+              Browse the available programs below, then start an application — you'll track your status, documents, grant, and renewals right here.
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -268,6 +293,7 @@ export function MyScholarshipPage() {
             </Link>
           </div>
         </div>
+        <AvailableScholarships />
       </div>
     )
   }
@@ -291,6 +317,7 @@ export function MyScholarshipPage() {
         <ApplicationStage application={currentApplication} />
         <DocumentsCard />
         <HistorySection applications={pastApplications} renewals={[]} />
+        <AvailableScholarships compact />
       </div>
     )
   }
@@ -431,6 +458,7 @@ export function MyScholarshipPage() {
 
       <DocumentsCard />
       <HistorySection applications={pastApplications} renewals={renewals} />
+      <AvailableScholarships compact />
     </div>
   )
 }
