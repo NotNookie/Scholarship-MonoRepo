@@ -29,6 +29,7 @@ import { AppealPage } from '../pages/student/AppealPage'
 import { StudentAnnouncementsPage } from '../pages/student/StudentAnnouncementsPage'
 import { MyScholarshipPage } from '../pages/student/MyScholarshipPage'
 import { RenewalPage } from '../pages/student/RenewalPage'
+import { StudentSettingsPage } from '../pages/student/StudentSettingsPage'
 
 // Admin pages
 import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage'
@@ -69,6 +70,7 @@ export const router = createBrowserRouter([
       { path: '/student/announcements',  element: student(<StudentAnnouncementsPage />) },
       { path: '/scholarship',            element: student(<MyScholarshipPage />) },
       { path: '/scholarship/renew',      element: student(<RenewalPage />) },
+      { path: '/settings',               element: student(<StudentSettingsPage />) },
     ],
   },
 

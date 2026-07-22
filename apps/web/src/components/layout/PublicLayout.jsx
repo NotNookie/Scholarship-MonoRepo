@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom'
-import { LogOut } from 'lucide-react'
+import { LogOut, Settings, ChevronDown } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 
 const PUBLIC_NAV_ALWAYS = [
@@ -28,8 +29,11 @@ export function PublicLayout() {
   const logout = useAuthStore((s) => s.logout)
   const navigate = useNavigate()
 
+  const [menuOpen, setMenuOpen] = useState(false)
   const isStudent = user?.role === 'student'
   const firstName = user?.first_name ?? user?.name?.split(' ')[0] ?? null
+  const fullName = user?.name ?? [user?.first_name, user?.last_name].filter(Boolean).join(' ')
+  const initials = (fullName || 'S').trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase()
 
   function handleLogout() {
     logout()
@@ -76,21 +80,36 @@ export function PublicLayout() {
         {/* Right side */}
         <div className="flex flex-1 items-center gap-3 text-sm justify-end shrink-0">
           {isStudent ? (
-            <>
-              {firstName && (
-                <span className="hidden sm:block text-xs text-content-muted font-medium">
-                  Hi, {firstName}
-                </span>
-              )}
+            <div className="relative">
               <button
                 type="button"
-                onClick={handleLogout}
-                className="flex items-center gap-1.5 border border-border text-content-muted px-3 py-1.5 rounded text-xs font-medium hover:border-danger hover:text-danger transition-colors"
+                onClick={() => setMenuOpen((v) => !v)}
+                aria-expanded={menuOpen}
+                aria-haspopup="menu"
+                className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full border border-border hover:border-primary transition-colors"
               >
-                <LogOut size={13} />
-                Log Out
+                <span className="w-7 h-7 rounded-full bg-primary-light text-primary text-xs font-bold flex items-center justify-center">
+                  {initials}
+                </span>
+                <span className="hidden sm:block text-xs font-medium text-content">{firstName ?? 'Scholar'}</span>
+                <ChevronDown size={13} className={`text-content-muted transition-transform ${menuOpen ? 'rotate-180' : ''}`} />
               </button>
-            </>
+              {menuOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+                  <div role="menu" className="absolute right-0 mt-2 w-52 bg-surface border border-border rounded-xl shadow-dropdown z-20 overflow-hidden">
+                    <Link role="menuitem" to="/settings" onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-content hover:bg-surface-alt transition-colors">
+                      <Settings size={15} className="text-content-muted" /> Account Settings
+                    </Link>
+                    <button role="menuitem" type="button" onClick={() => { setMenuOpen(false); handleLogout() }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-danger hover:bg-danger-light transition-colors border-t border-border">
+                      <LogOut size={15} /> Log Out
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           ) : (
             <>
               <Link
