@@ -129,7 +129,7 @@ export function FormsPage() {
 
         <p className="mt-10 text-xs text-content-disabled text-center">
           Forms are managed by the LYDO office. For questions, contact the office at the Municipality
-          of Sta. Cruz, Laguna.
+          of Sta. Cruz, Laguna. s
         </p>
       </section>
     </>
