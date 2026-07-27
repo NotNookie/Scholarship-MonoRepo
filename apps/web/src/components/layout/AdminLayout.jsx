@@ -7,6 +7,7 @@ import {
   LineChart,
   Megaphone,
   BarChart2,
+  ScrollText,
   UserCog,
   Settings,
   LogOut,
@@ -22,6 +23,7 @@ const navItems = [
   { to: '/admin/scholars', label: 'Scholar Monitoring', Icon: LineChart },
   { to: '/admin/communications', label: 'Announcements & Events', Icon: Megaphone },
   { to: '/admin/reports', label: 'Reports', Icon: BarChart2 },
+  { to: '/admin/activity', label: 'Activity Logs', Icon: ScrollText },
 ]
 
 const superAdminItems = [
