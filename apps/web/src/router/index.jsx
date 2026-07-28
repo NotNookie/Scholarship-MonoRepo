@@ -41,6 +41,7 @@ import { RenewalsPage } from '../pages/admin/RenewalsPage'
 import { CommunicationsPage } from '../pages/admin/CommunicationsPage'
 import { ReportsPage } from '../pages/admin/ReportsPage'
 import { ActivityLogsPage } from '../pages/admin/ActivityLogsPage'
+import { NotificationsPage } from '../pages/admin/NotificationsPage'
 import { UsersPage } from '../pages/admin/UsersPage'
 import { MaintenancePage } from '../pages/admin/MaintenancePage'
 import { MaintenancePoliciesPage } from '../pages/admin/MaintenancePoliciesPage'
@@ -106,6 +107,7 @@ export const router = createBrowserRouter([
       { path: 'announcements',  element: <Navigate to="/admin/communications" replace /> },
       { path: 'reports',       element: <ReportsPage /> },
       { path: 'activity',      element: <ActivityLogsPage /> },
+      { path: 'notifications', element: <NotificationsPage /> },
       { path: 'users',         element: <UsersPage /> },
       { path: 'maintenance',          element: <MaintenancePage /> },
       { path: 'maintenance/policies', element: <MaintenancePoliciesPage /> },
