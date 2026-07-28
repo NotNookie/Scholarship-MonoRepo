@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom'
 import { LogOut, Settings, ChevronDown } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
+import { NotificationBell } from './NotificationBell'
 
 const PUBLIC_NAV_ALWAYS = [
   { to: '/', label: 'Home', end: true },
@@ -80,7 +81,9 @@ export function PublicLayout() {
         {/* Right side */}
         <div className="flex flex-1 items-center gap-3 text-sm justify-end shrink-0">
           {isStudent ? (
-            <div className="relative">
+            <>
+              <NotificationBell />
+              <div className="relative">
               <button
                 type="button"
                 onClick={() => setMenuOpen((v) => !v)}
@@ -109,7 +112,8 @@ export function PublicLayout() {
                   </div>
                 </>
               )}
-            </div>
+              </div>
+            </>
           ) : (
             <>
               <Link

@@ -1,4 +1,5 @@
 import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import {
   LayoutDashboard,
   ClipboardList,
@@ -7,7 +8,6 @@ import {
   LineChart,
   Megaphone,
   BarChart2,
-  Bell,
   ScrollText,
   UserCog,
   Settings,
@@ -15,6 +15,7 @@ import {
   Plus,
 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
+import { api } from '../../lib/axios'
 
 const navItems = [
   { to: '/admin/dashboard', label: 'Dashboard', Icon: LayoutDashboard },
@@ -23,7 +24,6 @@ const navItems = [
   { to: '/admin/appeals', label: 'Appeals', Icon: Gavel },
   { to: '/admin/scholars', label: 'Scholar Monitoring', Icon: LineChart },
   { to: '/admin/communications', label: 'Announcements & Events', Icon: Megaphone },
-  { to: '/admin/notifications', label: 'Notifications', Icon: Bell },
   { to: '/admin/reports', label: 'Reports', Icon: BarChart2 },
   { to: '/admin/activity', label: 'Activity Logs', Icon: ScrollText },
 ]
@@ -56,6 +56,17 @@ export function AdminLayout() {
   const initials = getInitials(user?.name)
   const roleLabel = user?.role?.replace(/_/g, ' ') ?? 'Admin'
 
+  // Live "needs action" counts for sidebar badges.
+  const countOf = (r) => r.data?.meta?.total ?? r.data?.data?.length ?? 0
+  const pendingApps = useQuery({ queryKey: ['admin', 'applications', 'count'], queryFn: () => api.get('/admin/applications?status=submitted').then((r) => r.data), retry: false })
+  const pendingAppeals = useQuery({ queryKey: ['admin', 'appeals', 'count'], queryFn: () => api.get('/admin/appeals?status=pending').then((r) => r.data), retry: false })
+  const pendingRenewals = useQuery({ queryKey: ['admin', 'renewals', 'count'], queryFn: () => api.get('/admin/renewals?status=pending').then((r) => r.data), retry: false })
+  const badges = {
+    '/admin/applications': countOf(pendingApps),
+    '/admin/appeals': countOf(pendingAppeals),
+    '/admin/scholars': countOf(pendingRenewals),
+  }
+
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
@@ -75,7 +86,7 @@ export function AdminLayout() {
             </div>
           </div>
           <Link
-            to="/admin/announcements"
+            to="/admin/communications"
             className="flex items-center justify-center gap-2 w-full bg-primary hover:bg-primary/80 text-on-primary text-xs font-semibold py-2.5 rounded-lg transition-colors"
           >
             <Plus size={14} />
@@ -97,8 +108,13 @@ export function AdminLayout() {
                 }`
               }
             >
-              <Icon size={16} />
-              {label}
+              <Icon size={16} className="shrink-0" />
+              <span className="flex-1">{label}</span>
+              {badges[to] > 0 && (
+                <span className="shrink-0 min-w-5 h-5 px-1.5 rounded-full bg-danger text-white text-xs font-bold flex items-center justify-center">
+                  {badges[to] > 99 ? '99+' : badges[to]}
+                </span>
+              )}
             </NavLink>
           ))}
 
