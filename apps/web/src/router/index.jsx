@@ -45,6 +45,7 @@ import { UsersPage } from '../pages/admin/UsersPage'
 import { MaintenancePage } from '../pages/admin/MaintenancePage'
 import { MaintenancePoliciesPage } from '../pages/admin/MaintenancePoliciesPage'
 import { MaintenanceCyclesPage } from '../pages/admin/MaintenanceCyclesPage'
+import { MaintenanceEligibilityPage } from '../pages/admin/MaintenanceEligibilityPage'
 import { MaintenanceProfilePage } from '../pages/admin/MaintenanceProfilePage'
 
 const student = (element) => (
@@ -109,7 +110,8 @@ export const router = createBrowserRouter([
       { path: 'users',         element: <UsersPage /> },
       { path: 'maintenance',          element: <MaintenancePage /> },
       { path: 'maintenance/policies', element: <MaintenancePoliciesPage /> },
-      { path: 'maintenance/cycles',   element: <MaintenanceCyclesPage /> },
+      { path: 'maintenance/cycles',      element: <MaintenanceCyclesPage /> },
+      { path: 'maintenance/eligibility', element: <MaintenanceEligibilityPage /> },
       { path: 'maintenance/profile',  element: <MaintenanceProfilePage /> },
     ],
   },

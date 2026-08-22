@@ -51,8 +51,9 @@ const CARDS = [
   {
     Icon: SlidersHorizontal,
     title: 'Eligibility Rules',
-    description: 'Configure automated filtering criteria based on residency, income brackets, and voter status.',
-    comingSoon: true,
+    description: 'Set baseline requirements (residency, voter status, income limits, attestations) that apply to all programs.',
+    to: '/admin/maintenance/eligibility',
+    action: 'Manage Rules',
   },
 ]
 
