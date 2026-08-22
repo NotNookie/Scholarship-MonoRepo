@@ -15,7 +15,7 @@ const STUDENT_NAV = [
   { to: '/dashboard', label: 'Dashboard', end: false },
   { to: '/scholarship', label: 'My Scholarship', end: false },
   { to: '/student/announcements', label: 'Announcements', end: false },
-  { to: '/settings', label: 'Settings', end: false },
+  { to: '/settings', label: 'Profile', end: false },
 ]
 
 const FOOTER_LINKS = ['Privacy Policy', 'Terms of Service', 'Contact Us', 'FAQ']
