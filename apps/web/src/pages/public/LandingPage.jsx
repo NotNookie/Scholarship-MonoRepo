@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
+import { useAuthStore } from '../../store/authStore'
 import { AnnouncementCard } from '../../components/shared/AnnouncementCard'
 import { Skeleton } from '../../components/shared/Skeleton'
 
@@ -39,6 +40,8 @@ const CONTACT = [
 ]
 
 export function LandingPage() {
+  const isStudent = useAuthStore((s) => s.user?.role === 'student')
+
   const announcementsQuery = useQuery({
     queryKey: queryKeys.announcements.list({ per_page: 3 }),
     queryFn: () => api.get('/announcements?per_page=3&sort=desc').then((r) => r.data),
@@ -69,19 +72,39 @@ export function LandingPage() {
             </p>
 
             <div className="flex flex-wrap gap-3">
-              <Link
-                to="/register"
-                className="inline-flex items-center gap-2 bg-secondary text-on-secondary px-6 py-3 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity shadow-sm"
-              >
-                Apply Now <ChevronRight size={15} />
-              </Link>
-              <Link
-                to="/login"
-                className="inline-flex items-center gap-2 border border-on-primary/30 text-on-primary px-6 py-3 rounded-lg font-medium text-sm hover:bg-white/10 transition-colors"
-              >
-                <Users size={15} />
-                Student Login
-              </Link>
+              {isStudent ? (
+                <>
+                  <Link
+                    to="/scholarship"
+                    className="inline-flex items-center gap-2 bg-secondary text-on-secondary px-6 py-3 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity shadow-sm"
+                  >
+                    Apply Now <ChevronRight size={15} />
+                  </Link>
+                  <Link
+                    to="/scholarship"
+                    className="inline-flex items-center gap-2 border border-on-primary/30 text-on-primary px-6 py-3 rounded-lg font-medium text-sm hover:bg-white/10 transition-colors"
+                  >
+                    <Users size={15} />
+                    My Scholarship
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/register"
+                    className="inline-flex items-center gap-2 bg-secondary text-on-secondary px-6 py-3 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity shadow-sm"
+                  >
+                    Apply Now <ChevronRight size={15} />
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="inline-flex items-center gap-2 border border-on-primary/30 text-on-primary px-6 py-3 rounded-lg font-medium text-sm hover:bg-white/10 transition-colors"
+                  >
+                    <Users size={15} />
+                    Student Login
+                  </Link>
+                </>
+              )}
             </div>
           </div>
 
