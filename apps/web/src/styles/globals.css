@@ -82,12 +82,12 @@
   }
 }
 
-/* Auth form cross-fade between Log In / Register (respects reduced motion) */
-@keyframes auth-fade-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* Auth form vertical movement between Log In / Register (respects reduced motion) */
+@keyframes auth-slide-in {
+  from { transform: translateY(10px); }
+  to   { transform: translateY(0); }
 }
-.auth-fade { animation: auth-fade-in 180ms ease-out; }
+.auth-slide { animation: auth-slide-in 220ms ease-out; }
 @media (prefers-reduced-motion: reduce) {
-  .auth-fade { animation: none; }
+  .auth-slide { animation: none; }
 }

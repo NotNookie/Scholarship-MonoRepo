@@ -66,12 +66,16 @@ export function AuthLayout() {
   return (
     <div className="min-h-screen flex">
       <LeftPanel />
-      <div className="flex-1 flex flex-col items-center justify-start pt-16 pb-12 px-6 bg-surface overflow-y-auto">
-        <div className="w-full max-w-md">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-surface overflow-y-auto">
+        {/* Fixed frame reserves the (taller) Register height, so the tabs never
+            move. Both forms are centered within the space below the tabs. */}
+        <div className="w-full max-w-md flex flex-col min-h-180">
           <AuthTabs />
-          {/* Keyed so the form area replays the cross-fade on each switch */}
-          <div key={pathname} className="auth-fade">
-            <Outlet />
+          <div className="flex-1 flex flex-col justify-center">
+            {/* Keyed so the form replays the slide on each switch */}
+            <div key={pathname} className="auth-slide">
+              <Outlet />
+            </div>
           </div>
         </div>
       </div>
