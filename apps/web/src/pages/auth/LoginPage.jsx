@@ -2,48 +2,10 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useMutation } from '@tanstack/react-query'
-import { Eye, EyeOff, Mail, Lock, ShieldCheck, Building2 } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
 import { useAuthStore } from '../../store/authStore'
-
-function LeftPanel() {
-  return (
-    <div className="hidden md:flex md:w-2/5 bg-primary-dark flex-col justify-between p-10 text-on-primary shrink-0">
-      <div className="flex items-center gap-2.5">
-        <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
-          <Building2 size={18} className="text-on-primary" />
-        </div>
-        <span className="text-sm font-semibold">Iskolar ng Bayan</span>
-      </div>
-
-      <div>
-        <h2 className="text-2xl font-bold leading-snug mb-4">
-          Empowering the youth through education.
-        </h2>
-        <p className="text-on-primary/70 text-sm leading-relaxed mb-8">
-          Access your Iskolar ng Bayan platform to manage scholarships, view requirements,
-          and stay updated with municipal announcements.
-        </p>
-        <div className="flex items-start gap-3 bg-white/10 rounded-lg p-4">
-          <ShieldCheck size={16} className="text-secondary shrink-0 mt-0.5" />
-          <div>
-            <p className="text-xs font-semibold text-secondary uppercase tracking-wide mb-1">
-              Secure Portal
-            </p>
-            <p className="text-xs text-on-primary/60 leading-relaxed">
-              Your data is encrypted and handled in accordance with the Municipal Data Privacy Act.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <p className="text-xs text-on-primary/40">
-        © {new Date().getFullYear()} Municipal Youth Development Office, Sta. Cruz, Laguna
-      </p>
-    </div>
-  )
-}
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -69,33 +31,14 @@ export function LoginPage() {
   const onSubmit = handleSubmit((data) => loginMutation.mutate(data))
 
   return (
-    <div className="min-h-screen flex">
-      <LeftPanel />
+    <>
+      {/* Heading */}
+      <h1 className="text-3xl font-bold text-content mb-2">Welcome Back</h1>
+      <p className="text-base text-content-muted mb-8">
+        Please enter your details to access your account.
+      </p>
 
-      {/* Right — form */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-surface">
-        <div className="w-full max-w-md">
-
-          {/* Heading */}
-          <h1 className="text-3xl font-bold text-content mb-2">Welcome Back</h1>
-          <p className="text-base text-content-muted mb-8">
-            Please enter your details to access your account.
-          </p>
-
-          {/* Segmented tab */}
-          <div className="flex bg-surface-alt border border-border rounded-full p-1 mb-8">
-            <span className="flex-1 text-center text-sm font-semibold py-2 rounded-full bg-surface text-primary shadow-sm cursor-default">
-              Log In
-            </span>
-            <Link
-              to="/register"
-              className="flex-1 text-center text-sm font-medium py-2 rounded-full text-content-muted hover:text-content transition-colors"
-            >
-              Register
-            </Link>
-          </div>
-
-          <form onSubmit={onSubmit} noValidate className="space-y-5">
+      <form onSubmit={onSubmit} noValidate className="space-y-5">
 
             {/* Email */}
             <div className="flex flex-col gap-2">
@@ -202,13 +145,11 @@ export function LoginPage() {
             </button>
           )}
 
-          <p className="mt-8 text-center text-sm text-content-muted">
-            <Link to="/" className="hover:text-primary transition-colors">
-              ← Back to site
-            </Link>
-          </p>
-        </div>
-      </div>
-    </div>
+      <p className="mt-8 text-center text-sm text-content-muted">
+        <Link to="/" className="hover:text-primary transition-colors">
+          ← Back to site
+        </Link>
+      </p>
+    </>
   )
 }

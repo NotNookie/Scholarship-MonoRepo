@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 // Layouts
 import { PublicLayout } from '../components/layout/PublicLayout'
 import { AdminLayout } from '../components/layout/AdminLayout'
+import { AuthLayout } from '../components/layout/AuthLayout'
 
 // Auth guard
 import { RequireAuth } from './RequireAuth'
@@ -76,10 +77,16 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // ── Auth pages (standalone, no layout) ─────────────────────
-  { path: '/login',          element: <LoginPage /> },
+  // ── Auth pages ─────────────────────────────────────────────
+  // Login + Register share AuthLayout (persistent panel + tabs); verify is standalone.
+  {
+    element: <AuthLayout />,
+    children: [
+      { path: '/login',    element: <LoginPage /> },
+      { path: '/register', element: <RegisterPage /> },
+    ],
+  },
   { path: '/login/verify',   element: <LoginVerifyPage /> },
-  { path: '/register',       element: <RegisterPage /> },
 
   // ── Admin login (standalone) ────────────────────────────────
   { path: '/admin/login',        element: <AdminLoginPage /> },
