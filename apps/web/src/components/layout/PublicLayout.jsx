@@ -94,20 +94,12 @@ export function PublicLayout() {
               </button>
             </>
           ) : (
-            <>
-              <Link
-                to="/admin/login"
-                className="border border-border text-content px-4 py-1.5 rounded font-medium hover:border-primary hover:text-primary transition-colors"
-              >
-                Admin Portal
-              </Link>
-              <Link
-                to="/login"
-                className="bg-primary text-on-primary px-4 py-1.5 rounded font-semibold hover:bg-primary-dark transition-colors"
-              >
-                Student Login
-              </Link>
-            </>
+            <Link
+              to="/login"
+              className="bg-primary text-on-primary px-5 py-1.5 rounded font-semibold hover:bg-primary-dark transition-colors"
+            >
+              Log In
+            </Link>
           )}
         </div>
       </header>

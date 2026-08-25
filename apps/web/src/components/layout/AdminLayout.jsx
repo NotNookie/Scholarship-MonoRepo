@@ -50,7 +50,7 @@ export function AdminLayout() {
 
   function handleLogout() {
     logout()
-    navigate('/admin/login')
+    navigate('/login')
   }
 
   const initials = getInitials(user?.name)

@@ -6,14 +6,8 @@ export function RequireAuth({ children, roles }) {
   const location = useLocation()
 
   if (!token || !user) {
-    const isAdmin = location.pathname.startsWith('/admin')
-    return (
-      <Navigate
-        to={isAdmin ? '/admin/login' : '/login'}
-        state={{ from: location }}
-        replace
-      />
-    )
+    // Centralized login — everyone signs in at /login; it routes by role.
+    return <Navigate to="/login" state={{ from: location }} replace />
   }
 
   if (roles && !roles.includes(user.role)) {

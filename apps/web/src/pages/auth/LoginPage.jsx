@@ -1,16 +1,21 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useMutation } from '@tanstack/react-query'
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
 import { useAuthStore } from '../../store/authStore'
+import { roleHome } from '../../lib/roleHome'
 
 export function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const login = useAuthStore((s) => s.login)
   const [showPassword, setShowPassword] = useState(false)
+
+  // Where RequireAuth wanted to send them (if they were bounced to login)
+  const from = location.state?.from?.pathname ?? null
 
   const {
     register,
@@ -21,12 +26,23 @@ export function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: (data) => api.post('/auth/login', data).then((r) => r.data),
     onSuccess: ({ session_token }) => {
-      navigate('/login/verify', { state: { session_token } })
+      navigate('/login/verify', { state: { session_token, from } })
     },
     onError: (err) => {
       toast.error(err.response?.data?.message ?? 'Login failed. Please check your credentials.')
     },
   })
+
+  // Dev-only shortcut (never ships): jump straight in as any role.
+  function devLogin(role) {
+    const users = {
+      student:     { id: 1, name: 'Juan Dela Cruz', first_name: 'Juan', role: 'student', email: 'juan@test.com', mobile: '09123456789' },
+      admin:       { id: 2, name: 'Maria Santos', first_name: 'Maria', role: 'admin', email: 'maria@stacruz.gov.ph' },
+      super_admin: { id: 3, name: 'Admin User', first_name: 'Admin', role: 'super_admin', email: 'admin@stacruz.gov.ph' },
+    }
+    login(users[role], 'dev-token')
+    navigate(from ?? roleHome(role), { replace: true })
+  }
 
   const onSubmit = handleSubmit((data) => loginMutation.mutate(data))
 
@@ -133,16 +149,25 @@ export function LoginPage() {
           </form>
 
           {import.meta.env.DEV && (
-            <button
-              type="button"
-              onClick={() => {
-                login({ id: 1, name: 'Juan Dela Cruz', first_name: 'Juan', role: 'student', email: 'juan@test.com', mobile: '09123456789' }, 'dev-token')
-                navigate('/dashboard')
-              }}
-              className="mt-4 w-full border border-dashed border-border text-content-muted text-xs py-2 rounded-lg hover:border-primary hover:text-primary transition-colors"
-            >
-              Dev: Skip Login
-            </button>
+            <div className="mt-4 border border-dashed border-border rounded-lg p-3">
+              <p className="text-xs text-content-muted mb-2 text-center">Dev: skip login as…</p>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { role: 'student', label: 'Student' },
+                  { role: 'admin', label: 'Admin' },
+                  { role: 'super_admin', label: 'Super Admin' },
+                ].map((r) => (
+                  <button
+                    key={r.role}
+                    type="button"
+                    onClick={() => devLogin(r.role)}
+                    className="text-xs py-2 rounded-lg border border-border text-content-muted hover:border-primary hover:text-primary transition-colors"
+                  >
+                    {r.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
 
       <p className="mt-8 text-center text-sm text-content-muted">

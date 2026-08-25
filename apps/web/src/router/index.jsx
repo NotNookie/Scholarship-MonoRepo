@@ -19,8 +19,6 @@ import { FormsPage } from '../pages/public/FormsPage'
 import { LoginPage } from '../pages/auth/LoginPage'
 import { LoginVerifyPage } from '../pages/auth/LoginVerifyPage'
 import { RegisterPage } from '../pages/auth/RegisterPage'
-import { AdminLoginPage } from '../pages/auth/AdminLoginPage'
-import { AdminLoginVerifyPage } from '../pages/auth/AdminLoginVerifyPage'
 
 // Student pages
 import { StudentDashboardPage } from '../pages/student/StudentDashboardPage'
@@ -88,9 +86,9 @@ export const router = createBrowserRouter([
   },
   { path: '/login/verify',   element: <LoginVerifyPage /> },
 
-  // ── Admin login (standalone) ────────────────────────────────
-  { path: '/admin/login',        element: <AdminLoginPage /> },
-  { path: '/admin/login/verify', element: <AdminLoginVerifyPage /> },
+  // ── Legacy admin login → centralized login ──────────────────
+  { path: '/admin/login',        element: <Navigate to="/login" replace /> },
+  { path: '/admin/login/verify', element: <Navigate to="/login" replace /> },
 
   // ── Admin portal ────────────────────────────────────────────
   {
