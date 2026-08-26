@@ -18,10 +18,9 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 && !error.config.url.startsWith('/auth/')) {
-      const role = useAuthStore.getState().user?.role
+      // Centralized login — everyone re-authenticates at /login, which routes by role.
       useAuthStore.getState().logout()
-      const isAdmin = role && role !== 'student'
-      window.location.href = isAdmin ? '/admin/login' : '/login'
+      window.location.href = '/login'
     }
     return Promise.reject(error)
   }

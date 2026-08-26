@@ -36,9 +36,10 @@ export function LoginPage() {
   // Dev-only shortcut (never ships): jump straight in as any role.
   function devLogin(role) {
     const users = {
-      student:     { id: 1, name: 'Juan Dela Cruz', first_name: 'Juan', role: 'student', email: 'juan@test.com', mobile: '09123456789' },
-      admin:       { id: 2, name: 'Maria Santos', first_name: 'Maria', role: 'admin', email: 'maria@stacruz.gov.ph' },
-      super_admin: { id: 3, name: 'Admin User', first_name: 'Admin', role: 'super_admin', email: 'admin@stacruz.gov.ph' },
+      scholar:     { id: 1, name: 'Juan Dela Cruz', first_name: 'Juan', role: 'scholar', email: 'juan@test.com', mobile: '09123456789' },
+      staff:       { id: 2, name: 'Ana Reyes', first_name: 'Ana', role: 'staff', email: 'ana@stacruz.gov.ph' },
+      admin:       { id: 3, name: 'Maria Santos', first_name: 'Maria', role: 'admin', email: 'maria@stacruz.gov.ph' },
+      super_admin: { id: 4, name: 'Platform Admin', first_name: 'Platform', role: 'super_admin', email: 'admin@iskolar.ph' },
     }
     login(users[role], 'dev-token')
     navigate(from ?? roleHome(role), { replace: true })
@@ -151,10 +152,11 @@ export function LoginPage() {
           {import.meta.env.DEV && (
             <div className="mt-4 border border-dashed border-border rounded-lg p-3">
               <p className="text-xs text-content-muted mb-2 text-center">Dev: skip login as…</p>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {[
-                  { role: 'student', label: 'Student' },
-                  { role: 'admin', label: 'Admin' },
+                  { role: 'scholar', label: 'Scholar' },
+                  { role: 'staff', label: 'Staff' },
+                  { role: 'admin', label: 'Admin (Head)' },
                   { role: 'super_admin', label: 'Super Admin' },
                 ].map((r) => (
                   <button

@@ -43,10 +43,18 @@ function getInitials(name) {
   ).toUpperCase()
 }
 
+const ROLE_LABELS = {
+  super_admin: 'Super Admin',
+  admin: 'Administrator',
+  staff: 'Staff',
+}
+
 export function AdminLayout() {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
-  const isSuperAdmin = user?.role === 'super_admin'
+  // Maintenance + Users are the municipality Head's job (Admin); Staff don't see them.
+  // (Platform Super Admin manages tenants elsewhere — that portal isn't built yet.)
+  const isHead = user?.role === 'admin'
 
   function handleLogout() {
     logout()
@@ -54,7 +62,7 @@ export function AdminLayout() {
   }
 
   const initials = getInitials(user?.name)
-  const roleLabel = user?.role?.replace(/_/g, ' ') ?? 'Admin'
+  const roleLabel = ROLE_LABELS[user?.role] ?? 'Staff'
 
   // Live "needs action" counts for sidebar badges.
   const countOf = (r) => r.data?.meta?.total ?? r.data?.data?.length ?? 0
@@ -118,7 +126,7 @@ export function AdminLayout() {
             </NavLink>
           ))}
 
-          {isSuperAdmin && (
+          {isHead && (
             <>
               <div className="mt-4 mb-1 px-3 text-xs text-on-primary/40 uppercase tracking-widest">
                 System

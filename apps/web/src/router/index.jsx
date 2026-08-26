@@ -47,8 +47,8 @@ import { MaintenanceCyclesPage } from '../pages/admin/MaintenanceCyclesPage'
 import { MaintenanceEligibilityPage } from '../pages/admin/MaintenanceEligibilityPage'
 import { MaintenanceProfilePage } from '../pages/admin/MaintenanceProfilePage'
 
-const student = (element) => (
-  <RequireAuth roles={['student']}>{element}</RequireAuth>
+const scholar = (element) => (
+  <RequireAuth roles={['scholar']}>{element}</RequireAuth>
 )
 
 export const router = createBrowserRouter([
@@ -64,14 +64,14 @@ export const router = createBrowserRouter([
       { path: '/forms', element: <FormsPage /> },
 
       // Student pages (auth-gated individually)
-      { path: '/dashboard',              element: student(<StudentDashboardPage />) },
-      { path: '/apply',                  element: student(<ApplicationPage />) },
-      { path: '/applications/:id',       element: student(<DocumentsPage />) },
-      { path: '/appeal/:id',             element: student(<AppealPage />) },
-      { path: '/student/announcements',  element: student(<StudentAnnouncementsPage />) },
-      { path: '/scholarship',            element: student(<MyScholarshipPage />) },
-      { path: '/scholarship/renew',      element: student(<RenewalPage />) },
-      { path: '/settings',               element: student(<StudentSettingsPage />) },
+      { path: '/dashboard',              element: scholar(<StudentDashboardPage />) },
+      { path: '/apply',                  element: scholar(<ApplicationPage />) },
+      { path: '/applications/:id',       element: scholar(<DocumentsPage />) },
+      { path: '/appeal/:id',             element: scholar(<AppealPage />) },
+      { path: '/student/announcements',  element: scholar(<StudentAnnouncementsPage />) },
+      { path: '/scholarship',            element: scholar(<MyScholarshipPage />) },
+      { path: '/scholarship/renew',      element: scholar(<RenewalPage />) },
+      { path: '/settings',               element: scholar(<StudentSettingsPage />) },
     ],
   },
 
@@ -94,7 +94,7 @@ export const router = createBrowserRouter([
   {
     path: '/admin',
     element: (
-      <RequireAuth roles={['super_admin', 'admin', 'miso']}>
+      <RequireAuth roles={['admin', 'staff', 'super_admin']}>
         <AdminLayout />
       </RequireAuth>
     ),

@@ -30,7 +30,7 @@ export function PublicLayout() {
   const logout = useAuthStore((s) => s.logout)
   const navigate = useNavigate()
 
-  const isStudent = user?.role === 'student'
+  const isScholar = user?.role === 'scholar'
   const fullName = user?.name ?? [user?.first_name, user?.last_name].filter(Boolean).join(' ')
   const initials = (fullName || 'S').trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase()
 
@@ -42,7 +42,7 @@ export function PublicLayout() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="h-16 bg-surface border-b border-border flex items-center px-6 shrink-0 sticky top-0 z-30">
-        <Link to={isStudent ? '/dashboard' : '/'} className="text-primary font-bold text-sm tracking-wide shrink-0 flex-1">
+        <Link to={isScholar ? '/dashboard' : '/'} className="text-primary font-bold text-sm tracking-wide shrink-0 flex-1">
           Iskolar ng Bayan
         </Link>
 
@@ -50,21 +50,21 @@ export function PublicLayout() {
         <nav className="hidden md:flex items-center gap-5 text-sm shrink-0">
           {/* Public tabs — Scholarships is embedded in My Scholarship for students */}
           {PUBLIC_NAV_ALWAYS
-            .filter(({ to }) => !(isStudent && to === '/scholarships'))
+            .filter(({ to }) => !(isScholar && to === '/scholarships'))
             .map(({ to, label, end }) => (
               <NavLink key={to} to={to} end={end} className={navLinkCls}>
                 {label}
               </NavLink>
             ))}
 
-          {!isStudent && (
+          {!isScholar && (
             <NavLink to={PUBLIC_NAV_ANNOUNCEMENTS.to} end={PUBLIC_NAV_ANNOUNCEMENTS.end} className={navLinkCls}>
               {PUBLIC_NAV_ANNOUNCEMENTS.label}
             </NavLink>
           )}
 
           {/* Separator + student tabs */}
-          {isStudent && (
+          {isScholar && (
             <>
               <span className="w-px h-4 bg-border shrink-0" />
               {STUDENT_NAV.map(({ to, label, end }) => (
@@ -78,7 +78,7 @@ export function PublicLayout() {
 
         {/* Right side */}
         <div className="flex flex-1 items-center gap-3 text-sm justify-end shrink-0">
-          {isStudent ? (
+          {isScholar ? (
             <>
               <NotificationBell />
               <span className="w-7 h-7 rounded-full bg-primary-light text-primary text-xs font-bold flex items-center justify-center shrink-0" title={fullName || 'Scholar'}>

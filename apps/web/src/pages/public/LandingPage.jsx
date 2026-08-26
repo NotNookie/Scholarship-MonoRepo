@@ -40,7 +40,7 @@ const CONTACT = [
 ]
 
 export function LandingPage() {
-  const isStudent = useAuthStore((s) => s.user?.role === 'student')
+  const isScholar = useAuthStore((s) => s.user?.role === 'scholar')
 
   const announcementsQuery = useQuery({
     queryKey: queryKeys.announcements.list({ per_page: 3 }),
@@ -72,7 +72,7 @@ export function LandingPage() {
             </p>
 
             <div className="flex flex-wrap gap-3">
-              {isStudent ? (
+              {isScholar ? (
                 <>
                   <Link
                     to="/scholarship"
