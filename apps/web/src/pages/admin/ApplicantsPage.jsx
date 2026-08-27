@@ -88,6 +88,7 @@ export function ApplicantsPage() {
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('all')
   const [category, setCategory] = useState('all')
+  const [year, setYear] = useState('all')
   const [sorting, setSorting] = useState([{ id: 'submitted', desc: true }])
 
   const { data, isPending } = useQuery({
@@ -102,6 +103,10 @@ export function ApplicantsPage() {
     () => Array.from(new Set(records.map((r) => r.scholarship_name).filter(Boolean))),
     [records],
   )
+  const years = useMemo(
+    () => Array.from(new Set(records.map((r) => r.academic_year).filter(Boolean))).sort().reverse(),
+    [records],
+  )
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -113,9 +118,10 @@ export function ApplicantsPage() {
         String(r.email ?? '').toLowerCase().includes(q)
       const matchStatus = status === 'all' || r.status === status
       const matchCategory = category === 'all' || r.scholarship_name === category
-      return matchSearch && matchStatus && matchCategory
+      const matchYear = year === 'all' || r.academic_year === year
+      return matchSearch && matchStatus && matchCategory && matchYear
     })
-  }, [records, search, status, category])
+  }, [records, search, status, category, year])
 
   const columns = useMemo(
     () => [
@@ -177,7 +183,7 @@ export function ApplicantsPage() {
     initialState: { pagination: { pageSize: 10 } },
   })
 
-  const hasFilters = search || status !== 'all' || category !== 'all'
+  const hasFilters = search || status !== 'all' || category !== 'all' || year !== 'all'
   const pageRows = table.getRowModel().rows
   const totalRows = filtered.length
   const { pageIndex, pageSize } = table.getState().pagination
@@ -188,6 +194,7 @@ export function ApplicantsPage() {
     setSearch('')
     setStatus('all')
     setCategory('all')
+    setYear('all')
   }
 
   return (
@@ -244,6 +251,17 @@ export function ApplicantsPage() {
               <option value="all">All Categories</option>
               {categories.map((c) => (
                 <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            <select
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+              aria-label="Filter by school year"
+              className="text-sm border border-border rounded-lg px-3 py-2 bg-surface text-content focus:outline-none focus:border-primary"
+            >
+              <option value="all">All School Years</option>
+              {years.map((y) => (
+                <option key={y} value={y}>A.Y. {y}</option>
               ))}
             </select>
             {hasFilters && (

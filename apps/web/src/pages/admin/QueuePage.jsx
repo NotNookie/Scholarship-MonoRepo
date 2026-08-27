@@ -504,20 +504,25 @@ function DetailPane({ id, onBack }) {
 export function QueuePage() {
   const [filter, setFilter] = useState('submitted')
   const [search, setSearch] = useState('')
+  const [year, setYear] = useState('all')
   const [selectedId, setSelectedId] = useState(null)
 
   const { data, isPending } = useQuery({
-    queryKey: queryKeys.adminApplications.list({ status: filter, search }),
+    queryKey: queryKeys.adminApplications.list({ status: filter, search, year }),
     queryFn: () => {
       const params = new URLSearchParams({ sort: 'desc' })
       if (filter !== 'all') params.set('status', filter)
       if (search) params.set('search', search)
+      if (year !== 'all') params.set('academic_year', year)
       return api.get(`/admin/applications?${params.toString()}`).then((r) => r.data)
     },
     retry: false,
   })
 
   const applications = data?.data ?? []
+  // School-year options derived from the current results; filter applied client-side too.
+  const years = Array.from(new Set(applications.map((a) => a.academic_year).filter(Boolean))).sort().reverse()
+  const shown = year === 'all' ? applications : applications.filter((a) => a.academic_year === year)
 
   return (
     <div className="flex flex-col h-[calc(100vh-7rem)] -m-6">
@@ -556,6 +561,15 @@ export function QueuePage() {
                 </button>
               ))}
             </div>
+            <select
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+              aria-label="Filter by school year"
+              className="w-full text-sm px-3 py-2 rounded-lg border border-border bg-surface text-content focus:outline-none focus:border-primary"
+            >
+              <option value="all">All School Years</option>
+              {years.map((y) => <option key={y} value={y}>A.Y. {y}</option>)}
+            </select>
           </div>
 
           {/* List */}
@@ -569,21 +583,23 @@ export function QueuePage() {
                   </div>
                 ))}
               </div>
-            ) : applications.length > 0 ? (
-              applications.map((a) => (
+            ) : shown.length > 0 ? (
+              shown.map((a) => (
                 <QueueRow key={a.id} application={a} active={a.id === selectedId} onSelect={setSelectedId} />
               ))
             ) : (
               <div className="flex flex-col items-center justify-center text-center gap-3 py-20 px-6">
                 <Inbox size={32} className="text-content-disabled" />
-                <p className="text-sm text-content-muted">No applications in this category.</p>
+                <p className="text-sm text-content-muted">
+                  {year !== 'all' ? 'No applications for this school year.' : 'No applications in this category.'}
+                </p>
               </div>
             )}
           </div>
 
           {/* Count footer */}
           <div className="px-4 py-2.5 border-t border-border text-xs text-content-muted shrink-0 flex items-center justify-between">
-            <span>{applications.length} application{applications.length === 1 ? '' : 's'}</span>
+            <span>{shown.length} application{shown.length === 1 ? '' : 's'}</span>
             <ChevronRight size={13} className="lg:hidden" />
           </div>
         </aside>
