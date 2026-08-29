@@ -45,6 +45,28 @@ const INCOME_RANGES = [
   'Above ₱500,000',
 ]
 
+// Essay / statement length rules — kept in sync with the on-screen guidance.
+const ESSAY_MIN_WORDS = 500
+const STATEMENT_MAX_WORDS = 500
+
+// Uploaded document limits — kept in sync with the dropzone hint.
+const MAX_FILE_BYTES = 5 * 1024 * 1024
+const ACCEPTED_EXT = /\.(pdf|jpe?g|png)$/i
+
+function countWords(s) {
+  const t = (s ?? '').trim()
+  return t ? t.split(/\s+/).length : 0
+}
+
+// Returns an error message if the file is the wrong type or too large, else null.
+function validateFile(file) {
+  if (!ACCEPTED_EXT.test(file.name)) return 'Only PDF, JPG, or PNG files are allowed.'
+  if (file.size > MAX_FILE_BYTES) return 'That file is larger than 5MB.'
+  return null
+}
+
+const docNameOf = (doc) => (typeof doc === 'string' ? doc : doc.name)
+
 function isStepComplete(stepIndex, values) {
   return STEP_FIELDS[stepIndex].every((field) => {
     const v = values[field]
@@ -56,7 +78,7 @@ function isStepComplete(stepIndex, values) {
 
 function loadDraft() {
   try {
-    return JSON.parse(sessionStorage.getItem(DRAFT_KEY) ?? 'null') ?? {}
+    return JSON.parse(localStorage.getItem(DRAFT_KEY) ?? 'null') ?? {}
   } catch {
     return {}
   }
@@ -304,7 +326,8 @@ function Step2Academic({ register, errors }) {
 
 // ── Step 3: Family Background ─────────────────────────────────
 
-function Step3Family({ register, errors }) {
+function Step3Family({ register, errors, values }) {
+  const statementWords = countWords(values.financial_need_statement)
   const numericRules = {
     required: 'Required',
     valueAsNumber: true,
@@ -404,8 +427,14 @@ function Step3Family({ register, errors }) {
           placeholder="Describe any specific financial challenges, unexpected expenses, or circumstances affecting your family's ability to fund your education…"
           aria-invalid={!!errors.financial_need_statement}
           className={`${inputCls(errors.financial_need_statement)} resize-none`}
-          {...register('financial_need_statement', { required: 'This statement is required' })}
+          {...register('financial_need_statement', {
+            required: 'This statement is required',
+            validate: (v) => countWords(v) <= STATEMENT_MAX_WORDS || `Please keep this under ${STATEMENT_MAX_WORDS} words.`,
+          })}
         />
+        <p className={`text-xs text-right ${statementWords > STATEMENT_MAX_WORDS ? 'text-danger font-medium' : 'text-content-muted'}`}>
+          {statementWords} / {STATEMENT_MAX_WORDS} words
+        </p>
       </Field>
     </div>
   )
@@ -413,7 +442,8 @@ function Step3Family({ register, errors }) {
 
 // ── Step 4: Essay & Statement ─────────────────────────────────
 
-function Step4Essay({ register, errors }) {
+function Step4Essay({ register, errors, values }) {
+  const essayWords = countWords(values.essay)
   return (
     <div className="space-y-6">
       <div>
@@ -440,9 +470,12 @@ function Step4Essay({ register, errors }) {
           className={`${inputCls(errors.essay)} resize-none leading-relaxed`}
           {...register('essay', {
             required: 'A personal statement is required',
-            minLength: { value: 100, message: 'Please write at least 100 characters' },
+            validate: (v) => countWords(v) >= ESSAY_MIN_WORDS || `Please write at least ${ESSAY_MIN_WORDS} words.`,
           })}
         />
+        <p className={`text-xs text-right ${essayWords < ESSAY_MIN_WORDS ? 'text-content-muted' : 'text-tertiary-dark font-medium'}`}>
+          {essayWords} words {essayWords < ESSAY_MIN_WORDS ? `· ${ESSAY_MIN_WORDS - essayWords} to go` : '· minimum met'}
+        </p>
       </Field>
 
       <div className="bg-primary-light border border-primary/20 rounded-lg p-4">
@@ -460,21 +493,29 @@ function Step4Essay({ register, errors }) {
 
 // ── Step 5: Document Upload ───────────────────────────────────
 
-function UploadCard({ doc }) {
-  const [uploaded, setUploaded] = useState(null)
-  const name = typeof doc === 'string' ? doc : doc.name
+// Controlled: the uploaded File lives in the parent, so it can be reviewed,
+// enforced before submit, and reflected in the summary.
+function UploadCard({ doc, file, onChange }) {
+  const name = docNameOf(doc)
   const note = typeof doc === 'string' ? null : doc.note
 
+  function handleFile(f) {
+    if (!f) return
+    const err = validateFile(f)
+    if (err) { toast.error(err); return }
+    onChange(f)
+  }
+
   return (
-    <div className={`bg-surface rounded-xl border shadow-card p-5 relative overflow-hidden ${uploaded ? 'border-success' : 'border-border'}`}>
-      <div className={`absolute top-0 left-0 w-1 h-full ${uploaded ? 'bg-success' : 'bg-primary'}`} />
+    <div className={`bg-surface rounded-xl border shadow-card p-5 relative overflow-hidden ${file ? 'border-success' : 'border-border'}`}>
+      <div className={`absolute top-0 left-0 w-1 h-full ${file ? 'bg-success' : 'bg-primary'}`} />
 
       <div className="flex items-start justify-between mb-4">
         <div>
           <p className="text-sm font-bold text-content">{name}</p>
           {note && <p className="text-xs text-content-muted mt-0.5">{note}</p>}
         </div>
-        {uploaded ? (
+        {file ? (
           <span className="inline-flex items-center gap-1 bg-tertiary-light text-tertiary-dark text-xs font-semibold px-2.5 py-1 rounded-full">
             <Check size={11} strokeWidth={3} /> Uploaded
           </span>
@@ -485,21 +526,22 @@ function UploadCard({ doc }) {
         )}
       </div>
 
-      {uploaded ? (
+      {file ? (
         <div className="bg-surface-alt border border-border rounded-lg p-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded bg-primary-light flex items-center justify-center shrink-0">
               <FileText size={16} className="text-primary" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-content">{uploaded.name}</p>
-              <p className="text-xs text-content-muted">{(uploaded.size / 1024).toFixed(0)} KB • Uploaded just now</p>
+              <p className="text-xs font-semibold text-content">{file.name}</p>
+              <p className="text-xs text-content-muted">{(file.size / 1024).toFixed(0)} KB • Uploaded just now</p>
             </div>
           </div>
           <button
             type="button"
-            onClick={() => setUploaded(null)}
+            onClick={() => onChange(null)}
             className="p-1.5 text-danger hover:bg-danger-light rounded-lg transition-colors"
+            aria-label={`Remove ${name}`}
           >
             <Trash2 size={14} />
           </button>
@@ -510,7 +552,7 @@ function UploadCard({ doc }) {
             type="file"
             accept=".pdf,.jpg,.jpeg,.png"
             className="hidden"
-            onChange={(e) => { if (e.target.files?.[0]) setUploaded(e.target.files[0]) }}
+            onChange={(e) => handleFile(e.target.files?.[0])}
           />
           <CloudUpload size={28} className="text-primary mb-2 group-hover:scale-110 transition-transform" />
           <p className="text-xs font-semibold text-content">Click to browse or drag file here</p>
@@ -521,7 +563,15 @@ function UploadCard({ doc }) {
   )
 }
 
-function Step5Documents({ register, errors, documents, values }) {
+function Step5Documents({ register, errors, documents, values, uploads, setUploads }) {
+  const setDoc = (name) => (file) =>
+    setUploads((u) => {
+      const next = { ...u }
+      if (file) next[name] = file
+      else delete next[name]
+      return next
+    })
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Upload cards */}
@@ -532,9 +582,10 @@ function Step5Documents({ register, errors, documents, values }) {
             Please provide the final required documents to complete your application.
           </p>
         </div>
-        {documents.map((doc, i) => (
-          <UploadCard key={i} doc={doc} />
-        ))}
+        {documents.map((doc) => {
+          const name = docNameOf(doc)
+          return <UploadCard key={name} doc={doc} file={uploads[name] ?? null} onChange={setDoc(name)} />
+        })}
       </div>
 
       {/* Summary panel */}
@@ -565,12 +616,15 @@ function Step5Documents({ register, errors, documents, values }) {
           <div className="p-4 border-b border-border">
             <p className="text-xs font-semibold text-content-muted uppercase tracking-wider mb-3">Document Status</p>
             <div className="space-y-2">
-              {documents.map((doc, i) => {
-                const name = typeof doc === 'string' ? doc : doc.name
+              {documents.map((doc) => {
+                const name = docNameOf(doc)
+                const done = !!uploads[name]
                 return (
-                  <div key={i} className="flex items-center gap-2">
-                    <Circle size={14} className="text-border" />
-                    <span className="text-xs text-content">{name}</span>
+                  <div key={name} className="flex items-center gap-2">
+                    {done
+                      ? <Check size={14} strokeWidth={3} className="text-tertiary-dark shrink-0" />
+                      : <Circle size={14} className="text-border shrink-0" />}
+                    <span className={`text-xs ${done ? 'text-content' : 'text-content-muted'}`}>{name}</span>
                   </div>
                 )
               })}
@@ -729,6 +783,9 @@ function Stepper({ current, onStepClick, values }) {
 export function ApplicationPage() {
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
+  // Uploaded files live here (not in the RHF draft — File objects can't be
+  // serialized to storage), so they can be enforced and shown in the summary.
+  const [uploads, setUploads] = useState({})
 
   const {
     register,
@@ -741,7 +798,7 @@ export function ApplicationPage() {
 
   useEffect(() => {
     const sub = watch((values) => {
-      sessionStorage.setItem(DRAFT_KEY, JSON.stringify(values))
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(values))
     })
     return () => sub.unsubscribe()
   }, [watch])
@@ -761,7 +818,7 @@ export function ApplicationPage() {
 
   function saveDraft() {
     const values = getValues()
-    sessionStorage.setItem(DRAFT_KEY, JSON.stringify(values))
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(values))
     toast.success('Draft saved.')
   }
 
@@ -783,7 +840,7 @@ export function ApplicationPage() {
   const submitMutation = useMutation({
     mutationFn: (data) => api.post('/applications', data).then((r) => r.data),
     onSuccess: ({ id }) => {
-      sessionStorage.removeItem(DRAFT_KEY)
+      localStorage.removeItem(DRAFT_KEY)
       toast.success('Application submitted successfully!')
       navigate(`/applications/${id}`)
     },
@@ -792,7 +849,18 @@ export function ApplicationPage() {
     },
   })
 
-  const onSubmit = handleSubmit((data) => submitMutation.mutate(data))
+  const onSubmit = handleSubmit((data) => {
+    // All required documents must be uploaded before the application can go in.
+    const missing = documents.filter((d) => !uploads[docNameOf(d)])
+    if (missing.length) {
+      toast.error(`Please upload all required documents (${missing.length} remaining).`)
+      if (step !== STEPS.length - 1) setStep(STEPS.length - 1)
+      return
+    }
+    // Files are represented by name here; the actual multipart upload is a
+    // backend concern (there's no upload endpoint yet).
+    submitMutation.mutate({ ...data, documents: documents.map(docNameOf) })
+  })
   const isLast = step === STEPS.length - 1
 
   return (
@@ -814,14 +882,16 @@ export function ApplicationPage() {
                 <form noValidate>
                   {step === 0 && <Step1Personal register={register} errors={errors} />}
                   {step === 1 && <Step2Academic register={register} errors={errors} />}
-                  {step === 2 && <Step3Family   register={register} errors={errors} />}
-                  {step === 3 && <Step4Essay    register={register} errors={errors} />}
+                  {step === 2 && <Step3Family   register={register} errors={errors} values={values} />}
+                  {step === 3 && <Step4Essay    register={register} errors={errors} values={values} />}
                   {step === 4 && (
                     <Step5Documents
                       register={register}
                       errors={errors}
                       documents={documents}
-                      values={getValues()}
+                      values={values}
+                      uploads={uploads}
+                      setUploads={setUploads}
                     />
                   )}
                 </form>
