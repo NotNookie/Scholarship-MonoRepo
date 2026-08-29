@@ -1,5 +1,6 @@
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
+// jsPDF + autotable are heavy (~hundreds of KB) and only needed when a user
+// actually exports a PDF, so they're dynamically imported inside downloadPdf().
+// This keeps them out of the eager bundle for the many pages that only do CSV.
 
 function triggerDownload(blob, name) {
   const url = URL.createObjectURL(blob)
@@ -29,7 +30,11 @@ export function downloadCsv(baseName, columns, rows) {
 }
 
 /** Formatted PDF via jsPDF + autotable. RGB literals are the brand primary (jsPDF has no token system). */
-export function downloadPdf(title, columns, rows, subtitle) {
+export async function downloadPdf(title, columns, rows, subtitle) {
+  const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+    import('jspdf'),
+    import('jspdf-autotable'),
+  ])
   const doc = new jsPDF()
   doc.setFontSize(14)
   doc.setTextColor(15, 23, 42) // content

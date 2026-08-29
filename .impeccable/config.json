@@ -1,0 +1,23 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "border-accent-on-rounded",
+        "value": "*",
+        "files": [
+          "src/styles/platform.css"
+        ],
+        "createdAt": "2026-08-29T04:27:59.191Z",
+        "reason": "false positive: 3px top keyline is the bottom/top-nav tab active indicator on square (border-radius:0) items, not a rounded card; regex detector can't resolve the radius"
+      },
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-08-29T04:46:35.979Z",
+        "reason": "incumbent design-system font for the municipal app (globals.css --font-sans, loaded app-wide before this work); preserved per refinement rules. Platform console uses Public Sans + JetBrains Mono for its own identity"
+      }
+    ]
+  }
+}

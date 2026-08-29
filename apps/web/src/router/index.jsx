@@ -1,9 +1,12 @@
+/* eslint-disable react-refresh/only-export-components -- router config file: it exports the router and defines lazy route components; it is not a Fast-Refreshable component module. */
+import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 
 // Layouts
 import { PublicLayout } from '../components/layout/PublicLayout'
 import { AdminLayout } from '../components/layout/AdminLayout'
 import { AuthLayout } from '../components/layout/AuthLayout'
+import { PlatformLayout } from '../components/layout/PlatformLayout'
 
 // Auth guard
 import { RequireAuth } from './RequireAuth'
@@ -26,7 +29,6 @@ import { ApplicationPage } from '../pages/student/ApplicationPage'
 import { DocumentsPage } from '../pages/student/DocumentsPage'
 import { AppealPage } from '../pages/student/AppealPage'
 import { StudentAnnouncementsPage } from '../pages/student/StudentAnnouncementsPage'
-import { MyScholarshipPage } from '../pages/student/MyScholarshipPage'
 import { RenewalPage } from '../pages/student/RenewalPage'
 import { StudentSettingsPage } from '../pages/student/StudentSettingsPage'
 
@@ -38,7 +40,6 @@ import { AppealsPage } from '../pages/admin/AppealsPage'
 import { ScholarsPage } from '../pages/admin/ScholarsPage'
 import { RenewalsPage } from '../pages/admin/RenewalsPage'
 import { CommunicationsPage } from '../pages/admin/CommunicationsPage'
-import { ReportsPage } from '../pages/admin/ReportsPage'
 import { ActivityLogsPage } from '../pages/admin/ActivityLogsPage'
 import { UsersPage } from '../pages/admin/UsersPage'
 import { MaintenancePage } from '../pages/admin/MaintenancePage'
@@ -46,6 +47,31 @@ import { MaintenancePoliciesPage } from '../pages/admin/MaintenancePoliciesPage'
 import { MaintenanceCyclesPage } from '../pages/admin/MaintenanceCyclesPage'
 import { MaintenanceEligibilityPage } from '../pages/admin/MaintenanceEligibilityPage'
 import { MaintenanceProfilePage } from '../pages/admin/MaintenanceProfilePage'
+
+// Platform (Super Admin) pages
+import { PlatformOverviewPage } from '../pages/platform/PlatformOverviewPage'
+import { PlatformMunicipalitiesPage } from '../pages/platform/PlatformMunicipalitiesPage'
+import { PlatformMunicipalityDetailPage } from '../pages/platform/PlatformMunicipalityDetailPage'
+import { PlatformActivityPage } from '../pages/platform/PlatformActivityPage'
+import { PlatformUsersPage } from '../pages/platform/PlatformUsersPage'
+import { PlatformSettingsPage } from '../pages/platform/PlatformSettingsPage'
+
+// Dev-only helper (tree-shaken out of production by the import.meta.env.DEV guard below)
+import { DevAs } from '../pages/dev/DevAs'
+
+// Chart-heavy pages are lazy-loaded so recharts lands in its own chunk instead
+// of the main bundle (it's only needed on Reports and the scholar's dashboard).
+const MyScholarshipPage = lazy(() =>
+  import('../pages/student/MyScholarshipPage').then((m) => ({ default: m.MyScholarshipPage }))
+)
+const ReportsPage = lazy(() =>
+  import('../pages/admin/ReportsPage').then((m) => ({ default: m.ReportsPage }))
+)
+
+function RouteFallback() {
+  return <div style={{ padding: '48px 24px', textAlign: 'center', color: '#64748b', fontSize: 14 }}>Loading…</div>
+}
+const withSuspense = (element) => <Suspense fallback={<RouteFallback />}>{element}</Suspense>
 
 const scholar = (element) => (
   <RequireAuth roles={['scholar']}>{element}</RequireAuth>
@@ -69,7 +95,7 @@ export const router = createBrowserRouter([
       { path: '/applications/:id',       element: scholar(<DocumentsPage />) },
       { path: '/appeal/:id',             element: scholar(<AppealPage />) },
       { path: '/student/announcements',  element: scholar(<StudentAnnouncementsPage />) },
-      { path: '/scholarship',            element: scholar(<MyScholarshipPage />) },
+      { path: '/scholarship',            element: scholar(withSuspense(<MyScholarshipPage />)) },
       { path: '/scholarship/renew',      element: scholar(<RenewalPage />) },
       { path: '/settings',               element: scholar(<StudentSettingsPage />) },
     ],
@@ -110,7 +136,7 @@ export const router = createBrowserRouter([
       // Legacy routes — merged into Announcements & Events
       { path: 'schedules',      element: <Navigate to="/admin/communications" replace /> },
       { path: 'announcements',  element: <Navigate to="/admin/communications" replace /> },
-      { path: 'reports',       element: <ReportsPage /> },
+      { path: 'reports',       element: withSuspense(<ReportsPage />) },
       { path: 'activity',      element: <ActivityLogsPage /> },
       { path: 'users',         element: <UsersPage /> },
       { path: 'maintenance',          element: <MaintenancePage /> },
@@ -120,6 +146,28 @@ export const router = createBrowserRouter([
       { path: 'maintenance/profile',  element: <MaintenanceProfilePage /> },
     ],
   },
+
+  // ── Platform (Super Admin) console ──────────────────────────
+  // Our operator side — onboarding and overseeing municipal tenants.
+  {
+    path: '/platform',
+    element: (
+      <RequireAuth roles={['super_admin']}>
+        <PlatformLayout />
+      </RequireAuth>
+    ),
+    children: [
+      { index: true, element: <PlatformOverviewPage /> },
+      { path: 'municipalities', element: <PlatformMunicipalitiesPage /> },
+      { path: 'municipalities/:id', element: <PlatformMunicipalityDetailPage /> },
+      { path: 'activity', element: <PlatformActivityPage /> },
+      { path: 'users', element: <PlatformUsersPage /> },
+      { path: 'settings', element: <PlatformSettingsPage /> },
+    ],
+  },
+
+  // ── Dev-only auto-login helper (headless screenshots / quick role switch) ──
+  ...(import.meta.env.DEV ? [{ path: '/__dev-as/:role', element: <DevAs /> }] : []),
 
   // ── Catch-all ───────────────────────────────────────────────
   { path: '*', element: <Navigate to="/" replace /> },
