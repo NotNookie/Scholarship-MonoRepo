@@ -6,7 +6,7 @@ import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
 import { useAuthStore } from '../../store/authStore'
-import { roleHome } from '../../lib/roleHome'
+import { resolveLanding } from '../../lib/roleHome'
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -42,7 +42,7 @@ export function LoginPage() {
       super_admin: { id: 4, name: 'Platform Admin', first_name: 'Platform', role: 'super_admin', email: 'admin@iskolar.ph' },
     }
     login(users[role], 'dev-token')
-    navigate(from ?? roleHome(role), { replace: true })
+    navigate(resolveLanding(role, from), { replace: true })
   }
 
   const onSubmit = handleSubmit((data) => loginMutation.mutate(data))

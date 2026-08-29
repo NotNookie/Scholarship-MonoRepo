@@ -6,7 +6,7 @@ import { ShieldCheck, Building2, MessageSquare } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
 import { useAuthStore } from '../../store/authStore'
-import { roleHome } from '../../lib/roleHome'
+import { resolveLanding } from '../../lib/roleHome'
 
 export function LoginVerifyPage() {
   const location = useLocation()
@@ -42,8 +42,9 @@ export function LoginVerifyPage() {
       api.post('/auth/verify-otp', { session_token: sessionToken, otp: data.otp }).then((r) => r.data),
     onSuccess: ({ user, token }) => {
       login(user, token)
-      // Return to the intended page, else the role's home portal
-      navigate(from ?? roleHome(user.role), { replace: true })
+      // Return to the intended page (only if it belongs to this role's portal),
+      // else the role's home portal.
+      navigate(resolveLanding(user.role, from), { replace: true })
     },
     onError: (err) => {
       toast.error(err.response?.data?.message ?? 'Invalid code. Please try again.')

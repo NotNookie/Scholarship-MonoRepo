@@ -23,6 +23,8 @@ export function DevAs() {
     login(DEV_USERS[role] ?? DEV_USERS.super_admin, 'dev-token')
     navigate(sp.get('to') ?? '/', { replace: true })
     // Runs once on mount; the query is read synchronously.
+    // For headless screenshots, load in two steps against one --user-data-dir:
+    // first hit /__dev-as (persists auth), then load the gated page directly.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
