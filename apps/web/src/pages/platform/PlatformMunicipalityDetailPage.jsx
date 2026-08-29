@@ -1,19 +1,50 @@
+import { useState } from 'react'
 import { useNavigate, useParams, Navigate } from 'react-router-dom'
-import { ChevronLeft, Ban, Check } from 'lucide-react'
+import { ChevronLeft, Ban, Check, CircleCheck, Download, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { usePlatformStore, sigilOf } from '../../store/platformStore'
+import { usePlatformStore, sigilOf, SETUP_STEPS } from '../../store/platformStore'
 import { StatusTag } from '../../components/platform/PlatformBits'
+import { OffboardDrawer } from '../../components/platform/OffboardDrawer'
 
 export function PlatformMunicipalityDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const municipality = usePlatformStore((s) => s.municipalities.find((m) => m.id === id))
   const toggleStatus = usePlatformStore((s) => s.toggleStatus)
+  const offboard = usePlatformStore((s) => s.offboard)
+  const [offboardOpen, setOffboardOpen] = useState(false)
 
   if (!municipality) return <Navigate to="/platform/municipalities" replace />
 
   const m = municipality
   const suspended = m.status === 'suspended'
+  const onboarding = m.status === 'onboarding'
+
+  function exportData() {
+    const esc = (v) => `"${String(v).replace(/"/g, '""')}"`
+    const rows = [
+      ['Field', 'Value'],
+      ['Municipality', m.name], ['Province', m.province], ['Subdomain', `${m.subdomain}.iskolar.ph`],
+      ['Status', m.status], ['Scholars', m.scholars], ['Applications', m.applications],
+      ['Programs', m.programs], ['Active cycle', m.cycle], ['Admins', m.admins], ['Staff', m.staff],
+      ['OCR', m.ocr ? 'Enabled' : 'Off'], ['AI announcements', m.ai ? 'Enabled' : 'Off'], ['Onboarded', m.onboarded],
+    ]
+    const csv = rows.map((r) => r.map(esc).join(',')).join('\r\n')
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }))
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${m.subdomain}-tenant-export.csv`
+    document.body.appendChild(a); a.click(); a.remove()
+    URL.revokeObjectURL(url)
+    toast.success(`Exported ${m.name} data`)
+  }
+
+  function confirmOffboard() {
+    setOffboardOpen(false)
+    offboard(m.id)
+    toast.success(`${m.name} has been offboarded`)
+    navigate('/platform/municipalities')
+  }
 
   function handleToggle() {
     toggleStatus(m.id)
@@ -96,6 +127,42 @@ export function PlatformMunicipalityDetailPage() {
           <div className="pf-kv"><span className="k">Onboarded</span><span className="v">{m.onboarded}</span></div>
         </div>
       </div>
+
+      {onboarding && (
+        <>
+          <h2 className="pf-h2">Onboarding checklist</h2>
+          <p className="pf-sub">Work through these steps to take {m.name} live.</p>
+          <div className="pf-checklist">
+            {SETUP_STEPS.map((s) => {
+              const done = m.setup?.[s.key]
+              return (
+                <div key={s.key} className={`pf-check${done ? ' done' : ''}`}>
+                  {done ? <CircleCheck /> : <span className="todo-dot" aria-hidden="true" />}
+                  {s.label}
+                </div>
+              )
+            })}
+          </div>
+        </>
+      )}
+
+      <h2 className="pf-h2" style={{ borderTopColor: 'var(--pf-stop-fg)' }}>Danger zone</h2>
+      <p className="pf-sub">Export this tenant’s data, or remove it from the platform entirely.</p>
+      <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+        <button className="pf-btn pf-btn--ghost" type="button" onClick={exportData}>
+          <Download size={17} /> Export tenant data
+        </button>
+        <button className="pf-btn pf-btn--danger" type="button" onClick={() => setOffboardOpen(true)}>
+          <Trash2 size={17} /> Offboard tenant…
+        </button>
+      </div>
+
+      <OffboardDrawer
+        open={offboardOpen}
+        tenant={m}
+        onClose={() => setOffboardOpen(false)}
+        onConfirm={confirmOffboard}
+      />
     </>
   )
 }

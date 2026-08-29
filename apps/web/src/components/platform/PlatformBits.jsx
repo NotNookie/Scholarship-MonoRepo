@@ -22,7 +22,7 @@ export function Crest({ className = 'pf-crest' }) {
 export function StatusTag({ status }) {
   const meta = STATUS_META[status] ?? STATUS_META.active
   return <span className={`pf-tag ${meta.cls}`}>{meta.label}</span>
-}
+} 
 
 export function Sigil({ name, className = 'pf-sigil' }) {
   return <div className={className}>{sigilOf(name)}</div>

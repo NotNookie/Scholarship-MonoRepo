@@ -1,7 +1,11 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { LayoutGrid, Building2, Activity, Users, Settings, LogOut } from 'lucide-react'
+import {
+  LayoutGrid, Building2, UserPlus, BarChart3, LifeBuoy, Megaphone,
+  Activity, HeartPulse, Users, Settings, LogOut,
+} from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { Crest } from '../platform/PlatformBits'
+import { PlatformTools } from '../platform/PlatformTools'
 import '../../styles/platform.css'
 
 // Locked design combo for the platform console. The stylesheet still carries
@@ -12,7 +16,12 @@ const LOOK = { variant: 'compact', header: 'slab', nav: 'underline', place: 'lef
 const navItems = [
   { to: '/platform', end: true, label: 'Overview', Icon: LayoutGrid },
   { to: '/platform/municipalities', label: 'Municipalities', Icon: Building2 },
+  { to: '/platform/onboarding', label: 'Onboarding', Icon: UserPlus },
+  { to: '/platform/analytics', label: 'Analytics', Icon: BarChart3 },
+  { to: '/platform/support', label: 'Support', Icon: LifeBuoy },
+  { to: '/platform/broadcasts', label: 'Broadcasts', Icon: Megaphone },
   { to: '/platform/activity', label: 'Activity', Icon: Activity },
+  { to: '/platform/health', label: 'Health', Icon: HeartPulse },
   { to: '/platform/users', label: 'Platform Users', Icon: Users },
   { to: '/platform/settings', label: 'Settings', Icon: Settings },
 ]
@@ -42,6 +51,7 @@ export function PlatformLayout() {
             <span className="pf-brand">Iskolar</span>
             <span className="pf-tag">Platform Console</span>
           </span>
+          <PlatformTools />
           <div className="pf-op">
             <div className="pf-op-badge">{initials(user?.name)}</div>
             <div className="pf-op-meta">

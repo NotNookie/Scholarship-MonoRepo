@@ -2,15 +2,79 @@ import { create } from 'zustand'
 
 // Placeholder tenant data for the platform (Super Admin) console while there is
 // no multi-tenant backend yet. Swap this store for TanStack Query calls to
-// `/platform/municipalities` once the backend exists — the components read from
-// selectors, so the shape is what matters.
+// `/platform/*` once the backend exists — the components read from selectors,
+// so the shape is what matters.
 // NOTE: illustrative sample data — not real municipalities or figures.
 const SAMPLE = [
   { id: 'sta-cruz',  name: 'Sta. Cruz',  province: 'Laguna', subdomain: 'stacruz',   status: 'active',     scholars: 1248, admins: 1, staff: 4, programs: 3, cycle: 'A.Y. 2026–2027', applications: 642, onboarded: 'Aug 2025', main: true, ocr: true,  ai: true },
   { id: 'pagsanjan', name: 'Pagsanjan',  province: 'Laguna', subdomain: 'pagsanjan', status: 'active',     scholars: 412,  admins: 1, staff: 2, programs: 2, cycle: 'A.Y. 2026–2027', applications: 198, onboarded: 'Oct 2025', ocr: true,  ai: false },
   { id: 'pakil',     name: 'Pakil',      province: 'Laguna', subdomain: 'pakil',     status: 'active',     scholars: 186,  admins: 1, staff: 1, programs: 1, cycle: 'A.Y. 2026–2027', applications: 74,  onboarded: 'Nov 2025', ocr: true,  ai: false },
   { id: 'nagcarlan', name: 'Nagcarlan',  province: 'Laguna', subdomain: 'nagcarlan', status: 'active',     scholars: 58,   admins: 1, staff: 1, programs: 1, cycle: 'A.Y. 2026–2027', applications: 31,  onboarded: 'Jan 2026', ocr: false, ai: false },
-  { id: 'pila',      name: 'Pila',       province: 'Laguna', subdomain: 'pila',      status: 'onboarding', scholars: 0,    admins: 1, staff: 0, programs: 0, cycle: '—',              applications: 0,   onboarded: 'Feb 2026', ocr: false, ai: false },
+  { id: 'pila',      name: 'Pila',       province: 'Laguna', subdomain: 'pila',      status: 'onboarding', scholars: 0,    admins: 1, staff: 0, programs: 0, cycle: '—', applications: 0, onboarded: 'Feb 2026', ocr: false, ai: false,
+    setup: { head_invited: true, head_active: true, branding: true, program: false, cycle: false } },
+  { id: 'lumban',    name: 'Lumban',     province: 'Laguna', subdomain: 'lumban',    status: 'onboarding', scholars: 0,    admins: 1, staff: 0, programs: 0, cycle: '—', applications: 0, onboarded: 'Feb 2026', ocr: false, ai: false,
+    setup: { head_invited: true, head_active: false, branding: false, program: false, cycle: false } },
+  { id: 'kalayaan',  name: 'Kalayaan',   province: 'Laguna', subdomain: 'kalayaan',  status: 'onboarding', scholars: 0,    admins: 1, staff: 0, programs: 1, cycle: '—', applications: 0, onboarded: 'Feb 2026', ocr: false, ai: false,
+    setup: { head_invited: true, head_active: true, branding: true, program: true, cycle: false } },
+]
+
+// The manual onboarding checklist every new tenant works through, in order.
+export const SETUP_STEPS = [
+  { key: 'head_invited', label: 'Head admin invited' },
+  { key: 'head_active',  label: 'Head activated account' },
+  { key: 'branding',     label: 'Branding & profile set' },
+  { key: 'program',      label: 'First program configured' },
+  { key: 'cycle',        label: 'First application cycle opened' },
+]
+
+// Which pipeline column a tenant sits in, derived from its checklist progress.
+export function setupStage(setup) {
+  if (!setup) return 'invited'
+  const done = SETUP_STEPS.filter((s) => setup[s.key]).length
+  if (done <= 1) return 'invited'
+  if (done >= SETUP_STEPS.length) return 'ready'
+  return 'setup'
+}
+export const PIPELINE_COLUMNS = [
+  { key: 'invited', label: 'Invited', desc: 'Charter created, waiting on the head admin.' },
+  { key: 'setup',   label: 'Setting up', desc: 'Configuring programs, branding and staff.' },
+  { key: 'ready',   label: 'Ready to launch', desc: 'Checklist complete — open for applicants.' },
+]
+
+// Illustrative onboarding trend (municipalities live at each month-end).
+export const ONBOARD_TREND = [
+  { m: 'Aug', n: 1 }, { m: 'Sep', n: 1 }, { m: 'Oct', n: 2 }, { m: 'Nov', n: 3 },
+  { m: 'Dec', n: 3 }, { m: 'Jan', n: 4 }, { m: 'Feb', n: 7 },
+]
+
+const SUPPORT = [
+  { id: 't-104', tenant: 'Pagsanjan', subject: 'Cannot upload office logo (file too large)', priority: 'normal', status: 'open',    opened: '2026-02-18', requester: 'LYDO Head' },
+  { id: 't-103', tenant: 'Nagcarlan', subject: 'Requesting help configuring GWA threshold', priority: 'normal', status: 'open',    opened: '2026-02-16', requester: 'Staff' },
+  { id: 't-102', tenant: 'Sta. Cruz', subject: 'OTP SMS not received by some applicants',   priority: 'high',   status: 'open',    opened: '2026-02-15', requester: 'LYDO Head' },
+  { id: 't-101', tenant: 'Pakil',     subject: 'How do I export the applicant list?',       priority: 'low',    status: 'resolved', opened: '2026-02-09', requester: 'Staff' },
+  { id: 't-100', tenant: 'Sta. Cruz', subject: 'Add a second reviewer account',             priority: 'normal', status: 'resolved', opened: '2026-02-04', requester: 'LYDO Head' },
+]
+
+const BROADCASTS = [
+  { id: 'b-3', title: 'Scheduled maintenance — Feb 25, 10 PM', audience: 'All municipalities', sentBy: 'Platform Admin', sentAt: '2026-02-19 · 14:00', body: 'The platform will be briefly unavailable on Feb 25 from 10:00–10:30 PM for a database upgrade. No action is needed on your end.' },
+  { id: 'b-2', title: 'New: document checklist templates', audience: 'All municipalities', sentBy: 'Platform Admin', sentAt: '2026-02-10 · 09:30', body: 'You can now start from a ready-made document checklist when setting up a program. Find it under Maintenance → Document Checklist.' },
+  { id: 'b-1', title: 'Reminder: verify staff accounts', audience: 'Active municipalities', sentBy: 'Platform Admin', sentAt: '2026-01-30 · 16:15', body: 'Please make sure every staff member has completed two-factor setup before your next application cycle opens.' },
+]
+
+const HEALTH = [
+  { id: 'app',     label: 'Application & web portal', status: 'operational', detail: 'All regions responding', metric: '99.98% uptime · 30d' },
+  { id: 'db',      label: 'Database',                 status: 'operational', detail: 'Primary + replica healthy', metric: 'Read/write normal' },
+  { id: 'sms',     label: 'SMS / OTP provider',       status: 'degraded',    detail: 'Elevated delivery latency', metric: '~40s avg delivery' },
+  { id: 'storage', label: 'Document storage',         status: 'operational', detail: 'Uploads accepted', metric: '62% of quota used' },
+  { id: 'ocr',     label: 'OCR service',              status: 'operational', detail: 'Queue clear', metric: 'Local · no external calls' },
+  { id: 'backup',  label: 'Backups',                  status: 'operational', detail: 'Nightly snapshot succeeded', metric: 'Last: today 03:00' },
+]
+
+let notifId = 4
+const NOTIFICATIONS = [
+  { id: 'n-3', kind: 'warn', text: 'SMS / OTP provider is reporting degraded delivery.', time: '25m ago', read: false, to: '/platform/health' },
+  { id: 'n-2', kind: 'info', text: 'New support request from Pagsanjan.', time: '2h ago', read: false, to: '/platform/support' },
+  { id: 'n-1', kind: 'ok',   text: 'Nagcarlan completed onboarding and went live.', time: 'Yesterday', read: true, to: '/platform/onboarding' },
 ]
 
 function initials(name) {
@@ -39,9 +103,43 @@ export const usePlatformStore = create((set) => ({
           name, province: province || '—', subdomain: subdomain || 'new',
           status: 'onboarding', scholars: 0, admins: 1, staff: 0, programs: 0,
           cycle: '—', applications: 0, onboarded: 'Just now', ocr: false, ai: false,
+          setup: { head_invited: true, head_active: false, branding: false, program: false, cycle: false },
         },
       ],
     })),
+
+  // Permanently remove a tenant from the platform (offboarding, last step).
+  offboard: (id) =>
+    set((s) => ({ municipalities: s.municipalities.filter((m) => m.id !== id) })),
+
+  // ── Support inbox ──────────────────────────────────────────────
+  supportTickets: SUPPORT,
+  resolveTicket: (id) =>
+    set((s) => ({
+      supportTickets: s.supportTickets.map((t) =>
+        t.id === id ? { ...t, status: t.status === 'resolved' ? 'open' : 'resolved' } : t
+      ),
+    })),
+
+  // ── Broadcasts to tenants ──────────────────────────────────────
+  broadcasts: BROADCASTS,
+  sendBroadcast: ({ title, audience, body }) =>
+    set((s) => ({
+      broadcasts: [
+        { id: `b-${s.broadcasts.length + 1}`, title, audience, body, sentBy: 'Platform Admin', sentAt: 'Just now' },
+        ...s.broadcasts,
+      ],
+    })),
+
+  // ── Platform health ────────────────────────────────────────────
+  healthServices: HEALTH,
+
+  // ── Operator notifications ─────────────────────────────────────
+  notifications: NOTIFICATIONS,
+  markNotificationRead: (id) =>
+    set((s) => ({ notifications: s.notifications.map((n) => (n.id === id ? { ...n, read: true } : n)) })),
+  markAllNotificationsRead: () =>
+    set((s) => ({ notifications: s.notifications.map((n) => ({ ...n, read: true })) })),
 
   // Our own team's accounts (placeholder — swap for /platform/users API later).
   platformUsers: [
@@ -71,4 +169,12 @@ export const STATUS_META = {
   suspended: { label: 'Suspended', cls: 'stop' },
 }
 
+// Health service status vocabulary.
+export const HEALTH_META = {
+  operational: { label: 'Operational', cls: 'ok' },
+  degraded: { label: 'Degraded', cls: 'warn' },
+  down: { label: 'Down', cls: 'stop' },
+}
+
 export const sigilOf = initials
+export const nextNotifId = () => `n-${notifId++}`

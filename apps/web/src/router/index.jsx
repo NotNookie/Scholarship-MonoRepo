@@ -52,7 +52,12 @@ import { MaintenanceProfilePage } from '../pages/admin/MaintenanceProfilePage'
 import { PlatformOverviewPage } from '../pages/platform/PlatformOverviewPage'
 import { PlatformMunicipalitiesPage } from '../pages/platform/PlatformMunicipalitiesPage'
 import { PlatformMunicipalityDetailPage } from '../pages/platform/PlatformMunicipalityDetailPage'
+import { PlatformOnboardingPage } from '../pages/platform/PlatformOnboardingPage'
+import { PlatformAnalyticsPage } from '../pages/platform/PlatformAnalyticsPage'
+import { PlatformSupportPage } from '../pages/platform/PlatformSupportPage'
+import { PlatformBroadcastsPage } from '../pages/platform/PlatformBroadcastsPage'
 import { PlatformActivityPage } from '../pages/platform/PlatformActivityPage'
+import { PlatformHealthPage } from '../pages/platform/PlatformHealthPage'
 import { PlatformUsersPage } from '../pages/platform/PlatformUsersPage'
 import { PlatformSettingsPage } from '../pages/platform/PlatformSettingsPage'
 
@@ -120,7 +125,7 @@ export const router = createBrowserRouter([
   {
     path: '/admin',
     element: (
-      <RequireAuth roles={['admin', 'staff', 'super_admin']}>
+      <RequireAuth roles={['admin', 'staff']}>
         <AdminLayout />
       </RequireAuth>
     ),
@@ -160,7 +165,12 @@ export const router = createBrowserRouter([
       { index: true, element: <PlatformOverviewPage /> },
       { path: 'municipalities', element: <PlatformMunicipalitiesPage /> },
       { path: 'municipalities/:id', element: <PlatformMunicipalityDetailPage /> },
+      { path: 'onboarding', element: <PlatformOnboardingPage /> },
+      { path: 'analytics', element: <PlatformAnalyticsPage /> },
+      { path: 'support', element: <PlatformSupportPage /> },
+      { path: 'broadcasts', element: <PlatformBroadcastsPage /> },
       { path: 'activity', element: <PlatformActivityPage /> },
+      { path: 'health', element: <PlatformHealthPage /> },
       { path: 'users', element: <PlatformUsersPage /> },
       { path: 'settings', element: <PlatformSettingsPage /> },
     ],

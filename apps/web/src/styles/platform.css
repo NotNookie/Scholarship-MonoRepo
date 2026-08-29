@@ -455,3 +455,134 @@
 }
 .pf-variant-switch button:hover { background: #21262a; color: #fff; }
 .pf-variant-switch button[aria-pressed="true"] { background: #eef1f2; color: #16191c; border-color: #eef1f2; }
+
+/* ══════════════════════════════════════════════════════════════
+   EXTENDED SURFACES — analytics, onboarding pipeline, support,
+   broadcasts, health, notifications, global search, offboarding.
+   Same Civic Green grammar as above.
+   ══════════════════════════════════════════════════════════════ */
+
+/* Section subheadings shared by the new pages */
+.pf-h2 { font-size: 19px; font-weight: 700; margin: 34px 0 4px; border-top: 2px solid var(--pf-ink); padding-top: 14px; }
+.pf-h2:first-of-type { margin-top: 26px; }
+.pf-sub { color: var(--pf-ink-2); font-size: 14px; margin: 0 0 16px; }
+
+/* ── Masthead tools: global search + notifications ── */
+.pf-tools { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.pf-mtool { position: relative; background: none; border: 0; color: var(--pf-on-black-2); padding: 8px; border-radius: 7px; display: grid; place-items: center; transition: background .15s, color .15s; }
+.pf-mtool:hover { color: #fff; background: rgba(255, 255, 255, .12); }
+.pf-mtool svg { width: 18px; height: 18px; }
+.pf-mtool .pf-ndot { position: absolute; top: 5px; right: 5px; width: 8px; height: 8px; border-radius: 50%; background: var(--pf-accent-bright); box-shadow: 0 0 0 2px var(--pf-black); }
+.pf-op { margin-left: 14px; }
+
+/* Notifications dropdown */
+.pf-pop { position: relative; }
+.pf-notif-panel { position: absolute; top: calc(100% + 10px); right: 0; width: 360px; max-width: 88vw; background: var(--pf-surface); color: var(--pf-ink); border: 1px solid var(--pf-line); box-shadow: var(--pf-shadow); z-index: 50; }
+.pf-notif-head { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; border-bottom: 1px solid var(--pf-line); }
+.pf-notif-head b { font-size: 15px; }
+.pf-notif-head button { background: none; border: 0; color: var(--pf-accent); font-weight: 600; font-size: 13px; }
+.pf-notif-list { max-height: 60vh; overflow-y: auto; }
+.pf-notif-item { display: flex; gap: 12px; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--pf-line-soft); padding: 13px 16px; }
+.pf-notif-item:hover { background: var(--pf-surface-alt); }
+.pf-notif-item.unread { background: var(--pf-accent-soft); }
+.pf-notif-item.unread:hover { background: #d7e8df; }
+.pf-notif-ic { width: 30px; height: 30px; flex: none; display: grid; place-items: center; }
+.pf-notif-ic svg { width: 17px; height: 17px; }
+.pf-notif-ic.ok { background: var(--pf-ok-bg); color: var(--pf-ok-fg); }
+.pf-notif-ic.warn { background: var(--pf-warn-bg); color: var(--pf-warn-fg); }
+.pf-notif-ic.info { background: var(--pf-info-bg); color: var(--pf-info-fg); }
+.pf-notif-tx { font-size: 14px; line-height: 1.4; }
+.pf-notif-tm { font-size: 12px; color: var(--pf-ink-3); margin-top: 3px; font-variant-numeric: tabular-nums; }
+.pf-notif-empty { padding: 30px 16px; text-align: center; color: var(--pf-ink-2); font-size: 14px; }
+
+/* Global search — command palette */
+.pf-cmd-scrim { position: fixed; inset: 0; background: rgba(11,12,12,.5); z-index: 70; display: flex; align-items: flex-start; justify-content: center; padding: 12vh 16px 16px; }
+.pf-cmd { width: 620px; max-width: 100%; background: var(--pf-surface); border: 1px solid var(--pf-line); box-shadow: var(--pf-shadow); display: flex; flex-direction: column; max-height: 70vh; }
+.pf-cmd-top { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--pf-line); }
+.pf-cmd-top svg { width: 20px; height: 20px; color: var(--pf-ink-2); flex: none; }
+.pf-cmd-top input { flex: 1; border: 0; outline: 0; font: inherit; font-size: 17px; color: var(--pf-ink); background: none; caret-color: var(--pf-accent); }
+.pf-cmd-esc { font-size: 11px; font-weight: 700; letter-spacing: .05em; color: var(--pf-ink-3); border: 1px solid var(--pf-line); padding: 3px 7px; }
+.pf-cmd-results { overflow-y: auto; padding: 6px 0; }
+.pf-cmd-group { font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--pf-ink-3); padding: 12px 18px 5px; }
+.pf-cmd-item { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: none; border: 0; padding: 10px 18px; font-size: 15px; color: var(--pf-ink); }
+.pf-cmd-item:hover, .pf-cmd-item.on { background: var(--pf-accent-soft); }
+.pf-cmd-item .pf-sigil { width: 30px; height: 30px; font-size: 11px; }
+.pf-cmd-item svg { width: 18px; height: 18px; color: var(--pf-ink-2); flex: none; }
+.pf-cmd-item .meta { margin-left: auto; font-size: 12.5px; color: var(--pf-ink-3); font-family: var(--pf-mono); }
+.pf-cmd-empty { padding: 34px 18px; text-align: center; color: var(--pf-ink-2); font-size: 15px; }
+
+/* ── Analytics: horizontal bar chart + sparkline ── */
+.pf-chart { border-top: 2px solid var(--pf-ink); padding-top: 16px; }
+.pf-bar-row { display: grid; grid-template-columns: 130px 1fr auto; align-items: center; gap: 14px; padding: 9px 0; border-bottom: 1px solid var(--pf-line-soft); }
+.pf-bar-row:last-child { border-bottom: 0; }
+.pf-bar-lbl { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pf-bar-track { height: 22px; background: var(--pf-surface-alt); position: relative; }
+.pf-bar-fill { height: 100%; width: 100%; background: var(--pf-accent); transform-origin: left center; transition: transform .6s cubic-bezier(.16,.84,.28,1); }
+.pf-bar-val { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 52px; text-align: right; }
+.pf-spark { display: flex; align-items: flex-end; gap: 8px; height: 140px; border-top: 2px solid var(--pf-ink); border-bottom: 1px solid var(--pf-line); padding: 16px 0 0; }
+.pf-spark-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; height: 100%; justify-content: flex-end; }
+.pf-spark-bar { width: 100%; max-width: 46px; background: var(--pf-accent-soft); border-top: 3px solid var(--pf-accent); }
+.pf-spark-col:last-child .pf-spark-bar { background: var(--pf-ok-bg); }
+.pf-spark-m { font-size: 12px; color: var(--pf-ink-2); font-weight: 600; }
+.pf-spark-n { font-size: 13px; font-weight: 700; }
+
+/* ── Onboarding pipeline board ── */
+.pf-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 22px; }
+.pf-board-col { border-top: 3px solid var(--pf-accent); }
+.pf-board-col-head { padding: 10px 0 12px; }
+.pf-board-col-head .t { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.pf-board-col-head .c { font-size: 12px; font-weight: 700; background: var(--pf-ink); color: #fff; padding: 1px 8px; }
+.pf-board-col-head .d { font-size: 13px; color: var(--pf-ink-2); margin-top: 4px; }
+.pf-board-card { display: block; width: 100%; text-align: left; background: var(--pf-surface); border: 1px solid var(--pf-line); padding: 14px; margin-bottom: 12px; cursor: pointer; }
+.pf-board-card:hover { border-color: var(--pf-accent); box-shadow: 0 1px 2px rgba(11,12,12,.08); }
+.pf-board-card .nm { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 10px; }
+.pf-board-card .sd { font-family: var(--pf-mono); font-size: 12.5px; color: var(--pf-ink-2); margin: 6px 0 12px; }
+.pf-board-empty { color: var(--pf-ink-3); font-size: 13px; padding: 14px; border: 1px dashed var(--pf-line); }
+.pf-progress { display: flex; gap: 4px; }
+.pf-progress i { flex: 1; height: 5px; background: var(--pf-line-soft); }
+.pf-progress i.on { background: var(--pf-accent); }
+.pf-progress-lbl { font-size: 12px; color: var(--pf-ink-2); margin-top: 7px; }
+
+/* Checklist (pipeline card detail / municipality detail) */
+.pf-checklist { display: flex; flex-direction: column; gap: 2px; }
+.pf-check { display: flex; align-items: center; gap: 10px; font-size: 14px; padding: 6px 0; color: var(--pf-ink-2); }
+.pf-check svg { width: 17px; height: 17px; flex: none; }
+.pf-check.done { color: var(--pf-ink); }
+.pf-check.done svg { color: var(--pf-ok-fg); }
+.pf-check .todo-dot { width: 15px; height: 15px; border: 2px solid var(--pf-line); border-radius: 50%; flex: none; margin: 1px; }
+
+/* ── Support tickets ── */
+.pf-ticket { display: flex; align-items: center; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--pf-line-soft); }
+.pf-ticket:last-child { border-bottom: 0; }
+.pf-ticket-main { min-width: 0; flex: 1; }
+.pf-ticket-subj { font-size: 15px; font-weight: 600; }
+.pf-ticket-meta { font-size: 13px; color: var(--pf-ink-2); margin-top: 3px; }
+.pf-ticket-meta b { color: var(--pf-ink); font-weight: 700; }
+.pf-ticket-tags { display: flex; align-items: center; gap: 8px; flex: none; }
+.pf-ticket.is-resolved .pf-ticket-subj { color: var(--pf-ink-3); text-decoration: line-through; }
+
+/* ── Broadcasts ── */
+.pf-bc { padding: 16px 0; border-bottom: 1px solid var(--pf-line-soft); }
+.pf-bc:last-child { border-bottom: 0; }
+.pf-bc-t { font-size: 16px; font-weight: 700; }
+.pf-bc-m { font-size: 13px; color: var(--pf-ink-2); margin: 3px 0 8px; }
+.pf-bc-b { font-size: 14px; color: var(--pf-ink); max-width: 70ch; }
+.pf-textarea { border: 2px solid var(--pf-ink); padding: 11px 12px; font: inherit; font-size: 15px; color: var(--pf-ink); caret-color: var(--pf-accent); width: 100%; resize: vertical; min-height: 96px; }
+.pf-textarea:focus { outline: 3px solid var(--pf-focus); outline-offset: 0; }
+
+/* ── Platform health ── */
+.pf-health-row { display: flex; align-items: center; gap: 18px; padding: 16px 0; border-bottom: 1px solid var(--pf-line-soft); }
+.pf-health-row:last-child { border-bottom: 0; }
+.pf-health-dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.pf-health-dot.ok { background: var(--pf-ok-fg); }
+.pf-health-dot.warn { background: #b58500; }
+.pf-health-dot.stop { background: var(--pf-stop-fg); }
+.pf-health-main { flex: 1; min-width: 0; }
+.pf-health-lbl { font-size: 15px; font-weight: 600; }
+.pf-health-detail { font-size: 13px; color: var(--pf-ink-2); margin-top: 2px; }
+.pf-health-metric { font-size: 13px; color: var(--pf-ink-2); font-variant-numeric: tabular-nums; flex: none; }
+
+@media (max-width: 900px) {
+  .pf-board { grid-template-columns: 1fr; }
+  .pf-bar-row { grid-template-columns: 96px 1fr auto; gap: 10px; }
+}
