@@ -1,10 +1,26 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  Search, CheckCircle2, ChevronRight, ChevronLeft, Megaphone,
+  Search, CheckCircle2, ChevronRight, Megaphone,
 } from 'lucide-react'
 import { SCHOLARSHIPS, QUALIFICATIONS, FILTERS, SORT_OPTIONS } from '../../data/scholarships'
 import { ScholarshipCard } from '../../components/shared/ScholarshipCard'
+
+// Largest peso figure mentioned in a benefit string, for the amount sort.
+function grantValue(benefit = '') {
+  const nums = (benefit.match(/[\d,]+/g) ?? []).map((n) => Number(n.replace(/,/g, '')))
+  return nums.length ? Math.max(...nums) : 0
+}
+// Soonest first: closing programs (by days left), then open, then closed last.
+function deadlineRank(s) {
+  if (s.status === 'closed') return Infinity
+  return s.daysLeft ?? 9999
+}
+const SORTERS = {
+  'Deadline (Soonest)': (a, b) => deadlineRank(a) - deadlineRank(b),
+  'Name (A-Z)': (a, b) => a.name.localeCompare(b.name),
+  'Grant Amount': (a, b) => grantValue(b.benefit) - grantValue(a.benefit),
+}
 
 export function ScholarshipsPage() {
   const [activeFilter, setActiveFilter] = useState('All Programs')
@@ -20,6 +36,8 @@ export function ScholarshipsPage() {
     return matchFilter && matchSearch
   })
 
+  const visible = [...filtered].sort(SORTERS[sort] ?? (() => 0))
+
   return (
     <>
       {/* ── Search hero ──────────────────────────────────────── */}
@@ -33,19 +51,24 @@ export function ScholarshipsPage() {
             Find the right program to support your educational journey.
           </p>
 
-          <div className="relative max-w-2xl mx-auto flex items-center bg-surface border border-border rounded-xl shadow-card focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+          <form
+            onSubmit={(e) => e.preventDefault()}
+            role="search"
+            className="relative max-w-2xl mx-auto flex items-center bg-surface border border-border rounded-xl shadow-card focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all"
+          >
             <Search size={16} className="absolute left-4 text-content-muted pointer-events-none" />
             <input
-              type="text"
+              type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name, category, or keyword…"
+              aria-label="Search scholarships"
               className="flex-1 bg-transparent border-none text-sm py-3.5 pl-11 pr-4 focus:outline-none text-content placeholder:text-content-muted"
             />
-            <button className="bg-primary text-on-primary text-sm font-semibold px-5 py-2.5 rounded-lg m-1 hover:bg-primary-dark transition-colors">
+            <button type="submit" className="bg-primary text-on-primary text-sm font-semibold px-5 py-2.5 rounded-lg m-1 hover:bg-primary-dark transition-colors">
               Search
             </button>
-          </div>
+          </form>
         </div>
       </section>
 
@@ -126,7 +149,7 @@ export function ScholarshipsPage() {
           {/* Count + sort */}
           <div className="flex items-center justify-between">
             <p className="text-sm text-content-muted">
-              Showing <span className="font-semibold text-content">{filtered.length}</span> available programs
+              Showing <span className="font-semibold text-content">{visible.length}</span> available programs
             </p>
             <div className="flex items-center gap-2">
               <span className="text-xs text-content-muted">Sort by:</span>
@@ -143,9 +166,9 @@ export function ScholarshipsPage() {
           </div>
 
           {/* Cards */}
-          {filtered.length > 0 ? (
+          {visible.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {filtered.map((s) => (
+              {visible.map((s) => (
                 <ScholarshipCard key={s.id} scholarship={s} />
               ))}
             </div>
@@ -155,29 +178,6 @@ export function ScholarshipsPage() {
               <p className="text-sm text-content-muted">No scholarships match your search.</p>
             </div>
           )}
-
-          {/* Pagination */}
-          <div className="flex items-center justify-center gap-2 mt-4">
-            <button
-              disabled
-              className="p-2 border border-border rounded-lg text-content-muted disabled:opacity-40"
-            >
-              <ChevronLeft size={16} />
-            </button>
-            <button className="w-9 h-9 flex items-center justify-center rounded-lg bg-primary text-on-primary text-xs font-semibold">
-              1
-            </button>
-            <button className="w-9 h-9 flex items-center justify-center rounded-lg border border-border text-content-muted text-xs hover:bg-surface-alt">
-              2
-            </button>
-            <button className="w-9 h-9 flex items-center justify-center rounded-lg border border-border text-content-muted text-xs hover:bg-surface-alt">
-              3
-            </button>
-            <span className="text-content-muted text-sm">…</span>
-            <button className="p-2 border border-border rounded-lg text-content-muted hover:bg-surface-alt">
-              <ChevronRight size={16} />
-            </button>
-          </div>
         </div>
       </div>
     </>

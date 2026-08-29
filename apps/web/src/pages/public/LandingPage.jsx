@@ -12,8 +12,6 @@ import {
   MapPin,
   Phone,
   Mail,
-  Globe,
-  AtSign,
 } from 'lucide-react'
 import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
@@ -218,16 +216,18 @@ export function LandingPage() {
 
               <div className="mt-8 pt-6 border-t border-border flex gap-3">
                 <a
-                  href="#"
+                  href="mailto:lydo@stacruzlaguna.gov.ph"
+                  aria-label="Email the LYDO office"
                   className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center text-content-muted hover:text-primary hover:border-primary transition-colors"
                 >
-                  <Globe size={16} />
+                  <Mail size={16} />
                 </a>
                 <a
-                  href="#"
+                  href="tel:+63491234567"
+                  aria-label="Call the LYDO office"
                   className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center text-content-muted hover:text-primary hover:border-primary transition-colors"
                 >
-                  <AtSign size={16} />
+                  <Phone size={16} />
                 </a>
               </div>
             </div>
