@@ -65,38 +65,17 @@ const CARDS = [
   },
 ]
 
-function HubCard({ Icon, title, description, to, action, comingSoon }) {
-  const inner = (
-    <>
-      <div className="flex items-start justify-between">
-        <div className="w-11 h-11 rounded-lg bg-primary-light flex items-center justify-center">
-          <Icon size={20} className="text-primary" />
-        </div>
-        {comingSoon && (
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-surface-alt text-content-muted border border-border">
-            Coming soon
-          </span>
-        )}
+function HubCard({ Icon, title, description, to, action }) {
+  return (
+    <Link to={to} className="group bg-surface border border-border rounded-xl shadow-card p-6 flex flex-col hover:border-primary hover:shadow-modal transition-all">
+      <div className="w-11 h-11 rounded-lg bg-primary-light flex items-center justify-center">
+        <Icon size={20} className="text-primary" />
       </div>
       <h3 className="text-base font-bold text-content mt-4">{title}</h3>
       <p className="text-sm text-content-muted mt-1.5 leading-relaxed flex-1">{description}</p>
-      {!comingSoon && (
-        <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary mt-4 group-hover:gap-2 transition-all">
-          {action} <ArrowRight size={15} />
-        </span>
-      )}
-    </>
-  )
-
-  if (comingSoon) {
-    return (
-      <div className="bg-surface border border-border rounded-xl shadow-card p-6 flex flex-col opacity-70">{inner}</div>
-    )
-  }
-
-  return (
-    <Link to={to} className="group bg-surface border border-border rounded-xl shadow-card p-6 flex flex-col hover:border-primary hover:shadow-modal transition-all">
-      {inner}
+      <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary mt-4 group-hover:gap-2 transition-all">
+        {action} <ArrowRight size={15} />
+      </span>
     </Link>
   )
 }

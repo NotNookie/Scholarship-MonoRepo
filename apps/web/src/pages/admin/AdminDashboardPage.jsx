@@ -10,7 +10,6 @@ import {
   MapPin,
   ChevronRight,
   Plus,
-  Download,
   Inbox,
 } from 'lucide-react'
 import { api } from '../../lib/axios'
@@ -296,7 +295,7 @@ export function AdminDashboardPage() {
                 Export current cycle statistics for the LYDO and the Mayor's Office.
               </p>
               <Link to="/admin/reports" className="inline-flex items-center gap-2 bg-surface text-primary text-sm font-semibold px-4 py-2.5 rounded-lg hover:opacity-90 transition-opacity">
-                <Download size={15} /> Export PDF Summary
+                Generate Reports <ChevronRight size={15} />
               </Link>
             </div>
           </section>
