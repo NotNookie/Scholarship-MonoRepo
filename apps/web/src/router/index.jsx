@@ -47,6 +47,7 @@ import { MaintenancePoliciesPage } from '../pages/admin/MaintenancePoliciesPage'
 import { MaintenanceCyclesPage } from '../pages/admin/MaintenanceCyclesPage'
 import { MaintenanceEligibilityPage } from '../pages/admin/MaintenanceEligibilityPage'
 import { MaintenanceProfilePage } from '../pages/admin/MaintenanceProfilePage'
+import { MaintenanceFeaturesPage } from '../pages/admin/MaintenanceFeaturesPage'
 
 // Platform (Super Admin) pages
 import { PlatformOverviewPage } from '../pages/platform/PlatformOverviewPage'
@@ -149,6 +150,7 @@ export const router = createBrowserRouter([
       { path: 'maintenance/cycles',      element: <MaintenanceCyclesPage /> },
       { path: 'maintenance/eligibility', element: <MaintenanceEligibilityPage /> },
       { path: 'maintenance/profile',  element: <MaintenanceProfilePage /> },
+      { path: 'maintenance/features', element: <MaintenanceFeaturesPage /> },
     ],
   },
 

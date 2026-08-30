@@ -7,6 +7,7 @@ import {
   CalendarRange,
   Building2,
   UserCog,
+  Sparkles,
   ArrowRight,
 } from 'lucide-react'
 
@@ -54,6 +55,13 @@ const CARDS = [
     description: 'Set baseline requirements (residency, voter status, income limits, attestations) that apply to all programs.',
     to: '/admin/maintenance/eligibility',
     action: 'Manage Rules',
+  },
+  {
+    Icon: Sparkles,
+    title: 'Assistive Features',
+    description: 'Turn optional tools on or off — document OCR checking and the AI announcement writer.',
+    to: '/admin/maintenance/features',
+    action: 'Manage Features',
   },
 ]
 
