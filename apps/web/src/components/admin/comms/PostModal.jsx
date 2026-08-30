@@ -1,7 +1,11 @@
 import { useState, useRef } from 'react'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import {
-  X, Loader2, Send, Bold, Italic, List, Link2, UploadCloud, FileText, CalendarDays,
+  X, Loader2, Send, Bold, Italic, List, Link2, UploadCloud, FileText, CalendarDays, Sparkles,
 } from 'lucide-react'
+import toast from 'react-hot-toast'
+import { api } from '../../../lib/axios'
+import { queryKeys } from '../../../lib/queryKeys'
 import { CATEGORIES, inputCls, fileSize } from './postUtils'
 
 // ── Markdown toolbar ──────────────────────────────────────────
@@ -84,6 +88,27 @@ export function PostModal({ post, isPending, onClose, onSubmit }) {
 
   const canSave = form.title.trim() && form.body.trim() && (!form.scheduled || form.date)
 
+  // The AI writer is an optional, per-municipality feature (Maintenance →
+  // Assistive Features). Only surface the button when the Head has enabled it.
+  const { data: settings } = useQuery({
+    queryKey: queryKeys.maintenance.settings(),
+    queryFn: () => api.get('/admin/maintenance/settings').then((r) => r.data?.data ?? r.data),
+    retry: false,
+    staleTime: 1000 * 60 * 5,
+  })
+  const aiEnabled = !!settings?.feature_ai_text
+
+  const aiDraft = useMutation({
+    mutationFn: (payload) => api.post('/admin/announcements/ai-draft', payload).then((r) => r.data),
+    onSuccess: (data) => {
+      const text = data?.text ?? data?.draft
+      if (text) setForm((f) => ({ ...f, body: f.body ? `${f.body}\n\n${text}` : text }))
+      else toast('No draft was returned.', { icon: '✨' })
+    },
+    // No AI endpoint yet — fail gracefully rather than pretending.
+    onError: () => toast('AI drafting isn’t connected yet — coming soon.', { icon: '✨' }),
+  })
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
@@ -114,7 +139,20 @@ export function PostModal({ post, isPending, onClose, onSubmit }) {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium text-content">Body Content</span>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-sm font-medium text-content">Body Content</span>
+              {aiEnabled && (
+                <button
+                  type="button"
+                  onClick={() => aiDraft.mutate({ title: form.title, category: form.category })}
+                  disabled={aiDraft.isPending}
+                  title="Draft the announcement text with AI. You can edit it before publishing."
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary border border-primary/40 px-2.5 py-1 rounded-md hover:bg-primary-light transition-colors disabled:opacity-50"
+                >
+                  {aiDraft.isPending ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} Draft with AI
+                </button>
+              )}
+            </div>
             <MarkdownEditor value={form.body} onChange={(body) => setForm((f) => ({ ...f, body }))} />
           </div>
 
