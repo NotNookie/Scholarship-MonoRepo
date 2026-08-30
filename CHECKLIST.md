@@ -2,7 +2,7 @@
 
 Everything left to take Iskolar from a working frontend to a shippable system.
 
-**Where things stand:** the frontend is substantially built (public site, student portal, admin/LYDO portal, operator console), but it runs on mock/sample data and API calls with no server behind them. **The backend does not exist yet** — that's the bulk of the work below.
+**Where things stand:** the frontend is substantially built (public site, student portal, admin/LYDO portal, operator console), but it runs on mock/sample data and API calls with no server behind them. **The backend does not exist yet** — that's the bulk of the work below. A re-audit also found several **public-page controls that are still placeholders** (dead buttons, no detail views) — see §PUB.
 
 **Status tags** (the checkbox is for tracking your own completion):
 - `[In app]` — frontend done / working
@@ -20,6 +20,54 @@ Everything left to take Iskolar from a working frontend to a shippable system.
 - [ ] `[To build]` AI writer — choose model/provider and who pays (platform vs. municipality)
 - [ ] `[To build]` Pick evaluation method — ISO 25010 vs. acceptance testing *(needed for objectives + defense)*
 - [ ] `[Decision]` Discovery / URL scheme — subdomain vs. dropdown vs. path *(only if multi-tenant)*
+
+## PUB. Public site — *re-audited; several are frontend-only quick wins*
+
+Dead controls / affordances:
+- [ ] `[To build]` Requirements page — the 3 "Download" form cards do nothing *(wire to real files, or just link to `/forms`)*
+- [ ] `[To build]` Requirements page — the "Play" walkthrough-video button and "Read Full Manual" button do nothing *(add real targets or remove)*
+- [ ] `[To build]` Scholarship cards — the bookmark icon is decorative (no action); "View Details" actually jumps to Register/Apply *(relabel, or build a real scholarship detail view)*
+- [ ] `[Partial]` Announcements — list rows look clickable (chevron + cursor) but there's no detail view *(add one, or drop the affordance)*
+- [ ] `[Partial]` Landing — the "map" is a styled placeholder, not a real embed
+
+Hardcoded content that should be data/config-driven *(needs §H / §B)*:
+- [ ] `[To build]` Scholarships page — programs, "How to Qualify", and the deadline are all hardcoded *(feed from Maintenance config)*
+- [ ] `[To build]` Requirements page — forms, guide steps, and FAQ are all hardcoded
+- [ ] `[Partial]` Landing — steps, contact details, and branding are hardcoded *(tenant-driven branding = §H3)*
+
+Structure / redundancy:
+- [ ] `[To build]` Consolidate the two "Forms" surfaces — Requirements' dead-download section duplicates the real, API-backed `/forms` page
+
+Already solid (no action): the `/forms` page, `/announcements` (search, load-more, empty states, markdown), Scholarships sort/search, the FAQ accordion.
+
+## STU. Student portal — *re-audited; mostly solid, a few concrete gaps*
+- [ ] `[To build]` Renewal form draft uses `sessionStorage` — won't survive closing the browser *(same fix as the application form: switch to `localStorage`)*
+- [ ] `[To build]` Renewal uploads have no file type/size guard *(apply the same 5MB/type check — and optionally the blur soft-flag — used on the application form)*
+- [ ] `[Partial]` "Contact support" link on the renewal page points to the homepage, not a real contact
+- [ ] `[Partial]` Settings — photo upload and "Reconfigure 2FA" are honest placeholders *("available once accounts sync"; need backend)*
+
+Already solid (no action): dashboard, application form, My Scholarship (3 states), Documents (loading/error/empty), Appeals (real multipart upload), Announcements & schedules, Settings tabs, Renewal blocked/submitted states.
+
+## ADM. Admin portal — *re-audited; the strongest area — no dead controls found*
+
+Everything is API-backed and wired: Verification Queue (search / status / **school-year** filters, document verify/reject, approve/reject/incomplete decisions with grant + remarks modals), Applicant Records (pagination + CSV export + school-year filter), Appeals, Scholar Monitoring, Renewals, Announcements & Events (create/edit with attachments, pin, publish, delete + confirm), Reports (charts + PDF/CSV), Activity Logs (filters + CSV), Users (pagination), and all Maintenance sub-pages (Policies, Cycles, Document Checklist, Eligibility, Org Profile) with real save/delete/toggle mutations.
+
+Honest placeholders only (clearly labeled, not silently dead) — become real with the backend:
+- [ ] `[Partial]` Reports — "Financial Disbursement Trends" chart + Payout list note that disbursement tracking isn't available yet
+- [ ] `[To build]` Live theme switching — the org-profile theme is stored but not applied to the UI *(= §H4)*
+- [ ] `[Partial]` "Draft with AI" button in the composer — gated by the toggle; needs the LLM endpoint *(= §F3)*
+
+## SUP. Super Admin / operator console — *re-audited; a complete-looking prototype on 100% sample data*
+
+> ⚠️ Scope-dependent (see §A / §J): this whole console may be descoped or dropped if you stay single-app. Don't invest here until §A is settled.
+
+- [ ] `[To build]` Whole console runs on `platformStore` sample data with local-only state — nothing persists (resets on reload); no API *(analytics trend, activity feed, health, tickets, users are all hardcoded)*
+- [ ] `[To build]` Phase-banner "report an issue" is a dead `#report` anchor *(wire to the support email that Settings already stores)*
+- [ ] `[To build]` Settings "Save" only shows a toast — doesn't persist, and the new-municipality defaults (blur/OCR/AI) don't feed the onboard flow
+- [ ] `[Partial]` Platform Users page says a Super Admin can "change roles or remove access," but there are no such controls — it's read-only + invite
+- [ ] `[Partial]` Overview "Recent activity" feed is hardcoded, not driven by the store
+
+Solid as a prototype (no action): nav, global search (Ctrl+K), notifications, onboard / suspend (with undo) / offboard drawers, the analytics / onboarding / support / broadcasts / health screens, Activity CSV export.
 
 ## B. Backend & data — *the biggest chunk; none of this exists yet*
 - [ ] `[To build]` Choose backend stack; stand up API server + database
@@ -45,7 +93,7 @@ Everything left to take Iskolar from a working frontend to a shippable system.
 - [ ] `[In app]` Verification queue & staff review workflow *(frontend; needs backend)*
 - [ ] `[Partial]` Approve / reject and application status transitions
 - [ ] `[In app]` Appeals submission & review *(frontend)*
-- [ ] `[Partial]` Scope the queue and records by school year *(filter is a known TODO)*
+- [x] `[In app]` Scope the queue and records by school year *(both the Verification Queue and Applicant Records have the filter — earlier "TODO" note was stale)*
 
 ## E. Scholar lifecycle
 - [ ] `[In app]` Scholar monitoring dashboard *(frontend)*
