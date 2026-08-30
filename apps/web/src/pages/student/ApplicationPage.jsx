@@ -6,7 +6,7 @@ import {
   User, Phone, MapPin, Calendar, BookOpen,
   GraduationCap, FileText, Check, Banknote,
   Users, Upload, CloudUpload, Trash2, HelpCircle,
-  Send, Circle,
+  Send, Circle, AlertTriangle, Loader2, X,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
@@ -66,6 +66,56 @@ function validateFile(file) {
 }
 
 const docNameOf = (doc) => (typeof doc === 'string' ? doc : doc.name)
+
+// Below this variance-of-Laplacian score an image reads as soft/blurry. It's a
+// heuristic used only to gently warn — never to block an upload.
+const BLUR_THRESHOLD = 90
+
+// Estimate image sharpness in-browser (variance of the Laplacian on a
+// downscaled grayscale copy). Higher = sharper. Resolves null on any failure
+// so a measurement problem never affects the upload. Images only.
+function measureSharpness(file) {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => {
+      try {
+        const W = 256
+        const H = Math.max(1, Math.round((img.height / img.width) * W))
+        const canvas = document.createElement('canvas')
+        canvas.width = W
+        canvas.height = H
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0, W, H)
+        const { data } = ctx.getImageData(0, 0, W, H)
+        const gray = new Float32Array(W * H)
+        for (let i = 0; i < W * H; i++) {
+          gray[i] = 0.299 * data[i * 4] + 0.587 * data[i * 4 + 1] + 0.114 * data[i * 4 + 2]
+        }
+        let sum = 0
+        let sumSq = 0
+        let n = 0
+        for (let y = 1; y < H - 1; y++) {
+          for (let x = 1; x < W - 1; x++) {
+            const i = y * W + x
+            const lap = 4 * gray[i] - gray[i - 1] - gray[i + 1] - gray[i - W] - gray[i + W]
+            sum += lap
+            sumSq += lap * lap
+            n++
+          }
+        }
+        const mean = sum / n
+        resolve(sumSq / n - mean * mean)
+      } catch {
+        resolve(null)
+      } finally {
+        URL.revokeObjectURL(url)
+      }
+    }
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(null) }
+    img.src = url
+  })
+}
 
 function isStepComplete(stepIndex, values) {
   return STEP_FIELDS[stepIndex].every((field) => {
@@ -498,12 +548,24 @@ function Step4Essay({ register, errors, values }) {
 function UploadCard({ doc, file, onChange }) {
   const name = docNameOf(doc)
   const note = typeof doc === 'string' ? null : doc.note
+  // Soft, non-blocking blur hint (images only).
+  const [blurHint, setBlurHint] = useState(false)
 
-  function handleFile(f) {
+  async function handleFile(f) {
     if (!f) return
     const err = validateFile(f)
     if (err) { toast.error(err); return }
     onChange(f)
+    setBlurHint(false)
+    if (/\.(jpe?g|png)$/i.test(f.name)) {
+      const sharpness = await measureSharpness(f)
+      if (sharpness != null && sharpness < BLUR_THRESHOLD) setBlurHint(true)
+    }
+  }
+
+  function removeFile() {
+    onChange(null)
+    setBlurHint(false)
   }
 
   return (
@@ -527,25 +589,36 @@ function UploadCard({ doc, file, onChange }) {
       </div>
 
       {file ? (
-        <div className="bg-surface-alt border border-border rounded-lg p-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded bg-primary-light flex items-center justify-center shrink-0">
-              <FileText size={16} className="text-primary" />
+        <>
+          <div className="bg-surface-alt border border-border rounded-lg p-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded bg-primary-light flex items-center justify-center shrink-0">
+                <FileText size={16} className="text-primary" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-content">{file.name}</p>
+                <p className="text-xs text-content-muted">{(file.size / 1024).toFixed(0)} KB • Uploaded just now</p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-semibold text-content">{file.name}</p>
-              <p className="text-xs text-content-muted">{(file.size / 1024).toFixed(0)} KB • Uploaded just now</p>
-            </div>
+            <button
+              type="button"
+              onClick={removeFile}
+              className="p-1.5 text-danger hover:bg-danger-light rounded-lg transition-colors"
+              aria-label={`Remove ${name}`}
+            >
+              <Trash2 size={14} />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => onChange(null)}
-            className="p-1.5 text-danger hover:bg-danger-light rounded-lg transition-colors"
-            aria-label={`Remove ${name}`}
-          >
-            <Trash2 size={14} />
-          </button>
-        </div>
+          {blurHint && (
+            <div className="mt-3 flex items-start gap-2 bg-secondary/15 border border-secondary/40 rounded-lg px-3 py-2.5">
+              <AlertTriangle size={15} className="text-content shrink-0 mt-0.5" />
+              <p className="text-xs text-content leading-relaxed">
+                This image looks a little blurry. A clearer photo is easier for staff to verify — retake it if you can,
+                or keep this one if it's the best you have.
+              </p>
+            </div>
+          )}
+        </>
       ) : (
         <label className="border-2 border-dashed border-border hover:border-primary bg-surface-alt rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer group transition-colors">
           <input
@@ -778,6 +851,107 @@ function Stepper({ current, onStepClick, values }) {
   )
 }
 
+// ── Review modal (pre-submit) ─────────────────────────────────
+
+function ReviewRow({ label, value }) {
+  return (
+    <div className="flex justify-between gap-4 py-1.5 border-b border-border/50 last:border-0">
+      <span className="text-xs text-content-muted shrink-0">{label}</span>
+      <span className="text-xs font-medium text-content text-right">{value || '—'}</span>
+    </div>
+  )
+}
+
+function ReviewSection({ title, stepIndex, onEdit, children }) {
+  return (
+    <div className="border border-border rounded-lg p-4">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-sm font-bold text-content">{title}</h3>
+        <button type="button" onClick={() => onEdit(stepIndex)} className="text-xs font-semibold text-primary hover:underline">
+          Edit
+        </button>
+      </div>
+      {children}
+    </div>
+  )
+}
+
+function ReviewModal({ values, documents, uploads, onEdit, onClose, onConfirm, submitting }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative bg-surface rounded-xl shadow-modal w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
+        <div className="px-6 py-4 border-b border-border flex items-start justify-between gap-3 shrink-0">
+          <div>
+            <h2 className="text-base font-bold text-content">Review your application</h2>
+            <p className="text-xs text-content-muted mt-0.5">Check everything before submitting — you can still edit any section.</p>
+          </div>
+          <button onClick={onClose} className="text-content-muted hover:text-content shrink-0" aria-label="Close"><X size={18} /></button>
+        </div>
+
+        <div className="flex-1 overflow-auto p-6 flex flex-col gap-4 min-h-0">
+          <ReviewSection title="Personal & Contact" stepIndex={0} onEdit={onEdit}>
+            <ReviewRow label="Name" value={[values.first_name, values.last_name].filter(Boolean).join(' ')} />
+            <ReviewRow label="Date of birth" value={values.birthdate} />
+            <ReviewRow label="Sex" value={values.sex} />
+            <ReviewRow label="Mobile" value={values.mobile} />
+            <ReviewRow label="Barangay" value={values.barangay} />
+            <ReviewRow label="Address" value={values.street_address} />
+          </ReviewSection>
+
+          <ReviewSection title="Academic Records" stepIndex={1} onEdit={onEdit}>
+            <ReviewRow label="School" value={values.school_name} />
+            <ReviewRow label="Course" value={values.course} />
+            <ReviewRow label="Year level" value={values.year_level} />
+            <ReviewRow label="GWA" value={values.gwa} />
+          </ReviewSection>
+
+          <ReviewSection title="Family & Financial" stepIndex={2} onEdit={onEdit}>
+            <ReviewRow label="Household income" value={values.annual_income_range} />
+            <ReviewRow label="Dependents" value={values.num_dependents} />
+            <ReviewRow label="Primary earner" value={values.primary_earner} />
+            <ReviewRow label="Occupation" value={values.primary_earner_occupation} />
+          </ReviewSection>
+
+          <ReviewSection title="Essay" stepIndex={3} onEdit={onEdit}>
+            <p className="text-xs text-content-muted line-clamp-4 leading-relaxed">{values.essay || '—'}</p>
+            <p className="text-xs text-content-muted mt-2">{countWords(values.essay)} words</p>
+          </ReviewSection>
+
+          <ReviewSection title="Documents" stepIndex={4} onEdit={onEdit}>
+            <div className="space-y-1.5">
+              {documents.map((d) => {
+                const dn = docNameOf(d)
+                return (
+                  <div key={dn} className="flex items-center gap-2">
+                    <Check size={13} strokeWidth={3} className="text-tertiary-dark shrink-0" />
+                    <span className="text-xs text-content">{dn}</span>
+                    <span className="text-xs text-content-muted ml-auto truncate max-w-[45%]">{uploads[dn]?.name}</span>
+                  </div>
+                )
+              })}
+            </div>
+          </ReviewSection>
+        </div>
+
+        <div className="px-6 py-4 bg-surface-alt border-t border-border flex items-center justify-end gap-3 shrink-0">
+          <button type="button" onClick={onClose} className="text-sm font-semibold text-content-muted border border-border px-4 py-2 rounded-lg hover:border-primary hover:text-primary transition-colors">
+            Back to edit
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={submitting}
+            className="inline-flex items-center gap-2 bg-primary text-on-primary text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-primary-dark disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+          >
+            {submitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />} Submit Application
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Main ─────────────────────────────────────────────────────
 
 export function ApplicationPage() {
@@ -786,10 +960,10 @@ export function ApplicationPage() {
   // Uploaded files live here (not in the RHF draft — File objects can't be
   // serialized to storage), so they can be enforced and shown in the summary.
   const [uploads, setUploads] = useState({})
+  const [reviewOpen, setReviewOpen] = useState(false)
 
   const {
     register,
-    handleSubmit,
     trigger,
     getValues,
     watch,
@@ -849,18 +1023,28 @@ export function ApplicationPage() {
     },
   })
 
-  const onSubmit = handleSubmit((data) => {
-    // All required documents must be uploaded before the application can go in.
+  // Validate the whole form + require all documents, then open the review step.
+  async function openReview() {
+    const valid = await trigger()
+    if (!valid) {
+      toast.error('Please complete all required fields before reviewing.')
+      return
+    }
     const missing = documents.filter((d) => !uploads[docNameOf(d)])
     if (missing.length) {
       toast.error(`Please upload all required documents (${missing.length} remaining).`)
       if (step !== STEPS.length - 1) setStep(STEPS.length - 1)
       return
     }
+    setReviewOpen(true)
+  }
+
+  function confirmSubmit() {
     // Files are represented by name here; the actual multipart upload is a
     // backend concern (there's no upload endpoint yet).
-    submitMutation.mutate({ ...data, documents: documents.map(docNameOf) })
-  })
+    submitMutation.mutate({ ...getValues(), documents: documents.map(docNameOf) })
+  }
+
   const isLast = step === STEPS.length - 1
 
   return (
@@ -928,12 +1112,10 @@ export function ApplicationPage() {
                   {isLast ? (
                     <button
                       type="button"
-                      onClick={onSubmit}
-                      disabled={submitMutation.isPending}
-                      className="bg-primary text-on-primary text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-primary-dark disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                      onClick={openReview}
+                      className="bg-primary text-on-primary text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-colors flex items-center gap-2"
                     >
-                      <Send size={14} />
-                      {submitMutation.isPending ? 'Submitting…' : 'Submit Application'}
+                      <Send size={14} /> Review &amp; Submit
                     </button>
                   ) : (
                     <button
@@ -949,6 +1131,18 @@ export function ApplicationPage() {
             </div>
           </div>
         </main>
+
+        {reviewOpen && (
+          <ReviewModal
+            values={values}
+            documents={documents}
+            uploads={uploads}
+            onEdit={(i) => { setStep(i); setReviewOpen(false) }}
+            onClose={() => setReviewOpen(false)}
+            onConfirm={confirmSubmit}
+            submitting={submitMutation.isPending}
+          />
+        )}
     </div>
   )
 }
