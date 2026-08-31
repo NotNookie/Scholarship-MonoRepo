@@ -1,6 +1,7 @@
 import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom'
 import { LogOut } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
+import { useTenant, useBrand } from '../../tenant/TenantContext'
 import { NotificationBell } from './NotificationBell'
 
 const PUBLIC_NAV_ALWAYS = [
@@ -29,7 +30,12 @@ export function PublicLayout() {
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
   const navigate = useNavigate()
+  const { status } = useTenant()
+  const brand = useBrand()
 
+  // At the bare platform root there's no municipality, so hide the tenant nav.
+  const isRoot = status !== 'tenant'
+  const orgLine = brand.municipality ? `${brand.office}, ${brand.municipality}` : brand.office
   const isScholar = user?.role === 'scholar'
   const fullName = user?.name ?? [user?.first_name, user?.last_name].filter(Boolean).join(' ')
   const initials = (fullName || 'S').trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase()
@@ -43,11 +49,11 @@ export function PublicLayout() {
     <div className="min-h-screen flex flex-col">
       <header className="h-16 bg-surface border-b border-border flex items-center px-6 shrink-0 sticky top-0 z-30">
         <Link to={isScholar ? '/dashboard' : '/'} className="text-primary font-bold text-sm tracking-wide shrink-0 flex-1">
-          Iskolar ng Bayan
+          {brand.program}
         </Link>
 
-        {/* Nav — centered */}
-        <nav className="hidden md:flex items-center gap-5 text-sm shrink-0">
+        {/* Nav — centered (hidden at the platform root, which has no tenant) */}
+        <nav className={`${isRoot ? 'hidden' : 'hidden md:flex'} items-center gap-5 text-sm shrink-0`}>
           {/* Public tabs — Scholarships is embedded in My Scholarship for students */}
           {PUBLIC_NAV_ALWAYS
             .filter(({ to }) => !(isScholar && to === '/scholarships'))
@@ -110,7 +116,7 @@ export function PublicLayout() {
 
       <footer className="bg-surface border-t border-border px-6 py-8">
         <div className="max-w-6xl mx-auto flex flex-col items-center gap-4">
-          <p className="text-sm font-semibold text-content">Iskolar ng Bayan</p>
+          <p className="text-sm font-semibold text-content">{brand.program}</p>
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-1">
             {FOOTER_LINKS.map((label) => (
               <span key={label} className="text-xs text-content-muted hover:text-primary cursor-pointer transition-colors">
@@ -119,7 +125,7 @@ export function PublicLayout() {
             ))}
           </div>
           <p className="text-xs text-content-disabled text-center">
-            © {new Date().getFullYear()} Municipal Youth Development Office, Sta. Cruz, Laguna. All rights reserved.
+            © {new Date().getFullYear()} {orgLine}. All rights reserved.
           </p>
         </div>
       </footer>

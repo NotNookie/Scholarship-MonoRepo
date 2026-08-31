@@ -1,16 +1,19 @@
 import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import { Building2, ShieldCheck } from 'lucide-react'
+import { useBrand } from '../../tenant/TenantContext'
 
 // Persistent marketing panel — stays mounted across Log In / Register so it
 // never flickers when switching.
 function LeftPanel() {
+  const brand = useBrand()
+  const org = brand.municipality ? `${brand.office}, ${brand.municipality}` : brand.office
   return (
     <div className="hidden md:flex md:w-2/5 bg-primary-dark flex-col justify-between p-10 text-on-primary shrink-0">
       <div className="flex items-center gap-2.5">
         <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
           <Building2 size={18} className="text-on-primary" />
         </div>
-        <span className="text-sm font-semibold">Iskolar ng Bayan</span>
+        <span className="text-sm font-semibold">{brand.program}</span>
       </div>
 
       <div>
@@ -18,8 +21,8 @@ function LeftPanel() {
           Empowering the youth through education.
         </h2>
         <p className="text-on-primary/70 text-sm leading-relaxed mb-8">
-          Access the Iskolar ng Bayan platform to apply for scholarships, track your status,
-          and stay updated with announcements from the Municipality of Sta. Cruz, Laguna.
+          Access the {brand.program} portal to apply for scholarships, track your status,
+          and stay updated with announcements{brand.municipality ? ` from ${brand.municipality}` : ''}.
         </p>
         <div className="flex items-start gap-3 bg-white/10 rounded-lg p-4">
           <ShieldCheck size={16} className="text-secondary shrink-0 mt-0.5" />
@@ -33,7 +36,7 @@ function LeftPanel() {
       </div>
 
       <p className="text-xs text-on-primary/40">
-        © {new Date().getFullYear()} Municipal Youth Development Office, Sta. Cruz, Laguna
+        © {new Date().getFullYear()} {org}
       </p>
     </div>
   )

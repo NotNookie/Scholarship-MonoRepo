@@ -1,6 +1,11 @@
 import { RouterProvider } from 'react-router-dom'
 import { router } from './router'
+import { TenantProvider } from './tenant/TenantContext'
 
 export default function App() {
-  return <RouterProvider router={router} />
+  return (
+    <TenantProvider>
+      <RouterProvider router={router} />
+    </TenantProvider>
+  )
 }

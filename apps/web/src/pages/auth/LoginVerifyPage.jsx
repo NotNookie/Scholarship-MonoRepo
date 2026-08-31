@@ -6,6 +6,7 @@ import { ShieldCheck, Building2, MessageSquare } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
 import { useAuthStore } from '../../store/authStore'
+import { useBrand } from '../../tenant/TenantContext'
 import { resolveLanding } from '../../lib/roleHome'
 
 export function LoginVerifyPage() {
@@ -13,6 +14,7 @@ export function LoginVerifyPage() {
   const navigate = useNavigate()
   const login = useAuthStore((s) => s.login)
   const inputRef = useRef(null)
+  const brand = useBrand()
 
   const sessionToken = location.state?.session_token
   const from = location.state?.from ?? null
@@ -71,7 +73,7 @@ export function LoginVerifyPage() {
           <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
             <Building2 size={18} className="text-on-primary" />
           </div>
-          <span className="text-sm font-semibold">Iskolar ng Bayan</span>
+          <span className="text-sm font-semibold">{brand.program}</span>
         </div>
 
         <div>
@@ -95,7 +97,7 @@ export function LoginVerifyPage() {
         </div>
 
         <p className="text-xs text-on-primary/40">
-          © {new Date().getFullYear()} Municipal Youth Development Office, Sta. Cruz, Laguna
+          © {new Date().getFullYear()} {brand.municipality ? `${brand.office}, ${brand.municipality}` : brand.office}
         </p>
       </div>
 

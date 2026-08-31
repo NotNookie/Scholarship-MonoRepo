@@ -16,6 +16,7 @@ import {
 import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { useAuthStore } from '../../store/authStore'
+import { useBrand } from '../../tenant/TenantContext'
 import { AnnouncementCard } from '../../components/shared/AnnouncementCard'
 import { Skeleton } from '../../components/shared/Skeleton'
 
@@ -27,18 +28,15 @@ const STEPS = [
   { n: 5, Icon: Award,     title: 'Receive Scholarship', desc: 'Get notified and receive your grant.' },
 ]
 
-const CONTACT = [
-  {
-    Icon: MapPin,
-    label: 'Office Address',
-    lines: ['Local Youth Development Office (LYDO)', '2nd Floor, Municipal Hall Building,', 'Sta. Cruz, Laguna 4009'],
-  },
-  { Icon: Phone, label: 'Phone', lines: ['(049) 123-4567'] },
-  { Icon: Mail,  label: 'Email', lines: ['lydo@stacruzlaguna.gov.ph'] },
-]
-
 export function LandingPage() {
   const isScholar = useAuthStore((s) => s.user?.role === 'scholar')
+  const brand = useBrand()
+
+  const CONTACT = [
+    { Icon: MapPin, label: 'Office Address', lines: brand.contact.addressLines },
+    { Icon: Phone,  label: 'Phone', lines: [brand.contact.phone] },
+    { Icon: Mail,   label: 'Email', lines: [brand.contact.email] },
+  ]
 
   const announcementsQuery = useQuery({
     queryKey: queryKeys.announcements.list({ per_page: 3 }),
@@ -61,12 +59,10 @@ export function LandingPage() {
             </div>
 
             <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-5">
-              Iskolar ng Bayan
+              {brand.program}
             </h1>
             <p className="text-on-primary/80 text-base leading-relaxed mb-8 max-w-lg">
-              The official Digital Scholarship Management Platform for the Iskolar ng Bayan program
-              of the Municipality of Sta. Cruz, Laguna. Empowering the youth of our municipality
-              through accessible education.
+              {brand.blurb}
             </p>
 
             <div className="flex flex-wrap gap-3">
@@ -119,7 +115,7 @@ export function LandingPage() {
             <h2 className="text-2xl font-bold text-primary">About the Program</h2>
           </div>
           <p className="text-sm text-content-muted text-center max-w-2xl mx-auto mb-12 leading-relaxed">
-            The Municipal Youth Development Office of Sta. Cruz, Laguna is committed to ensuring
+            The {brand.office} of {brand.municipality} is committed to ensuring
             every deserving student has access to higher education through a streamlined and
             transparent application process.
           </p>
@@ -194,8 +190,8 @@ export function LandingPage() {
             <div>
               <h2 className="text-2xl font-bold text-primary mb-3">Get in Touch</h2>
               <p className="text-sm text-content-muted mb-8 leading-relaxed">
-                Have questions about the application process or need assistance with your Iskolar
-                ng Bayan account? Our office is ready to help.
+                Have questions about the application process or need assistance with your {brand.program}{' '}
+                account? Our office is ready to help.
               </p>
 
               <div className="space-y-6">
@@ -216,15 +212,15 @@ export function LandingPage() {
 
               <div className="mt-8 pt-6 border-t border-border flex gap-3">
                 <a
-                  href="mailto:lydo@stacruzlaguna.gov.ph"
-                  aria-label="Email the LYDO office"
+                  href={`mailto:${brand.contact.email}`}
+                  aria-label={`Email the ${brand.office}`}
                   className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center text-content-muted hover:text-primary hover:border-primary transition-colors"
                 >
                   <Mail size={16} />
                 </a>
                 <a
-                  href="tel:+63491234567"
-                  aria-label="Call the LYDO office"
+                  href={brand.contact.phoneHref}
+                  aria-label={`Call the ${brand.office}`}
                   className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center text-content-muted hover:text-primary hover:border-primary transition-colors"
                 >
                   <Phone size={16} />
@@ -240,7 +236,7 @@ export function LandingPage() {
                 </div>
                 <div className="relative z-10 bg-surface/90 px-4 py-2 rounded-lg border border-border shadow-sm flex items-center gap-2">
                   <MapPin size={16} className="text-primary" />
-                  <span className="text-sm font-medium text-content">Sta. Cruz Municipal Hall</span>
+                  <span className="text-sm font-medium text-content">{brand.municipality}</span>
                 </div>
               </div>
             </div>
