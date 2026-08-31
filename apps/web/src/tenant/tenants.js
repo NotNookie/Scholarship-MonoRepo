@@ -65,13 +65,9 @@ export const TENANTS = [
   },
 ]
 
-// Shown at the bare root (iskolar.ph, no subdomain) — the platform's own front
-// door, not any municipality's site.
-export const PLATFORM_BRAND = {
-  program: 'Iskolar',
-  tagline: 'Municipal scholarship management for Philippine LGUs',
-  office: 'Iskolar Platform',
-}
+// Until there's a decision on what the bare host (no subdomain) should show,
+// it falls back to the primary tenant so the app renders normally in dev.
+export const DEFAULT_TENANT = TENANTS[0] // Sta. Cruz
 
 // Labels the browser treats as "no tenant" (the platform root, not a municipality).
 const ROOT_LABELS = new Set(['', 'www', 'iskolar', 'localhost', '127'])

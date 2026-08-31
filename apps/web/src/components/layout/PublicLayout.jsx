@@ -1,7 +1,7 @@
 import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom'
 import { LogOut } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
-import { useTenant, useBrand } from '../../tenant/TenantContext'
+import { useBrand } from '../../tenant/TenantContext'
 import { NotificationBell } from './NotificationBell'
 
 const PUBLIC_NAV_ALWAYS = [
@@ -30,11 +30,8 @@ export function PublicLayout() {
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
   const navigate = useNavigate()
-  const { status } = useTenant()
   const brand = useBrand()
 
-  // At the bare platform root there's no municipality, so hide the tenant nav.
-  const isRoot = status !== 'tenant'
   const orgLine = brand.municipality ? `${brand.office}, ${brand.municipality}` : brand.office
   const isScholar = user?.role === 'scholar'
   const fullName = user?.name ?? [user?.first_name, user?.last_name].filter(Boolean).join(' ')
@@ -52,8 +49,8 @@ export function PublicLayout() {
           {brand.program}
         </Link>
 
-        {/* Nav — centered (hidden at the platform root, which has no tenant) */}
-        <nav className={`${isRoot ? 'hidden' : 'hidden md:flex'} items-center gap-5 text-sm shrink-0`}>
+        {/* Nav — centered */}
+        <nav className="hidden md:flex items-center gap-5 text-sm shrink-0">
           {/* Public tabs — Scholarships is embedded in My Scholarship for students */}
           {PUBLIC_NAV_ALWAYS
             .filter(({ to }) => !(isScholar && to === '/scholarships'))

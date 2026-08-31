@@ -12,7 +12,7 @@ import { PlatformLayout } from '../components/layout/PlatformLayout'
 import { RequireAuth } from './RequireAuth'
 
 // Public pages
-import { HomeRoute } from '../pages/public/HomeRoute'
+import { LandingPage } from '../pages/public/LandingPage'
 import { ScholarshipsPage } from '../pages/public/ScholarshipsPage'
 import { RequirementsPage } from '../pages/public/RequirementsPage'
 import { AnnouncementsPage } from '../pages/public/AnnouncementsPage'
@@ -89,7 +89,7 @@ export const router = createBrowserRouter([
     element: <PublicLayout />,
     children: [
       // Public pages (no auth required)
-      { path: '/', element: <HomeRoute /> },
+      { path: '/', element: <LandingPage /> },
       { path: '/scholarships', element: <ScholarshipsPage /> },
       { path: '/requirements', element: <RequirementsPage /> },
       { path: '/announcements', element: <AnnouncementsPage /> },

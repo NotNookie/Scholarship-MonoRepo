@@ -26,7 +26,7 @@ Everything left to take Iskolar from a working frontend to a shippable system.
 ## MT. Multi-tenant frontend — *foundation built (2026-08-30), on sample data*
 - [x] `[In app]` Tenant resolution — subdomain → tenant via `TenantProvider` / `useTenant()`; `?tenant=` dev fallback; `*.localhost` works in dev
 - [x] `[In app]` Tenant-driven branding — name/tagline/office/contact + per-tenant colour palette (overrides `@theme` vars); wired into public chrome, auth screens, and the landing
-- [x] `[In app]` Root gateway (bare host) + "municipality not found" page
+- [ ] `[Decision]` Bare-host (no subdomain) behavior — currently falls back to the default tenant; the real root page (platform landing/gateway) is a later, deliberate task, not built yet
 - [ ] `[To build]` **Impersonation** — operator "Enter tenant" from the console → tenant's `/admin` with an "Impersonating <tenant> — Exit" banner *(decision locked: full impersonation)*
 - [ ] `[To build]` Point the deeper pages' remaining hardcoded "Iskolar ng Bayan / Sta. Cruz" strings at `useBrand()` *(student dashboard, My Scholarship, etc.)*
 - [ ] `[To build]` Swap the sample tenant registry (`tenant/tenants.js`) for the real API once the backend exists

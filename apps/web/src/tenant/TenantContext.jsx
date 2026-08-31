@@ -2,7 +2,7 @@
    provider and its consumer hooks (useTenant/useBrand) are intentionally
    colocated with the context they share. */
 import { createContext, useContext, useEffect, useState } from 'react'
-import { resolveSubdomain, findTenant, PLATFORM_BRAND } from './tenants'
+import { resolveSubdomain, findTenant, DEFAULT_TENANT } from './tenants'
 
 // Private — components read tenant state through the hooks below, never the
 // raw context (keeps this file Fast-Refresh friendly).
@@ -17,11 +17,11 @@ const TenantContext = createContext(null)
  */
 export function TenantProvider({ children }) {
   // Resolved once from the URL; the host doesn't change without a full reload.
+  // No / unknown subdomain falls back to the default tenant for now.
   const [value] = useState(() => {
     const subdomain = resolveSubdomain(window.location.hostname, window.location.search)
-    if (!subdomain) return { tenant: null, subdomain: null, status: 'root' }
-    const tenant = findTenant(subdomain)
-    return { tenant, subdomain, status: tenant ? 'tenant' : 'notfound' }
+    const tenant = findTenant(subdomain) ?? DEFAULT_TENANT
+    return { tenant, subdomain }
   })
 
   // Apply the tenant's palette by overriding the @theme CSS variables on :root.
@@ -52,9 +52,7 @@ export function useTenant() {
   return ctx
 }
 
-// The identity to display: the current tenant, or the platform brand at the
-// bare root. Use this for any name/tagline/office/contact in shared chrome.
+// The identity to display for any name/tagline/office/contact in shared chrome.
 export function useBrand() {
-  const { tenant } = useTenant()
-  return tenant ?? PLATFORM_BRAND
+  return useTenant().tenant
 }
