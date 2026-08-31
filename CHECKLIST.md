@@ -10,16 +10,26 @@ Everything left to take Iskolar from a working frontend to a shippable system.
 - `[To build]` — not started
 - `[Decision]` — waiting on a decision or dependency
 
-> ⚠️ **Blocking decision:** single configurable app vs. multi-tenant platform is still with your adviser. It gates §J (operator console), §B5 (tenant scoping), and §L3 (URLs). Lock §A first.
+> ✅ **Multi-tenant is APPROVED (adviser).** Decisions locked: **subdomain** per tenant (`stacruz.iskolar.ph`), the bare root shows a platform landing (no public directory), and Super Admin gets **full impersonation** into tenants. Backend stack + data-isolation model are deferred (front-end first). The multi-tenant **frontend foundation is built** — see §MT.
 
 ---
 
 ## A. Decisions to lock first
-- [ ] `[Decision]` Confirm scope with adviser — single configurable app vs. multi-tenant platform *(video sent; gates §J, §B5, §L3)*
+- [x] `[Decision]` ✅ Scope — **multi-tenant, adviser-approved.**
+- [x] `[Decision]` ✅ URL scheme — **subdomain** (`stacruz.iskolar.ph`); bare root = platform landing, no public directory.
+- [x] `[Decision]` ✅ Operator access into tenants — **full impersonation.**
 - [ ] `[To build]` Decide anti-fraud / duplicate-account approach *(parked for group meeting; leaning verified-mobile + staff review + duplicate flagging; no LRN; facial rec rescopable)*
 - [ ] `[To build]` AI writer — choose model/provider and who pays (platform vs. municipality)
 - [ ] `[To build]` Pick evaluation method — ISO 25010 vs. acceptance testing *(needed for objectives + defense)*
-- [ ] `[Decision]` Discovery / URL scheme — subdomain vs. dropdown vs. path *(only if multi-tenant)*
+- [ ] `[Decision]` Backend stack + data-isolation model *(deferred — front-end first; shared DB + tenant_id recommended when you get there)*
+
+## MT. Multi-tenant frontend — *foundation built (2026-08-30), on sample data*
+- [x] `[In app]` Tenant resolution — subdomain → tenant via `TenantProvider` / `useTenant()`; `?tenant=` dev fallback; `*.localhost` works in dev
+- [x] `[In app]` Tenant-driven branding — name/tagline/office/contact + per-tenant colour palette (overrides `@theme` vars); wired into public chrome, auth screens, and the landing
+- [x] `[In app]` Root gateway (bare host) + "municipality not found" page
+- [ ] `[To build]` **Impersonation** — operator "Enter tenant" from the console → tenant's `/admin` with an "Impersonating <tenant> — Exit" banner *(decision locked: full impersonation)*
+- [ ] `[To build]` Point the deeper pages' remaining hardcoded "Iskolar ng Bayan / Sta. Cruz" strings at `useBrand()` *(student dashboard, My Scholarship, etc.)*
+- [ ] `[To build]` Swap the sample tenant registry (`tenant/tenants.js`) for the real API once the backend exists
 
 ## PUB. Public site — *re-audited; several are frontend-only quick wins*
 
@@ -33,7 +43,7 @@ Dead controls / affordances:
 Hardcoded content that should be data/config-driven *(needs §H / §B)*:
 - [ ] `[To build]` Scholarships page — programs, "How to Qualify", and the deadline are all hardcoded *(feed from Maintenance config)*
 - [ ] `[To build]` Requirements page — forms, guide steps, and FAQ are all hardcoded
-- [ ] `[Partial]` Landing — steps, contact details, and branding are hardcoded *(tenant-driven branding = §H3)*
+- [x] `[In app]` Landing — name, tagline, office, and contact are now **tenant-driven** (via `useBrand()`); only the 5 "how it works" steps remain generic (fine — they're the same everywhere)
 
 Structure / redundancy:
 - [ ] `[To build]` Consolidate the two "Forms" surfaces — Requirements' dead-download section duplicates the real, API-backed `/forms` page
@@ -59,7 +69,7 @@ Honest placeholders only (clearly labeled, not silently dead) — become real wi
 
 ## SUP. Super Admin / operator console — *re-audited; a complete-looking prototype on 100% sample data*
 
-> ⚠️ Scope-dependent (see §A / §J): this whole console may be descoped or dropped if you stay single-app. Don't invest here until §A is settled.
+> ✅ Confirmed as a real deliverable — multi-tenant is approved (§A). Wire this to the backend when it exists.
 
 - [ ] `[To build]` Whole console runs on `platformStore` sample data with local-only state — nothing persists (resets on reload); no API *(analytics trend, activity feed, health, tickets, users are all hardcoded)*
 - [ ] `[To build]` Phase-banner "report an issue" is a dead `#report` anchor *(wire to the support email that Settings already stores)*
@@ -74,7 +84,7 @@ Solid as a prototype (no action): nav, global search (Ctrl+K), notifications, on
 - [ ] `[To build]` Design the database schema *(applicants, applications, documents, scholars, renewals, appeals, announcements/events, users, settings, policies, cycles, eligibility rules)*
 - [ ] `[To build]` Build the REST API to match the frontend's existing calls *(axios calls + query keys already define most endpoints)*
 - [ ] `[To build]` Replace all mock/sample data with real persistence
-- [ ] `[Decision]` Tenant scoping — a `municipality_id` on every record *(depends on §A)*
+- [ ] `[To build]` Tenant scoping — a `municipality_id` on every record *(multi-tenant approved; isolation model TBD — shared DB + tenant_id recommended)*
 - [ ] `[To build]` Document storage — multipart upload + bucket/disk *(apply form enforces uploads but can't transfer files without this)*
 - [ ] `[To build]` Wire the frontend to the real API; remove the `retry:false` fallbacks
 
@@ -116,7 +126,7 @@ Solid as a prototype (no action): nav, global search (Ctrl+K), notifications, on
 ## H. Maintenance / configuration — *makes the system generic & configurable*
 - [ ] `[In app]` Policies, cycles, eligibility, document checklist, org profile (UI)
 - [ ] `[To build]` Persist all configuration to the backend
-- [ ] `[Partial]` Tenant-driven branding replacing the hardcoded name/logo
+- [x] `[In app]` Tenant-driven branding (name, tagline, office, contact, colour palette) — done for the shared chrome + landing (§MT); a few deeper pages still have hardcoded strings to point at `useBrand()`; real logo upload needs the backend
 - [ ] `[To build]` Live theme switching *(theme is stored but not applied to the UI)*
 
 ## I. Reports
@@ -125,10 +135,10 @@ Solid as a prototype (no action): nav, global search (Ctrl+K), notifications, on
 - [ ] `[To build]` Feed reports from real aggregate data
 - [ ] `[To build]` Print stylesheet *(optional polish)*
 
-## J. Operator console — *scope-dependent (only if multi-tenant)*
+## J. Operator console — *confirmed deliverable (multi-tenant approved)*
 - [ ] `[In app]` Console UI — analytics, onboarding, support, broadcasts, health *(sample data)*
-- [ ] `[Decision]` Real API + live tenant management *(depends on §A)*
-- [ ] `[Decision]` If single-app: descope to a thin add-municipality flow, or drop *(depends on §A)*
+- [ ] `[To build]` Real API + live tenant management *(currently sample data — see §SUP)*
+- [ ] `[To build]` Impersonation ("Enter tenant") — full impersonation approved *(see §MT)*
 
 ## K. Testing & QA
 - [ ] `[To build]` Unit tests
@@ -140,7 +150,7 @@ Solid as a prototype (no action): nav, global search (Ctrl+K), notifications, on
 ## L. Deployment & ops
 - [ ] `[To build]` Host the frontend, backend, and database
 - [ ] `[To build]` Environment config & secrets management
-- [ ] `[Decision]` Domain / subdomain setup *(depends on §A)*
+- [ ] `[To build]` Subdomain setup — wildcard DNS + wildcard TLS for `*.iskolar.ph` *(subdomain scheme chosen; `*.localhost` already works in dev)*
 - [ ] `[To build]` Backups & recovery
 - [ ] `[To build]` CI/CD pipeline *(optional but nice)*
 
