@@ -25,6 +25,10 @@ function brandFor(m) {
       email: `scholarship@${m.subdomain}.gov.ph`,
     },
     walkthroughVideoUrl: null,
+    mapEmbedUrl: null,
+    website: null,
+    facebook: null,
+    manualUrl: null,
     theme: DEFAULT_TENANT.theme,
   }
 }

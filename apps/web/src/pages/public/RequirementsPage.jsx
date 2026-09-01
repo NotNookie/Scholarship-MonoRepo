@@ -203,13 +203,24 @@ export function RequirementsPage() {
                 </div>
               ))}
             </div>
-            <button
-              type="button"
-              onClick={() => document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' })}
-              className="mt-2 w-full py-2.5 rounded-lg border border-primary text-primary text-xs font-semibold hover:bg-primary-light transition-colors"
-            >
-              Read Full Manual
-            </button>
+            {brand.manualUrl ? (
+              <a
+                href={brand.manualUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 w-full py-2.5 rounded-lg border border-primary text-primary text-xs font-semibold hover:bg-primary-light transition-colors inline-flex items-center justify-center"
+              >
+                Read Full Manual
+              </a>
+            ) : (
+              <button
+                type="button"
+                onClick={() => document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' })}
+                className="mt-2 w-full py-2.5 rounded-lg border border-primary text-primary text-xs font-semibold hover:bg-primary-light transition-colors"
+              >
+                Read the FAQ
+              </button>
+            )}
           </div>
         </div>
       </section>

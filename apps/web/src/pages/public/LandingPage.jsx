@@ -12,7 +12,17 @@ import {
   MapPin,
   Phone,
   Mail,
+  Globe,
 } from 'lucide-react'
+
+// Facebook glyph (lucide dropped brand icons)
+function FacebookIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M13.5 9H15V6.5h-1.5c-1.66 0-3 1.34-3 3V11H9v2.5h1.5V19H13v-5.5h1.7l.3-2.5H13V9.5c0-.28.22-.5.5-.5z" />
+    </svg>
+  )
+}
 import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { useAuthStore } from '../../store/authStore'
@@ -32,11 +42,13 @@ export function LandingPage() {
   const isScholar = useAuthStore((s) => s.user?.role === 'scholar')
   const brand = useBrand()
 
+  // Only show contact rows the municipality actually provides.
   const CONTACT = [
-    { Icon: MapPin, label: 'Office Address', lines: brand.contact.addressLines },
-    { Icon: Phone,  label: 'Phone', lines: [brand.contact.phone] },
-    { Icon: Mail,   label: 'Email', lines: [brand.contact.email] },
-  ]
+    brand.contact.addressLines?.length && { Icon: MapPin, label: 'Office Address', lines: brand.contact.addressLines },
+    brand.contact.phone && { Icon: Phone, label: 'Phone', lines: [brand.contact.phone] },
+    brand.contact.email && { Icon: Mail, label: 'Email', lines: [brand.contact.email] },
+  ].filter(Boolean)
+  const hasMap = !!brand.mapEmbedUrl
 
   const announcementsQuery = useQuery({
     queryKey: queryKeys.announcements.list({ per_page: 3 }),
@@ -184,7 +196,7 @@ export function LandingPage() {
       {/* ── Get in Touch ─────────────────────────────────────── */}
       <section id="contact" className="scroll-mt-20 bg-surface-alt">
         <div className="max-w-6xl mx-auto px-6 py-16">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className={`grid grid-cols-1 ${hasMap ? 'lg:grid-cols-2' : ''} gap-12`}>
 
             {/* Contact info */}
             <div>
@@ -211,35 +223,44 @@ export function LandingPage() {
               </div>
 
               <div className="mt-8 pt-6 border-t border-border flex gap-3">
-                <a
-                  href={`mailto:${brand.contact.email}`}
-                  aria-label={`Email the ${brand.office}`}
-                  className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center text-content-muted hover:text-primary hover:border-primary transition-colors"
-                >
-                  <Mail size={16} />
-                </a>
-                <a
-                  href={brand.contact.phoneHref}
-                  aria-label={`Call the ${brand.office}`}
-                  className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center text-content-muted hover:text-primary hover:border-primary transition-colors"
-                >
-                  <Phone size={16} />
-                </a>
+                {brand.contact.email && (
+                  <a href={`mailto:${brand.contact.email}`} aria-label={`Email the ${brand.office}`}
+                    className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center text-content-muted hover:text-primary hover:border-primary transition-colors">
+                    <Mail size={16} />
+                  </a>
+                )}
+                {brand.contact.phoneHref && brand.contact.phone && (
+                  <a href={brand.contact.phoneHref} aria-label={`Call the ${brand.office}`}
+                    className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center text-content-muted hover:text-primary hover:border-primary transition-colors">
+                    <Phone size={16} />
+                  </a>
+                )}
+                {brand.website && (
+                  <a href={brand.website} target="_blank" rel="noopener noreferrer" aria-label={`${brand.office} website`}
+                    className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center text-content-muted hover:text-primary hover:border-primary transition-colors">
+                    <Globe size={16} />
+                  </a>
+                )}
+                {brand.facebook && (
+                  <a href={brand.facebook} target="_blank" rel="noopener noreferrer" aria-label={`${brand.office} Facebook page`}
+                    className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center text-content-muted hover:text-primary hover:border-primary transition-colors">
+                    <FacebookIcon size={16} />
+                  </a>
+                )}
               </div>
             </div>
 
-            {/* Map placeholder */}
-            <div className="bg-surface rounded-xl border border-border shadow-card p-2">
-              <div className="w-full h-[360px] rounded-lg bg-primary-light flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 opacity-10">
-                  <div className="w-full h-full bg-gradient-to-br from-primary to-primary-dark" />
-                </div>
-                <div className="relative z-10 bg-surface/90 px-4 py-2 rounded-lg border border-border shadow-sm flex items-center gap-2">
-                  <MapPin size={16} className="text-primary" />
-                  <span className="text-sm font-medium text-content">{brand.municipality}</span>
-                </div>
+            {/* Map — only when the municipality provides one */}
+            {hasMap && (
+              <div className="bg-surface rounded-xl border border-border shadow-card p-2">
+                <iframe
+                  title={`Map of ${brand.municipality}`}
+                  src={brand.mapEmbedUrl}
+                  loading="lazy"
+                  className="w-full h-[360px] rounded-lg border-0"
+                />
               </div>
-            </div>
+            )}
           </div>
         </div>
       </section>

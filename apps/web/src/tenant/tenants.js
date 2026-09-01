@@ -24,8 +24,12 @@ export const TENANTS = [
       phoneHref: 'tel:+63491234567',
       email: 'lydo@stacruzlaguna.gov.ph',
     },
-    // Optional per-municipality content. null = the municipality doesn't have it.
+    // Optional per-municipality content. null / '' = the municipality doesn't have it.
     walkthroughVideoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    mapEmbedUrl: 'https://www.openstreetmap.org/export/embed.html?bbox=121.40%2C14.26%2C121.44%2C14.30&layer=mapnik&marker=14.283%2C121.416',
+    website: 'https://stacruzlaguna.gov.ph',
+    facebook: 'https://www.facebook.com/',
+    manualUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
     // Matches the app defaults (globals.css @theme) — applying it is a no-op.
     theme: {
       '--color-primary-dark': '#002576',
@@ -55,7 +59,12 @@ export const TENANTS = [
       phoneHref: 'tel:+63490000000',
       email: 'scholarship@pagsanjan.gov.ph',
     },
-    walkthroughVideoUrl: null, // Pagsanjan has no walkthrough video
+    // Pagsanjan omits most optional content (only a Facebook page) — shows contrast.
+    walkthroughVideoUrl: null,
+    mapEmbedUrl: null,
+    website: null,
+    facebook: 'https://www.facebook.com/',
+    manualUrl: null,
     // A visibly different palette (teal + warm orange) to prove the reskin.
     theme: {
       '--color-primary-dark': '#0a5654',

@@ -32,6 +32,10 @@ const DEFAULTS = {
   logo_name: '',
   walkthrough_video_enabled: true,
   walkthrough_video_url: '',
+  website_url: '',
+  facebook_url: '',
+  manual_url: '',
+  map_embed_url: '',
 }
 
 const inputCls = 'w-full text-sm px-3 py-2.5 rounded-lg border border-border bg-surface focus:outline-none focus:border-primary'
@@ -187,6 +191,22 @@ export function MaintenanceProfilePage() {
                 </Field>
               </div>
             )}
+
+            <div className="mt-6 pt-6 border-t border-border flex flex-col gap-4">
+              <p className="text-xs text-content-muted">Leave any of these blank and it simply won&rsquo;t appear on your public pages.</p>
+              <Field id="website_url" label="Website URL">
+                <input id="website_url" type="url" value={form.website_url} onChange={set('website_url')} placeholder="https://yourtown.gov.ph" className={inputCls} />
+              </Field>
+              <Field id="facebook_url" label="Facebook page URL">
+                <input id="facebook_url" type="url" value={form.facebook_url} onChange={set('facebook_url')} placeholder="https://facebook.com/yourtown" className={inputCls} />
+              </Field>
+              <Field id="manual_url" label="Downloadable manual / handbook URL">
+                <input id="manual_url" type="url" value={form.manual_url} onChange={set('manual_url')} placeholder="https://…  (a PDF link)" className={inputCls} />
+              </Field>
+              <Field id="map_embed_url" label="Map embed URL">
+                <input id="map_embed_url" type="url" value={form.map_embed_url} onChange={set('map_embed_url')} placeholder="OpenStreetMap / Google Maps embed URL" className={inputCls} />
+              </Field>
+            </div>
           </section>
         </div>
 
