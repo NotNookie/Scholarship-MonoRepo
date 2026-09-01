@@ -4,11 +4,12 @@ import { useForm } from 'react-hook-form'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import {
   GraduationCap, FileText, ShieldCheck, UploadCloud, Send, Loader2, Info,
-  CheckCircle2, CalendarClock, X, ChevronLeft,
+  CheckCircle2, CalendarClock, X, ChevronLeft, AlertTriangle,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
 import { useBrand } from '../../tenant/TenantContext'
+import { validateFile, measureSharpness, BLUR_THRESHOLD } from '../../lib/fileValidation'
 
 const DRAFT_KEY = 'iskolar-renewal-draft'
 
@@ -29,7 +30,7 @@ const inputCls = (err) =>
   `w-full text-sm px-3 py-2.5 rounded-lg border bg-surface focus:outline-none focus:border-primary transition-colors ${err ? 'border-danger' : 'border-border'}`
 
 function loadDraft() {
-  try { return JSON.parse(sessionStorage.getItem(DRAFT_KEY) ?? 'null') ?? {} } catch { return {} }
+  try { return JSON.parse(localStorage.getItem(DRAFT_KEY) ?? 'null') ?? {} } catch { return {} }
 }
 
 function Section({ n, Icon, title, children, active }) {
@@ -49,6 +50,24 @@ export function RenewalPage() {
   const brand = useBrand()
   const DECLARATIONS = declarationsFor(brand.municipality)
   const [files, setFiles] = useState({})
+  const [blurHints, setBlurHints] = useState({})
+
+  async function handleFile(key, f) {
+    if (!f) return
+    const err = validateFile(f)
+    if (err) { toast.error(err); return }
+    setFiles((prev) => ({ ...prev, [key]: f }))
+    setBlurHints((prev) => ({ ...prev, [key]: false }))
+    if (/\.(jpe?g|png)$/i.test(f.name)) {
+      const sharpness = await measureSharpness(f)
+      if (sharpness != null && sharpness < BLUR_THRESHOLD) setBlurHints((prev) => ({ ...prev, [key]: true }))
+    }
+  }
+
+  function removeFile(key) {
+    setFiles((f) => ({ ...f, [key]: null }))
+    setBlurHints((h) => ({ ...h, [key]: false }))
+  }
 
   const { data, isPending } = useQuery({
     queryKey: ['student', 'scholarship'],
@@ -65,7 +84,7 @@ export function RenewalPage() {
 
   // Auto-save draft locally (same pattern as the 5-step application form)
   useEffect(() => {
-    const sub = watch((v) => sessionStorage.setItem(DRAFT_KEY, JSON.stringify(v)))
+    const sub = watch((v) => localStorage.setItem(DRAFT_KEY, JSON.stringify(v)))
     return () => sub.unsubscribe()
   }, [watch])
 
@@ -78,7 +97,7 @@ export function RenewalPage() {
     },
     onSuccess: () => {
       toast.success('Renewal submitted for review.')
-      sessionStorage.removeItem(DRAFT_KEY)
+      localStorage.removeItem(DRAFT_KEY)
       navigate('/scholarship')
     },
     onError: (e) => toast.error(e?.response?.data?.message ?? 'Could not submit renewal.'),
@@ -97,7 +116,7 @@ export function RenewalPage() {
   ]
 
   function saveDraft() {
-    sessionStorage.setItem(DRAFT_KEY, JSON.stringify(getValues()))
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(getValues()))
     toast.success('Draft saved on this device.')
   }
 
@@ -227,15 +246,23 @@ export function RenewalPage() {
                 return (
                   <div key={d.key}>
                     {file ? (
-                      <div className="border border-tertiary/40 bg-tertiary-light/40 rounded-lg p-4 flex items-center gap-3">
-                        <CheckCircle2 size={16} className="text-tertiary-dark shrink-0" />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-content truncate">{d.label}</p>
-                          <p className="text-xs text-content-muted truncate">{file.name}</p>
+                      <>
+                        <div className="border border-tertiary/40 bg-tertiary-light/40 rounded-lg p-4 flex items-center gap-3">
+                          <CheckCircle2 size={16} className="text-tertiary-dark shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-semibold text-content truncate">{d.label}</p>
+                            <p className="text-xs text-content-muted truncate">{file.name}</p>
+                          </div>
+                          <button type="button" onClick={() => removeFile(d.key)}
+                            className="text-content-muted hover:text-danger shrink-0" aria-label={`Remove ${d.label}`}><X size={15} /></button>
                         </div>
-                        <button type="button" onClick={() => setFiles((f) => ({ ...f, [d.key]: null }))}
-                          className="text-content-muted hover:text-danger shrink-0" aria-label={`Remove ${d.label}`}><X size={15} /></button>
-                      </div>
+                        {blurHints[d.key] && (
+                          <div className="mt-2 flex items-start gap-2 bg-secondary/15 border border-secondary/40 rounded-lg px-3 py-2">
+                            <AlertTriangle size={14} className="text-content shrink-0 mt-0.5" />
+                            <p className="text-xs text-content leading-relaxed">This image looks a little blurry. A clearer photo is easier to verify — retake it, or keep this one.</p>
+                          </div>
+                        )}
+                      </>
                     ) : (
                       <label htmlFor={d.key} className="flex flex-col items-center justify-center gap-1.5 border-2 border-dashed border-border rounded-lg px-4 py-7 cursor-pointer hover:border-primary hover:bg-primary-light/30 transition-colors text-center">
                         <UploadCloud size={22} className="text-content-muted" />
@@ -243,7 +270,7 @@ export function RenewalPage() {
                         <span className="text-xs text-content-muted">{d.note}</span>
                         <span className="text-xs text-primary font-semibold mt-1">Browse files</span>
                         <input id={d.key} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden"
-                          onChange={(e) => setFiles((f) => ({ ...f, [d.key]: e.target.files?.[0] ?? null }))} />
+                          onChange={(e) => handleFile(d.key, e.target.files?.[0])} />
                       </label>
                     )}
                   </div>
@@ -305,7 +332,7 @@ export function RenewalPage() {
               <p className="text-xs text-content-muted mt-1 leading-relaxed">
                 If you're unsure about your GWA calculation or required documents, contact the scholarship office.
               </p>
-              <Link to="/" className="text-xs font-semibold text-primary hover:underline mt-2 inline-block">Contact support →</Link>
+              <a href="/#contact" className="text-xs font-semibold text-primary hover:underline mt-2 inline-block">Contact support →</a>
             </div>
           </div>
         </aside>

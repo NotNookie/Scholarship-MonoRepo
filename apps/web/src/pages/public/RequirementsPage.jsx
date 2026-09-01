@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import {
   FolderOpen,
   FileText,
@@ -7,34 +8,12 @@ import {
   Download,
   Play,
   Clock,
+  X,
 } from 'lucide-react'
-
-const FORMS = [
-  {
-    Icon: FileText,
-    iconBg: 'bg-danger-light',
-    iconColor: 'text-danger',
-    label: 'PDF • 2.4 MB',
-    title: 'Official Application Form 2024',
-    desc: 'The primary application document required for all new scholarship applicants.',
-  },
-  {
-    Icon: FileText,
-    iconBg: 'bg-primary-light',
-    iconColor: 'text-primary',
-    label: 'DOCX • 1.1 MB',
-    title: 'Certificate of Indigency Template',
-    desc: 'Standard format to be filled out and signed by your local Barangay Captain.',
-  },
-  {
-    Icon: FileText,
-    iconBg: 'bg-secondary-light',
-    iconColor: 'text-on-secondary',
-    label: 'XLSX • 0.8 MB',
-    title: 'Grade Computation Sheet',
-    desc: 'A helpful excel tool to calculate your General Weighted Average (GWA) accurately.',
-  },
-]
+import { api } from '../../lib/axios'
+import { queryKeys } from '../../lib/queryKeys'
+import { Skeleton } from '../../components/shared/Skeleton'
+import { FALLBACK_FORMS } from '../../data/forms'
 
 const GUIDE_STEPS = [
   {
@@ -95,6 +74,16 @@ function FaqItem({ q, a, defaultOpen = false }) {
 }
 
 export function RequirementsPage() {
+  const [showVideo, setShowVideo] = useState(false)
+
+  const { data, isPending } = useQuery({
+    queryKey: queryKeys.forms.all,
+    queryFn: () => api.get('/forms').then((r) => r.data),
+    placeholderData: { data: FALLBACK_FORMS },
+    retry: false,
+  })
+  const forms = data?.data?.length ? data.data : FALLBACK_FORMS
+
   return (
     <div className="max-w-5xl mx-auto px-6 py-12 flex flex-col gap-14">
 
@@ -116,34 +105,45 @@ export function RequirementsPage() {
           <h2 className="text-xl font-bold text-content">Downloadable Forms</h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {FORMS.map(({ Icon, iconBg, iconColor, label, title, desc }) => (
-            <div
-              key={title}
-              className="bg-surface border border-border rounded-xl p-5 shadow-card hover:shadow-modal transition-shadow flex flex-col gap-4 group cursor-pointer relative overflow-hidden"
-            >
-              <div className="absolute top-0 right-0 w-20 h-20 bg-surface-alt rounded-bl-full -mr-6 -mt-6 transition-transform group-hover:scale-110" />
-              <div className="flex items-start justify-between relative z-10">
-                <div className={`w-11 h-11 rounded-lg ${iconBg} flex items-center justify-center shrink-0`}>
-                  <Icon size={20} className={iconColor} />
+        {isPending ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {[1, 2, 3].map((i) => <Skeleton key={i} className="h-40 rounded-xl" />)}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {forms.map((form) => (
+              <div
+                key={form.id}
+                className="bg-surface border border-border rounded-xl p-5 shadow-card hover:shadow-modal transition-shadow flex flex-col gap-4 group relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-20 h-20 bg-surface-alt rounded-bl-full -mr-6 -mt-6 transition-transform group-hover:scale-110" />
+                <div className="flex items-start justify-between relative z-10">
+                  <div className="w-11 h-11 rounded-lg bg-primary-light flex items-center justify-center shrink-0">
+                    <FileText size={20} className="text-primary" />
+                  </div>
+                  <span className="text-xs text-content-muted bg-surface-alt border border-border px-2 py-0.5 rounded font-medium uppercase">
+                    {form.format ?? 'PDF'}
+                  </span>
                 </div>
-                <span className="text-xs text-content-muted bg-surface-alt border border-border px-2 py-0.5 rounded font-medium">
-                  {label}
-                </span>
+                <div className="relative z-10 flex-1">
+                  <h3 className="text-sm font-bold text-content mb-1 leading-snug">{form.name}</h3>
+                  {form.description && <p className="text-xs text-content-muted leading-snug line-clamp-2">{form.description}</p>}
+                </div>
+                <div className="relative z-10 pt-3 border-t border-border">
+                  {form.url ? (
+                    <a href={form.url} download className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline">
+                      <Download size={14} /> Download
+                    </a>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-content-disabled" title="This file hasn't been uploaded by the office yet.">
+                      <Download size={14} /> Not yet available
+                    </span>
+                  )}
+                </div>
               </div>
-              <div className="relative z-10 flex-1">
-                <h3 className="text-sm font-bold text-content mb-1 group-hover:text-primary transition-colors leading-snug">
-                  {title}
-                </h3>
-                <p className="text-xs text-content-muted leading-snug line-clamp-2">{desc}</p>
-              </div>
-              <div className="relative z-10 pt-3 border-t border-border flex items-center justify-between">
-                <span className="text-xs font-semibold text-primary group-hover:underline">Download</span>
-                <Download size={14} className="text-primary group-hover:-translate-y-0.5 transition-transform" />
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* ── Application Guide ────────────────────────────────── */}
@@ -161,6 +161,8 @@ export function RequirementsPage() {
             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary-dark/10" />
             <button
               type="button"
+              onClick={() => setShowVideo(true)}
+              aria-label="Play the application walkthrough video"
               className="relative z-10 w-16 h-16 rounded-full bg-surface/90 flex items-center justify-center shadow-modal hover:scale-105 transition-transform"
             >
               <Play size={22} className="text-primary ml-1" fill="currentColor" />
@@ -197,6 +199,7 @@ export function RequirementsPage() {
             </div>
             <button
               type="button"
+              onClick={() => document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' })}
               className="mt-2 w-full py-2.5 rounded-lg border border-primary text-primary text-xs font-semibold hover:bg-primary-light transition-colors"
             >
               Read Full Manual
@@ -206,7 +209,7 @@ export function RequirementsPage() {
       </section>
 
       {/* ── FAQ ──────────────────────────────────────────────── */}
-      <section className="max-w-3xl mx-auto w-full">
+      <section id="faq" className="scroll-mt-20 max-w-3xl mx-auto w-full">
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-primary mb-2">Frequently Asked Questions</h2>
           <p className="text-sm text-content-muted">
@@ -220,6 +223,32 @@ export function RequirementsPage() {
           ))}
         </div>
       </section>
+
+      {/* Walkthrough video lightbox */}
+      {showVideo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setShowVideo(false)} />
+          <div className="relative bg-surface rounded-xl shadow-modal w-full max-w-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-border">
+              <p className="text-sm font-bold text-content">Application Walkthrough</p>
+              <button onClick={() => setShowVideo(false)} className="text-content-muted hover:text-content" aria-label="Close video">
+                <X size={18} />
+              </button>
+            </div>
+            <video
+              controls
+              autoPlay
+              className="w-full aspect-video bg-black"
+              src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+            >
+              Your browser doesn&rsquo;t support embedded video.
+            </video>
+            <p className="text-xs text-content-muted px-5 py-3">
+              Placeholder walkthrough — replace with your municipality&rsquo;s own guide video.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

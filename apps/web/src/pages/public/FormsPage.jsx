@@ -5,37 +5,7 @@ import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { EmptyState } from '../../components/shared/EmptyState'
 import { useBrand } from '../../tenant/TenantContext'
-
-const FALLBACK_FORMS = [
-  {
-    id: 1,
-    name: 'Scholarship Application Form',
-    description: 'For new applicants applying for the scholarship for the first time.',
-    format: 'PDF',
-    url: null,
-  },
-  {
-    id: 2,
-    name: 'Renewal Application Form',
-    description: 'For continuing scholars renewing their scholarship for another term.',
-    format: 'PDF',
-    url: null,
-  },
-  {
-    id: 3,
-    name: 'Program Guidelines & Mechanics',
-    description: 'Official scholarship program guidelines, terms, and conditions.',
-    format: 'PDF',
-    url: null,
-  },
-  {
-    id: 4,
-    name: 'Appeal / Reconsideration Form',
-    description: 'For applicants who wish to appeal a rejected or incomplete application.',
-    format: 'PDF',
-    url: null,
-  },
-]
+import { FALLBACK_FORMS } from '../../data/forms'
 
 export function FormsPage() {
   const brand = useBrand()

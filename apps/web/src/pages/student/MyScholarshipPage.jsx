@@ -232,7 +232,7 @@ function AvailableScholarships({ compact }) {
         </Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-        {list.map((s) => <ScholarshipCard key={s.id} scholarship={s} ctaTo="/apply" />)}
+        {list.map((s) => <ScholarshipCard key={s.id} scholarship={s} />)}
       </div>
     </section>
   )

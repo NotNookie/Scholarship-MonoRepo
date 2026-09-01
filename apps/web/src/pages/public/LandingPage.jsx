@@ -182,7 +182,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Get in Touch ─────────────────────────────────────── */}
-      <section className="bg-surface-alt">
+      <section id="contact" className="scroll-mt-20 bg-surface-alt">
         <div className="max-w-6xl mx-auto px-6 py-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
 

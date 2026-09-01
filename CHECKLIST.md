@@ -35,10 +35,10 @@ Everything left to take Iskolar from a working frontend to a shippable system.
 ## PUB. Public site — *re-audited; several are frontend-only quick wins*
 
 Dead controls / affordances:
-- [ ] `[To build]` Requirements page — the 3 "Download" form cards do nothing *(wire to real files, or just link to `/forms`)*
-- [ ] `[To build]` Requirements page — the "Play" walkthrough-video button and "Read Full Manual" button do nothing *(add real targets or remove)*
-- [ ] `[To build]` Scholarship cards — the bookmark icon is decorative (no action); "View Details" actually jumps to Register/Apply *(relabel, or build a real scholarship detail view)*
-- [ ] `[Partial]` Announcements — list rows look clickable (chevron + cursor) but there's no detail view *(add one, or drop the affordance)*
+- [x] `[In app]` Requirements downloads — now unified with the `/forms` source (same data); each Download hits the real file when uploaded, honest "Not yet available" until then
+- [x] `[In app]` Requirements — "Play" opens a walkthrough-video lightbox (placeholder clip); "Read Full Manual" scrolls to the FAQ
+- [x] `[In app]` Scholarship cards — bookmark now saves to localStorage (fills when saved); "View Details" opens a real detail page (`/scholarships/:id`)
+- [x] `[In app]` Announcements — rows now open a real detail page (`/announcements/:id`)
 - [ ] `[Partial]` Landing — the "map" is a styled placeholder, not a real embed
 
 Hardcoded content that should be data/config-driven *(needs §H / §B)*:
@@ -47,14 +47,14 @@ Hardcoded content that should be data/config-driven *(needs §H / §B)*:
 - [x] `[In app]` Landing — name, tagline, office, and contact are now **tenant-driven** (via `useBrand()`); only the 5 "how it works" steps remain generic (fine — they're the same everywhere)
 
 Structure / redundancy:
-- [ ] `[To build]` Consolidate the two "Forms" surfaces — Requirements' dead-download section duplicates the real, API-backed `/forms` page
+- [x] `[In app]` Consolidated the two "Forms" surfaces — both Requirements and `/forms` now read one shared source (`data/forms.js` + the `/forms` API)
 
 Already solid (no action): the `/forms` page, `/announcements` (search, load-more, empty states, markdown), Scholarships sort/search, the FAQ accordion.
 
 ## STU. Student portal — *re-audited; mostly solid, a few concrete gaps*
-- [ ] `[To build]` Renewal form draft uses `sessionStorage` — won't survive closing the browser *(same fix as the application form: switch to `localStorage`)*
-- [ ] `[To build]` Renewal uploads have no file type/size guard *(apply the same 5MB/type check — and optionally the blur soft-flag — used on the application form)*
-- [ ] `[Partial]` "Contact support" link on the renewal page points to the homepage, not a real contact
+- [x] `[In app]` Renewal form draft now uses `localStorage` — survives closing the browser
+- [x] `[In app]` Renewal uploads now have the shared 5MB/type guard + blur soft-flag (extracted to `lib/fileValidation.js`, shared with the apply form)
+- [x] `[In app]` "Contact support" on the renewal page now links to the landing's Get-in-Touch section (`/#contact`)
 - [ ] `[Partial]` Settings — photo upload and "Reconfigure 2FA" are honest placeholders *("available once accounts sync"; need backend)*
 
 Already solid (no action): dashboard, application form, My Scholarship (3 states), Documents (loading/error/empty), Appeals (real multipart upload), Announcements & schedules, Settings tabs, Renewal blocked/submitted states.

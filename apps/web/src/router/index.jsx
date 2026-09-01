@@ -14,8 +14,10 @@ import { RequireAuth } from './RequireAuth'
 // Public pages
 import { LandingPage } from '../pages/public/LandingPage'
 import { ScholarshipsPage } from '../pages/public/ScholarshipsPage'
+import { ScholarshipDetailPage } from '../pages/public/ScholarshipDetailPage'
 import { RequirementsPage } from '../pages/public/RequirementsPage'
 import { AnnouncementsPage } from '../pages/public/AnnouncementsPage'
+import { AnnouncementDetailPage } from '../pages/public/AnnouncementDetailPage'
 import { FormsPage } from '../pages/public/FormsPage'
 
 // Auth pages
@@ -92,8 +94,10 @@ export const router = createBrowserRouter([
       // Public pages (no auth required)
       { path: '/', element: <LandingPage /> },
       { path: '/scholarships', element: <ScholarshipsPage /> },
+      { path: '/scholarships/:id', element: <ScholarshipDetailPage /> },
       { path: '/requirements', element: <RequirementsPage /> },
       { path: '/announcements', element: <AnnouncementsPage /> },
+      { path: '/announcements/:id', element: <AnnouncementDetailPage /> },
       { path: '/forms', element: <FormsPage /> },
 
       // Student pages (auth-gated individually)

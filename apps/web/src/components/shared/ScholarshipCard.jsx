@@ -1,5 +1,11 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CalendarCheck, Clock, Lock, Bookmark, ChevronRight, Banknote, GraduationCap } from 'lucide-react'
+
+const SAVED_KEY = 'iskolar-saved-scholarships'
+function readSaved() {
+  try { return JSON.parse(localStorage.getItem(SAVED_KEY) || '[]') } catch { return [] }
+}
 
 function StatusBadge({ status, daysLeft }) {
   if (status === 'open') {
@@ -23,12 +29,18 @@ function StatusBadge({ status, daysLeft }) {
   )
 }
 
-/**
- * @param {string} ctaTo  where "View Details" links — /register for guests, /apply for logged-in students.
- */
-export function ScholarshipCard({ scholarship, ctaTo = '/register' }) {
-  const { name, category, status, daysLeft, eligibility, benefit } = scholarship
+export function ScholarshipCard({ scholarship }) {
+  const { id, name, category, status, daysLeft, eligibility, benefit } = scholarship
   const isClosed = status === 'closed'
+  const [saved, setSaved] = useState(() => readSaved().includes(id))
+
+  function toggleSave(e) {
+    e.preventDefault()
+    const list = readSaved()
+    const next = list.includes(id) ? list.filter((x) => x !== id) : [...list, id]
+    try { localStorage.setItem(SAVED_KEY, JSON.stringify(next)) } catch { /* storage unavailable */ }
+    setSaved(next.includes(id))
+  }
 
   return (
     <article className={`bg-surface border border-border rounded-xl p-6 shadow-card hover:shadow-modal transition-shadow flex flex-col h-full relative overflow-hidden ${isClosed ? 'opacity-75' : ''}`}>
@@ -36,7 +48,15 @@ export function ScholarshipCard({ scholarship, ctaTo = '/register' }) {
 
       <div className="flex justify-between items-start mb-4">
         <StatusBadge status={status} daysLeft={daysLeft} />
-        <Bookmark size={16} className="text-border hover:text-primary transition-colors cursor-pointer" />
+        <button
+          type="button"
+          onClick={toggleSave}
+          aria-label={saved ? 'Remove bookmark' : 'Bookmark this scholarship'}
+          aria-pressed={saved}
+          className="relative z-10 -m-1 p-1 rounded-md hover:bg-surface-alt transition-colors"
+        >
+          <Bookmark size={16} className={`transition-colors ${saved ? 'text-primary fill-primary' : 'text-border hover:text-primary'}`} />
+        </button>
       </div>
 
       <h3 className={`text-base font-bold leading-snug mb-1 ${isClosed ? 'text-content' : 'text-primary'}`}>{name}</h3>
@@ -60,15 +80,9 @@ export function ScholarshipCard({ scholarship, ctaTo = '/register' }) {
       </div>
 
       <div className="pt-4 border-t border-border">
-        {isClosed ? (
-          <button disabled className="w-full bg-surface-alt text-content-muted text-xs font-semibold py-2.5 rounded-lg cursor-not-allowed flex items-center justify-center gap-1">
-            Opens Next Year
-          </button>
-        ) : (
-          <Link to={ctaTo} className="w-full bg-surface text-primary border border-primary hover:bg-primary hover:text-on-primary text-xs font-semibold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1">
-            View Details <ChevronRight size={13} />
-          </Link>
-        )}
+        <Link to={`/scholarships/${id}`} className="w-full bg-surface text-primary border border-primary hover:bg-primary hover:text-on-primary text-xs font-semibold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1">
+          View Details <ChevronRight size={13} />
+        </Link>
       </div>
     </article>
   )
