@@ -4,6 +4,7 @@ import {
   Search, Download, X, ChevronLeft, ChevronRight, Eye, ScrollText, Calendar,
 } from 'lucide-react'
 import { api } from '../../lib/axios'
+import { useEscapeToClose } from '../../lib/useEscapeToClose'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { downloadCsv } from '../../lib/reportExport'
 
@@ -50,6 +51,7 @@ function fmtTime(v) {
 // ── Detail modal ──────────────────────────────────────────────
 
 function LogModal({ log, onClose }) {
+  useEscapeToClose(onClose)
   const cfg = ACTION_TYPES[log.action_type]
   const isSystem = log.actor_type === 'system'
   return (

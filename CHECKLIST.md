@@ -65,7 +65,7 @@ Everything is API-backed and wired: Verification Queue (search / status / **scho
 
 Honest placeholders only (clearly labeled, not silently dead) — become real with the backend:
 - [ ] `[Partial]` Reports — "Financial Disbursement Trends" chart + Payout list note that disbursement tracking isn't available yet
-- [ ] `[To build]` Live theme switching — the org-profile theme is stored but not applied to the UI *(= §H4)*
+- [x] `[In app]` Live theme switching — the org-profile theme preset now **applies live** across the whole UI and persists per device (`store/uiThemeStore.js` + `tenant/themePresets.js`, layered over the tenant palette by TenantProvider) *(= §H4)*
 - [ ] `[Partial]` "Draft with AI" button in the composer — gated by the toggle; needs the LLM endpoint *(= §F3)*
 
 ## SUP. Super Admin / operator console — *re-audited; a complete-looking prototype on 100% sample data*
@@ -128,7 +128,7 @@ Solid as a prototype (no action): nav, global search (Ctrl+K), notifications, on
 - [ ] `[In app]` Policies, cycles, eligibility, document checklist, org profile (UI)
 - [ ] `[To build]` Persist all configuration to the backend
 - [x] `[In app]` Tenant-driven branding (name, tagline, office, contact, colour palette) — done across the shared chrome, landing, and the deeper student/admin/public pages (§MT); real logo upload still needs the backend
-- [ ] `[To build]` Live theme switching *(theme is stored but not applied to the UI)*
+- [x] `[In app]` Live theme switching — the selected theme preset applies live and persists (see §ADM); real per-tenant logo upload still needs the backend
 - [x] `[In app]` Make other per-municipality content optional too (like the walkthrough video). **Done:** landing **map embed**, **website/social links**, downloadable **manual/handbook**, individual **contact fields** (hidden when blank), **essay** requirement in the application (drops the step + review section), **qualifying-exam** & **orientation** journey milestones in My Scholarship, and **payout/disbursement tracking** (payout report + disbursement chart) in admin Reports. All driven by a `features` object on the tenant registry, with on/off toggles in Maintenance → Application &amp; Lifecycle. Pagsanjan runs the lean variant (no essay/exam/orientation/payout) to prove the flags gate.
 
 ## I. Reports
@@ -146,8 +146,8 @@ Solid as a prototype (no action): nav, global search (Ctrl+K), notifications, on
 - [ ] `[To build]` Unit tests
 - [ ] `[To build]` Integration / end-to-end tests
 - [ ] `[To build]` Acceptance testing / ISO 25010 evaluation *(ties to §A4)*
-- [ ] `[To build]` Accessibility audit (keyboard, contrast, labels)
-- [ ] `[Partial]` Cross-browser & mobile QA
+- [~] `[Partial]` Accessibility audit (keyboard, contrast, labels) — **pass done:** all 12 modals/lightboxes now dismiss on **Escape** (shared `lib/useEscapeToClose`); verified form labels are associated (shared `Field` + `htmlFor`/`id`, `aria-invalid`/`aria-describedby`/`role="alert"`), icon-only buttons carry `aria-label`, no `<img>` alt gaps (icon font), and gold-on-dark contrast is fine. *Not yet: automated axe run, full focus-trap in modals, screen-reader pass.*
+- [~] `[Partial]` Cross-browser & mobile QA — mobile/responsive verified on Chromium (Chrome/Edge) at the mobile single-column layout, the 768px breakpoint, and desktop — no overflow/breakage. *Not yet: Firefox (Gecko) and Safari (WebKit) — no engine available in this environment.*
 
 ## L. Deployment & ops
 - [ ] `[To build]` Host the frontend, backend, and database

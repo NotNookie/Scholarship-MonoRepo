@@ -3,7 +3,9 @@
    colocated with the context they share. */
 import { createContext, useContext, useEffect, useState } from 'react'
 import { resolveSubdomain, findTenant, DEFAULT_TENANT } from './tenants'
+import { THEME_PRESETS } from './themePresets'
 import { useImpersonation } from '../store/impersonationStore'
+import { useUiTheme } from '../store/uiThemeStore'
 
 // Private — components read tenant state through the hooks below, never the
 // raw context (keeps this file Fast-Refresh friendly).
@@ -26,14 +28,22 @@ export function TenantProvider({ children }) {
   const tenant = impersonated ?? base
   const isImpersonating = !!impersonated
 
-  // Apply the active tenant's palette by overriding the @theme CSS variables.
-  // Re-runs when impersonation starts/stops so the whole app reskins live.
+  // The admin-selected UI theme preset (null = tenant palette as-is).
+  const preset = useUiTheme((s) => s.preset)
+
+  // Apply the active palette by overriding the @theme CSS variables: the
+  // tenant's base palette first, then the selected preset on top. Re-runs when
+  // the tenant changes (impersonation) or the admin switches presets, so the
+  // whole app reskins live.
   useEffect(() => {
-    const theme = tenant?.theme
-    if (!theme) return
+    const overrides = {
+      ...(tenant?.theme ?? {}),
+      ...(preset ? THEME_PRESETS[preset]?.tokens ?? {} : {}),
+    }
+    if (Object.keys(overrides).length === 0) return
     const el = document.documentElement
     const previous = {}
-    Object.entries(theme).forEach(([k, v]) => {
+    Object.entries(overrides).forEach(([k, v]) => {
       previous[k] = el.style.getPropertyValue(k)
       el.style.setProperty(k, v)
     })
@@ -43,7 +53,7 @@ export function TenantProvider({ children }) {
         else el.style.removeProperty(k)
       })
     }
-  }, [tenant])
+  }, [tenant, preset])
 
   return (
     <TenantContext.Provider value={{ tenant, isImpersonating }}>

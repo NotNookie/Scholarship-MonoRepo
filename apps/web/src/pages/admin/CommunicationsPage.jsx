@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Trash2, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
+import { useEscapeToClose } from '../../lib/useEscapeToClose'
 import { queryKeys } from '../../lib/queryKeys'
 import { PostModal } from '../../components/admin/comms/PostModal'
 import { AnnouncementsView } from '../../components/admin/comms/AnnouncementsView'
@@ -13,6 +14,7 @@ export function CommunicationsPage() {
   const [composing, setComposing] = useState(false)
   const [editing, setEditing] = useState(null)
   const [deleting, setDeleting] = useState(null)
+  useEscapeToClose(() => setDeleting(null), !!deleting)
 
   const { data, isPending } = useQuery({
     queryKey: queryKeys.announcements.all,

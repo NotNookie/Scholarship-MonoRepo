@@ -5,6 +5,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
+import { useEscapeToClose } from '../../lib/useEscapeToClose'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { useBrand } from '../../tenant/TenantContext'
 
@@ -51,6 +52,7 @@ function StatusPill({ status }) {
 // ── User modal ────────────────────────────────────────────────
 
 function UserModal({ user, isPending, onClose, onSubmit }) {
+  useEscapeToClose(onClose)
   const editing = !!user?.id
   const [form, setForm] = useState({
     name: user?.name ?? '',
@@ -105,6 +107,7 @@ function UserModal({ user, isPending, onClose, onSubmit }) {
 }
 
 function DeleteModal({ user, isPending, onClose, onConfirm }) {
+  useEscapeToClose(onClose)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />

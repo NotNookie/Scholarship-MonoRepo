@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
+import { useEscapeToClose } from '../../lib/useEscapeToClose'
 import { Skeleton } from '../../components/shared/Skeleton'
 
 // ── Appeal status config ──────────────────────────────────────
@@ -98,6 +99,7 @@ function AppealStatusPill({ status, size = 'md' }) {
 // ── Action modal ──────────────────────────────────────────────
 
 function ActionModal({ type, isPending, onConfirm, onClose }) {
+  useEscapeToClose(onClose)
   const cfg = MODAL_CONFIG[type]
   const [reason, setReason] = useState('')
   if (!cfg) return null

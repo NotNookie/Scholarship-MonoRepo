@@ -16,6 +16,7 @@ import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
+import { useUiTheme } from '../../store/uiThemeStore'
 
 // Theme presets are STORED ONLY for now — they do not live-swap the app tokens.
 const THEMES = [
@@ -80,6 +81,10 @@ export function MaintenanceProfilePage() {
   const queryClient = useQueryClient()
   // Only local edits are tracked; the live form derives from server data + edits.
   const [edits, setEdits] = useState({})
+  // The theme preset applies live (and persists on this device) via the UI-theme
+  // store, so picking one reskins the whole interface immediately.
+  const activePreset = useUiTheme((s) => s.preset)
+  const setPreset = useUiTheme((s) => s.setPreset)
 
   const { data, isPending } = useQuery({
     queryKey: queryKeys.maintenance.settings(),
@@ -278,11 +283,11 @@ export function MaintenanceProfilePage() {
             </h2>
             <div className="flex flex-col gap-3">
               {THEMES.map((t) => {
-                const active = form.theme === t.value
+                const active = (activePreset ?? form.theme) === t.value
                 return (
                   <button
                     key={t.value}
-                    onClick={() => setForm((s) => ({ ...s, theme: t.value }))}
+                    onClick={() => { setPreset(t.value); setForm((s) => ({ ...s, theme: t.value })) }}
                     className={`flex items-center justify-between p-4 rounded-lg border transition-colors text-left ${active ? 'border-primary bg-primary-light/40' : 'border-border hover:border-primary'}`}
                   >
                     <span className="flex items-center gap-2">
@@ -298,7 +303,7 @@ export function MaintenanceProfilePage() {
                 )
               })}
             </div>
-            <p className="text-xs text-content-muted mt-3">Saved with settings. Live theme switching is not yet applied to the interface.</p>
+            <p className="text-xs text-content-muted mt-3">Applied live across the interface and remembered on this device.</p>
           </section>
 
           {/* Preview */}

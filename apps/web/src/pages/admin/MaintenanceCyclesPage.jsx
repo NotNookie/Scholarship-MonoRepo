@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
+import { useEscapeToClose } from '../../lib/useEscapeToClose'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 
@@ -33,6 +34,7 @@ function formatDate(value) {
 // ── Cycle modal ───────────────────────────────────────────────
 
 function CycleModal({ cycle, isPending, onClose, onSubmit }) {
+  useEscapeToClose(onClose)
   const editing = !!cycle?.id
   const [form, setForm] = useState({
     name: cycle?.name ?? '',
@@ -97,6 +99,7 @@ function CycleModal({ cycle, isPending, onClose, onSubmit }) {
 // ── Document modal ────────────────────────────────────────────
 
 function DocModal({ doc, isPending, onClose, onSubmit }) {
+  useEscapeToClose(onClose)
   const editing = !!doc?.id
   const [form, setForm] = useState({
     name: doc?.name ?? '',

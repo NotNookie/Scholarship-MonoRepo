@@ -13,6 +13,7 @@ import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { validateFile, measureSharpness, BLUR_THRESHOLD } from '../../lib/fileValidation'
 import { useBrand } from '../../tenant/TenantContext'
+import { useEscapeToClose } from '../../lib/useEscapeToClose'
 
 // ── Constants ────────────────────────────────────────────────
 
@@ -812,6 +813,7 @@ function ReviewSection({ title, stepIndex, onEdit, children }) {
 }
 
 function ReviewModal({ steps, hasEssay, values, documents, uploads, onEdit, onClose, onConfirm, submitting }) {
+  useEscapeToClose(onClose)
   const idx = (id) => steps.findIndex((s) => s.id === id)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

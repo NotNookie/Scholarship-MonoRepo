@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
+import { useEscapeToClose } from '../../lib/useEscapeToClose'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { StatusPill } from '../../components/shared/StatusPill'
@@ -69,6 +70,7 @@ function GwaRing({ value, passed }) {
 // ── Action modal ──────────────────────────────────────────────
 
 function ActionModal({ type, isPending, onConfirm, onClose }) {
+  useEscapeToClose(onClose)
   const cfg = MODAL_CONFIG[type]
   const [reason, setReason] = useState('')
   if (!cfg) return null

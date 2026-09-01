@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
+import { useEscapeToClose } from '../../lib/useEscapeToClose'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 
@@ -88,6 +89,7 @@ function PolicyCard({ policy, onEdit, onDelete }) {
 // ── Policy modal ──────────────────────────────────────────────
 
 function PolicyModal({ policy, isPending, onClose, onSubmit }) {
+  useEscapeToClose(onClose)
   const editing = !!policy?.id
   const [form, setForm] = useState({
     name: policy?.name ?? '',
@@ -182,6 +184,7 @@ function PolicyModal({ policy, isPending, onClose, onSubmit }) {
 // ── Delete confirm ────────────────────────────────────────────
 
 function DeleteModal({ policy, isPending, onClose, onConfirm }) {
+  useEscapeToClose(onClose)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />

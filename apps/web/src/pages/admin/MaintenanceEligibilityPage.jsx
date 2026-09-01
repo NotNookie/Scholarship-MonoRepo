@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
+import { useEscapeToClose } from '../../lib/useEscapeToClose'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 
@@ -34,6 +35,7 @@ function ruleValueText(rule) {
 // ── Rule modal ────────────────────────────────────────────────
 
 function RuleModal({ rule, isPending, onClose, onSubmit }) {
+  useEscapeToClose(onClose)
   const editing = !!rule?.id
   const [form, setForm] = useState({
     type: rule?.type ?? 'attestation',
@@ -95,6 +97,7 @@ function RuleModal({ rule, isPending, onClose, onSubmit }) {
 }
 
 function DeleteModal({ rule, isPending, onClose, onConfirm }) {
+  useEscapeToClose(onClose)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />

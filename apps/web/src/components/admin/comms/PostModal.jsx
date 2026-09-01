@@ -5,6 +5,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../../lib/axios'
+import { useEscapeToClose } from '../../../lib/useEscapeToClose'
 import { queryKeys } from '../../../lib/queryKeys'
 import { CATEGORIES, inputCls, fileSize } from './postUtils'
 
@@ -70,6 +71,7 @@ function MarkdownEditor({ value, onChange }) {
 // ── Post modal ────────────────────────────────────────────────
 
 export function PostModal({ post, isPending, onClose, onSubmit }) {
+  useEscapeToClose(onClose)
   const editing = !!post?.id
   const [form, setForm] = useState({
     category: post?.category ?? 'General',

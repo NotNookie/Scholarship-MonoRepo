@@ -15,6 +15,7 @@ import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { FALLBACK_FORMS } from '../../data/forms'
 import { useBrand } from '../../tenant/TenantContext'
+import { useEscapeToClose } from '../../lib/useEscapeToClose'
 
 const GUIDE_STEPS = [
   {
@@ -83,6 +84,7 @@ export function RequirementsPage() {
   const guideSteps = brand.guideSteps ?? GUIDE_STEPS
   const faqs = brand.faqs ?? FAQS
   const [showVideo, setShowVideo] = useState(false)
+  useEscapeToClose(() => setShowVideo(false), showVideo)
 
   const { data, isPending } = useQuery({
     queryKey: queryKeys.forms.all,
