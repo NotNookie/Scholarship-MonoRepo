@@ -9,6 +9,7 @@ import {
   UploadCloud,
   Check,
   Loader2,
+  Video,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
@@ -29,6 +30,8 @@ const DEFAULTS = {
   hotline: '',
   theme: 'corporate_blue',
   logo_name: '',
+  walkthrough_video_enabled: true,
+  walkthrough_video_url: '',
 }
 
 const inputCls = 'w-full text-sm px-3 py-2.5 rounded-lg border border-border bg-surface focus:outline-none focus:border-primary'
@@ -39,6 +42,15 @@ function Field({ id, label, children }) {
       <label htmlFor={id} className="text-sm font-medium text-content">{label}</label>
       {children}
     </div>
+  )
+}
+
+function Toggle({ checked, onChange, label }) {
+  return (
+    <button type="button" role="switch" aria-checked={checked} aria-label={label} onClick={onChange}
+      className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${checked ? 'bg-primary' : 'bg-border'}`}>
+      <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-surface shadow-sm transition-transform ${checked ? 'translate-x-5' : ''}`} />
+    </button>
   )
 }
 
@@ -150,6 +162,31 @@ export function MaintenanceProfilePage() {
                 </Field>
               </div>
             </div>
+          </section>
+
+          {/* Content options */}
+          <section className="bg-surface border border-border rounded-xl shadow-card p-6">
+            <h2 className="text-base font-bold text-content inline-flex items-center gap-2 pb-4 mb-5 border-b border-border">
+              <Video size={17} className="text-primary" /> Public Content
+            </h2>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium text-content">Application walkthrough video</p>
+                <p className="text-xs text-content-muted mt-1 max-w-md">Not every municipality has one. Turn this off to hide the video player on the public Requirements page.</p>
+              </div>
+              <Toggle
+                label="Show walkthrough video"
+                checked={!!form.walkthrough_video_enabled}
+                onChange={() => setForm((s) => ({ ...s, walkthrough_video_enabled: !s.walkthrough_video_enabled }))}
+              />
+            </div>
+            {form.walkthrough_video_enabled && (
+              <div className="mt-5">
+                <Field id="wv_url" label="Video URL">
+                  <input id="wv_url" type="url" value={form.walkthrough_video_url} onChange={set('walkthrough_video_url')} placeholder="https://…  (YouTube, Vimeo, or an MP4 link)" className={inputCls} />
+                </Field>
+              </div>
+            )}
           </section>
         </div>
 

@@ -24,6 +24,7 @@ function brandFor(m) {
       phoneHref: 'tel:+630000000000',
       email: `scholarship@${m.subdomain}.gov.ph`,
     },
+    walkthroughVideoUrl: null,
     theme: DEFAULT_TENANT.theme,
   }
 }

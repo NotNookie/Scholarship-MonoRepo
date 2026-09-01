@@ -24,6 +24,8 @@ export const TENANTS = [
       phoneHref: 'tel:+63491234567',
       email: 'lydo@stacruzlaguna.gov.ph',
     },
+    // Optional per-municipality content. null = the municipality doesn't have it.
+    walkthroughVideoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
     // Matches the app defaults (globals.css @theme) — applying it is a no-op.
     theme: {
       '--color-primary-dark': '#002576',
@@ -53,6 +55,7 @@ export const TENANTS = [
       phoneHref: 'tel:+63490000000',
       email: 'scholarship@pagsanjan.gov.ph',
     },
+    walkthroughVideoUrl: null, // Pagsanjan has no walkthrough video
     // A visibly different palette (teal + warm orange) to prove the reskin.
     theme: {
       '--color-primary-dark': '#0a5654',

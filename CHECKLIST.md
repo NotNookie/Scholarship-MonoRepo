@@ -36,7 +36,7 @@ Everything left to take Iskolar from a working frontend to a shippable system.
 
 Dead controls / affordances:
 - [x] `[In app]` Requirements downloads — now unified with the `/forms` source (same data); each Download hits the real file when uploaded, honest "Not yet available" until then
-- [x] `[In app]` Requirements — "Play" opens a walkthrough-video lightbox (placeholder clip); "Read Full Manual" scrolls to the FAQ
+- [x] `[In app]` Requirements — "Play" opens a walkthrough-video lightbox; "Read Full Manual" scrolls to the FAQ. **The video is now per-municipality** — driven by tenant config (Pagsanjan has none → the player is hidden entirely) with an on/off + URL toggle in Maintenance → Public Content.
 - [x] `[In app]` Scholarship cards — bookmark now saves to localStorage (fills when saved); "View Details" opens a real detail page (`/scholarships/:id`)
 - [x] `[In app]` Announcements — rows now open a real detail page (`/announcements/:id`)
 - [ ] `[Partial]` Landing — the "map" is a styled placeholder, not a real embed
@@ -129,6 +129,7 @@ Solid as a prototype (no action): nav, global search (Ctrl+K), notifications, on
 - [ ] `[To build]` Persist all configuration to the backend
 - [x] `[In app]` Tenant-driven branding (name, tagline, office, contact, colour palette) — done across the shared chrome, landing, and the deeper student/admin/public pages (§MT); real logo upload still needs the backend
 - [ ] `[To build]` Live theme switching *(theme is stored but not applied to the UI)*
+- [ ] `[To build]` Make other per-municipality content optional too (like the walkthrough video) — landing **map embed**, **website/social links**, downloadable **manual/handbook**, individual **contact fields** (hotline), **qualifying-exam** & **orientation** lifecycle stages, **essay** requirement in the application, and **payout/disbursement tracking**. Each should be a tenant config flag; not every LGU has them.
 
 ## I. Reports
 - [ ] `[In app]` Report UI with charts

@@ -14,6 +14,7 @@ import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { FALLBACK_FORMS } from '../../data/forms'
+import { useBrand } from '../../tenant/TenantContext'
 
 const GUIDE_STEPS = [
   {
@@ -74,6 +75,9 @@ function FaqItem({ q, a, defaultOpen = false }) {
 }
 
 export function RequirementsPage() {
+  const brand = useBrand()
+  const videoUrl = brand.walkthroughVideoUrl
+  const hasVideo = !!videoUrl
   const [showVideo, setShowVideo] = useState(false)
 
   const { data, isPending } = useQuery({
@@ -155,26 +159,28 @@ export function RequirementsPage() {
           <h2 className="text-xl font-bold text-content">Application Guide</h2>
         </div>
 
-        <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-card grid grid-cols-1 lg:grid-cols-5">
-          {/* Video */}
-          <div className="lg:col-span-3 relative min-h-[260px] bg-primary-light flex items-center justify-center border-b lg:border-b-0 lg:border-r border-border">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary-dark/10" />
-            <button
-              type="button"
-              onClick={() => setShowVideo(true)}
-              aria-label="Play the application walkthrough video"
-              className="relative z-10 w-16 h-16 rounded-full bg-surface/90 flex items-center justify-center shadow-modal hover:scale-105 transition-transform"
-            >
-              <Play size={22} className="text-primary ml-1" fill="currentColor" />
-            </button>
-            <div className="absolute bottom-4 left-4 bg-surface/90 px-3 py-1.5 rounded-lg border border-border shadow-sm flex items-center gap-2">
-              <Clock size={13} className="text-content-muted" />
-              <span className="text-xs font-medium text-content">5:30 Walkthrough Video</span>
+        <div className={`bg-surface border border-border rounded-2xl overflow-hidden shadow-card grid grid-cols-1 ${hasVideo ? 'lg:grid-cols-5' : ''}`}>
+          {/* Video — only when this municipality has one */}
+          {hasVideo && (
+            <div className="lg:col-span-3 relative min-h-[260px] bg-primary-light flex items-center justify-center border-b lg:border-b-0 lg:border-r border-border">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary-dark/10" />
+              <button
+                type="button"
+                onClick={() => setShowVideo(true)}
+                aria-label="Play the application walkthrough video"
+                className="relative z-10 w-16 h-16 rounded-full bg-surface/90 flex items-center justify-center shadow-modal hover:scale-105 transition-transform"
+              >
+                <Play size={22} className="text-primary ml-1" fill="currentColor" />
+              </button>
+              <div className="absolute bottom-4 left-4 bg-surface/90 px-3 py-1.5 rounded-lg border border-border shadow-sm flex items-center gap-2">
+                <Clock size={13} className="text-content-muted" />
+                <span className="text-xs font-medium text-content">Walkthrough Video</span>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Steps */}
-          <div className="lg:col-span-2 p-7 flex flex-col gap-7 bg-surface-alt">
+          <div className={`${hasVideo ? 'lg:col-span-2' : ''} p-7 flex flex-col gap-7 bg-surface-alt`}>
             <h3 className="text-base font-bold text-primary">Step-by-Step Process</h3>
             <div className="flex flex-col gap-6 relative before:absolute before:top-0 before:bottom-0 before:left-3.5 before:w-px before:bg-border">
               {GUIDE_STEPS.map(({ n, title, desc, done }) => (
@@ -235,12 +241,7 @@ export function RequirementsPage() {
                 <X size={18} />
               </button>
             </div>
-            <video
-              controls
-              autoPlay
-              className="w-full aspect-video bg-black"
-              src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-            >
+            <video controls autoPlay className="w-full aspect-video bg-black" src={videoUrl}>
               Your browser doesn&rsquo;t support embedded video.
             </video>
             <p className="text-xs text-content-muted px-5 py-3">
