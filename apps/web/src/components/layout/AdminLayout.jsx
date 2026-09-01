@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import {
@@ -14,10 +15,15 @@ import {
   LogOut,
   Plus,
   Eye,
+  LifeBuoy,
+  ShieldAlert,
+  ShieldOff,
 } from 'lucide-react'
+import toast from 'react-hot-toast'
 import { useAuthStore } from '../../store/authStore'
 import { useBrand, useTenant } from '../../tenant/TenantContext'
 import { useImpersonation } from '../../store/impersonationStore'
+import { usePlatformStore, tenantHasActiveAccess } from '../../store/platformStore'
 import { api } from '../../lib/axios'
 
 const navItems = [
@@ -29,6 +35,7 @@ const navItems = [
   { to: '/admin/communications', label: 'Announcements & Events', Icon: Megaphone },
   { to: '/admin/reports', label: 'Reports', Icon: BarChart2 },
   { to: '/admin/activity', label: 'Activity Logs', Icon: ScrollText },
+  { to: '/admin/support', label: 'Request Support', Icon: LifeBuoy },
 ]
 
 const superAdminItems = [
@@ -62,6 +69,21 @@ export function AdminLayout() {
   // An impersonating operator gets full Head access to the tenant's portal.
   const isHead = user?.role === 'admin' || isImpersonating
 
+  // Consent-based support access: a municipality grants the platform team access
+  // via a support request and can revoke it anytime.
+  const tickets = usePlatformStore((s) => s.supportTickets)
+  const revokeSupport = usePlatformStore((s) => s.revokeSupport)
+  const activeGrant = tickets.find((t) => t.tenantId === brand.id && t.status === 'open' && t.grantsAccess)
+  const hasSupportAccess = tenantHasActiveAccess(tickets, brand.id)
+
+  // If the tenant revokes access mid-session, drop the impersonating operator out.
+  useEffect(() => {
+    if (isImpersonating && !hasSupportAccess) {
+      exitImpersonation()
+      navigate('/platform/municipalities')
+    }
+  }, [isImpersonating, hasSupportAccess, exitImpersonation, navigate])
+
   function handleLogout() {
     logout()
     navigate('/login')
@@ -70,6 +92,11 @@ export function AdminLayout() {
   function handleExitImpersonation() {
     exitImpersonation()
     navigate('/platform/municipalities')
+  }
+
+  function handleRevoke() {
+    if (activeGrant) revokeSupport(activeGrant.id)
+    toast.success('Support access revoked.')
   }
 
   const initials = getInitials(user?.name)
@@ -88,8 +115,9 @@ export function AdminLayout() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Impersonation banner — operator viewing this tenant's portal */}
-      {isImpersonating && (
+      {/* Top banner: operator impersonation (dark), else the tenant's own
+          "support access is active" indicator (amber) with revoke. */}
+      {isImpersonating ? (
         <div className="bg-content text-white px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
             <Eye size={16} className="text-secondary shrink-0" />
@@ -105,7 +133,23 @@ export function AdminLayout() {
             <LogOut size={13} /> Exit
           </button>
         </div>
-      )}
+      ) : hasSupportAccess ? (
+        <div className="bg-warning-light border-b border-warning/30 px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4 shrink-0">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <ShieldAlert size={16} className="text-warning shrink-0" />
+            <p className="text-sm text-content min-w-0 truncate">
+              <span className="font-semibold">Platform support access is active</span>
+              <span className="text-content-muted hidden sm:inline"> — the platform team can enter your portal to help.</span>
+            </p>
+          </div>
+          <button
+            onClick={handleRevoke}
+            className="shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold border border-warning/50 text-content px-3 py-1.5 rounded-lg hover:bg-warning/10 transition-colors"
+          >
+            <ShieldOff size={13} /> Revoke
+          </button>
+        </div>
+      ) : null}
 
       <div className="flex flex-1 min-h-0">
         {/* Sidebar */}

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useParams, Navigate } from 'react-router-dom'
 import { ChevronLeft, Ban, Check, CircleCheck, Download, Trash2, LogIn } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { usePlatformStore, sigilOf, SETUP_STEPS } from '../../store/platformStore'
+import { usePlatformStore, sigilOf, SETUP_STEPS, tenantHasActiveAccess } from '../../store/platformStore'
 import { useImpersonation } from '../../store/impersonationStore'
 import { StatusTag } from '../../components/platform/PlatformBits'
 import { OffboardDrawer } from '../../components/platform/OffboardDrawer'
@@ -13,6 +13,7 @@ export function PlatformMunicipalityDetailPage() {
   const municipality = usePlatformStore((s) => s.municipalities.find((m) => m.id === id))
   const toggleStatus = usePlatformStore((s) => s.toggleStatus)
   const offboard = usePlatformStore((s) => s.offboard)
+  const tickets = usePlatformStore((s) => s.supportTickets)
   const enterTenant = useImpersonation((s) => s.enter)
   const [offboardOpen, setOffboardOpen] = useState(false)
 
@@ -88,10 +89,22 @@ export function PlatformMunicipalityDetailPage() {
           <div className="pf-rec-sub">{m.subdomain}.iskolar.ph</div>
         </div>
         <div className="pf-rec-actions" style={{ display: 'flex', gap: 12 }}>
-          <button className="pf-btn" type="button" onClick={handleEnter}>
-            <LogIn size={18} strokeWidth={2.2} />
-            Enter tenant
-          </button>
+          {tenantHasActiveAccess(tickets, m.id) ? (
+            <button className="pf-btn" type="button" onClick={handleEnter}>
+              <LogIn size={18} strokeWidth={2.2} />
+              Enter tenant
+            </button>
+          ) : (
+            <button
+              className="pf-btn"
+              type="button"
+              disabled
+              title="This municipality hasn't granted support access. They must file a support request that allows entry."
+            >
+              <LogIn size={18} strokeWidth={2.2} />
+              Enter tenant
+            </button>
+          )}
           {suspended ? (
             <button className="pf-btn pf-btn--ghost" type="button" onClick={handleToggle}>
               <Check size={18} strokeWidth={2.4} />

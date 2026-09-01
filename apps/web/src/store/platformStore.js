@@ -47,12 +47,14 @@ export const ONBOARD_TREND = [
   { m: 'Dec', n: 3 }, { m: 'Jan', n: 4 }, { m: 'Feb', n: 7 },
 ]
 
+// `grantsAccess` = the municipality authorized the platform team to enter their
+// portal while this request is open. `tenantId` matches a municipality id.
 const SUPPORT = [
-  { id: 't-104', tenant: 'Pagsanjan', subject: 'Cannot upload office logo (file too large)', priority: 'normal', status: 'open',    opened: '2026-02-18', requester: 'LYDO Head' },
-  { id: 't-103', tenant: 'Nagcarlan', subject: 'Requesting help configuring GWA threshold', priority: 'normal', status: 'open',    opened: '2026-02-16', requester: 'Staff' },
-  { id: 't-102', tenant: 'Sta. Cruz', subject: 'OTP SMS not received by some applicants',   priority: 'high',   status: 'open',    opened: '2026-02-15', requester: 'LYDO Head' },
-  { id: 't-101', tenant: 'Pakil',     subject: 'How do I export the applicant list?',       priority: 'low',    status: 'resolved', opened: '2026-02-09', requester: 'Staff' },
-  { id: 't-100', tenant: 'Sta. Cruz', subject: 'Add a second reviewer account',             priority: 'normal', status: 'resolved', opened: '2026-02-04', requester: 'LYDO Head' },
+  { id: 't-104', tenantId: 'pagsanjan', tenant: 'Pagsanjan', subject: 'Cannot upload office logo (file too large)', message: 'Our logo keeps failing to upload. Please take a look.', priority: 'normal', status: 'open', opened: '2026-02-18', requester: 'LYDO Head', grantsAccess: true },
+  { id: 't-103', tenantId: 'nagcarlan', tenant: 'Nagcarlan', subject: 'Requesting help configuring GWA threshold', message: 'We are unsure how to set the GWA rule for our new program.', priority: 'normal', status: 'open', opened: '2026-02-16', requester: 'Staff', grantsAccess: false },
+  { id: 't-102', tenantId: 'sta-cruz', tenant: 'Sta. Cruz', subject: 'OTP SMS not received by some applicants', message: 'A few applicants report not getting the OTP. Please investigate — you may enter to check our setup.', priority: 'high', status: 'open', opened: '2026-02-15', requester: 'LYDO Head', grantsAccess: true },
+  { id: 't-101', tenantId: 'pakil', tenant: 'Pakil', subject: 'How do I export the applicant list?', message: '', priority: 'low', status: 'resolved', opened: '2026-02-09', requester: 'Staff', grantsAccess: false },
+  { id: 't-100', tenantId: 'sta-cruz', tenant: 'Sta. Cruz', subject: 'Add a second reviewer account', message: '', priority: 'normal', status: 'resolved', opened: '2026-02-04', requester: 'LYDO Head', grantsAccess: false },
 ]
 
 const BROADCASTS = [
@@ -120,6 +122,19 @@ export const usePlatformStore = create((set) => ({
         t.id === id ? { ...t, status: t.status === 'resolved' ? 'open' : 'resolved' } : t
       ),
     })),
+  // A municipality files a support request (optionally granting portal access).
+  requestSupport: ({ tenantId, tenant, subject, message, grantsAccess }) =>
+    set((s) => ({
+      supportTickets: [
+        { id: `t-${s.supportTickets.length + 105}`, tenantId, tenant, subject, message: message ?? '', priority: 'normal', status: 'open', opened: 'Just now', requester: 'LYDO Head', grantsAccess: !!grantsAccess },
+        ...s.supportTickets,
+      ],
+    })),
+  // Revoke = close the request, which ends any granted access.
+  revokeSupport: (id) =>
+    set((s) => ({
+      supportTickets: s.supportTickets.map((t) => (t.id === id ? { ...t, status: 'resolved' } : t)),
+    })),
 
   // ── Broadcasts to tenants ──────────────────────────────────────
   broadcasts: BROADCASTS,
@@ -177,4 +192,9 @@ export const HEALTH_META = {
 }
 
 export const sigilOf = initials
+
+// True when a municipality currently authorizes the platform team to enter its
+// portal (an open support request that grants access).
+export const tenantHasActiveAccess = (tickets, tenantId) =>
+  !!tenantId && tickets.some((t) => t.tenantId === tenantId && t.status === 'open' && t.grantsAccess)
 export const nextNotifId = () => `n-${notifId++}`

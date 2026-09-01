@@ -48,6 +48,7 @@ import { MaintenanceCyclesPage } from '../pages/admin/MaintenanceCyclesPage'
 import { MaintenanceEligibilityPage } from '../pages/admin/MaintenanceEligibilityPage'
 import { MaintenanceProfilePage } from '../pages/admin/MaintenanceProfilePage'
 import { MaintenanceFeaturesPage } from '../pages/admin/MaintenanceFeaturesPage'
+import { RequestSupportPage } from '../pages/admin/RequestSupportPage'
 
 // Platform (Super Admin) pages
 import { PlatformOverviewPage } from '../pages/platform/PlatformOverviewPage'
@@ -144,6 +145,7 @@ export const router = createBrowserRouter([
       { path: 'announcements',  element: <Navigate to="/admin/communications" replace /> },
       { path: 'reports',       element: withSuspense(<ReportsPage />) },
       { path: 'activity',      element: <ActivityLogsPage /> },
+      { path: 'support',       element: <RequestSupportPage /> },
       { path: 'users',         element: <UsersPage /> },
       { path: 'maintenance',          element: <MaintenancePage /> },
       { path: 'maintenance/policies', element: <MaintenancePoliciesPage /> },
