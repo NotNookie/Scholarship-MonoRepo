@@ -8,14 +8,17 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
+import { useBrand } from '../../tenant/TenantContext'
 
 const DRAFT_KEY = 'iskolar-renewal-draft'
 
-const DECLARATIONS = [
-  { name: 'declare_residency', title: 'Residency Confirmation', text: 'I certify that I am still a bona fide resident of the Municipality of Sta. Cruz, Laguna.' },
-  { name: 'declare_voter', title: 'Voter Registration Status', text: 'I, or my parents/guardians, are registered voters of Sta. Cruz, Laguna.' },
-  { name: 'declare_no_other', title: 'No Concurrent Government Scholarships', text: 'I am not currently enjoying any other major government scholarship program (e.g. DOST, CHED) that conflicts with this grant.' },
-]
+function declarationsFor(municipality) {
+  return [
+    { name: 'declare_residency', title: 'Residency Confirmation', text: `I certify that I am still a bona fide resident of the Municipality of ${municipality}.` },
+    { name: 'declare_voter', title: 'Voter Registration Status', text: `I, or my parents/guardians, are registered voters of ${municipality}.` },
+    { name: 'declare_no_other', title: 'No Concurrent Government Scholarships', text: 'I am not currently enjoying any other major government scholarship program (e.g. DOST, CHED) that conflicts with this grant.' },
+  ]
+}
 
 const DOCS = [
   { key: 'grade_slip', label: 'Official Grade Slip', note: 'Previous semester grades' },
@@ -43,6 +46,8 @@ function Section({ n, Icon, title, children, active }) {
 
 export function RenewalPage() {
   const navigate = useNavigate()
+  const brand = useBrand()
+  const DECLARATIONS = declarationsFor(brand.municipality)
   const [files, setFiles] = useState({})
 
   const { data, isPending } = useQuery({
@@ -134,7 +139,7 @@ export function RenewalPage() {
           <div>
             <h1 className="text-lg font-bold text-content">Renewal already submitted</h1>
             <p className="text-sm text-content-muted mt-1 max-w-sm">
-              Your renewal for A.Y. {s.renewal_academic_year ?? s.academic_year} is under review by the LYDO office.
+              Your renewal for A.Y. {s.renewal_academic_year ?? s.academic_year} is under review by the {brand.officeShort} office.
             </p>
           </div>
           <Link to="/scholarship" className="text-sm font-semibold text-primary border border-primary px-5 py-2.5 rounded-lg hover:bg-primary-light transition-colors">

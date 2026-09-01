@@ -18,6 +18,7 @@ import { AnnouncementCard } from '../../components/shared/AnnouncementCard'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { StatusPill } from '../../components/shared/StatusPill'
 import { APPLICATION_STATUS } from '../../components/shared/statusConfig'
+import { useBrand } from '../../tenant/TenantContext'
 
 // ── Helpers ───────────────────────────────────────────────────
 
@@ -145,6 +146,7 @@ function ApplicationTracker({ application }) {
 
 export function StudentDashboardPage() {
   const user = useAuthStore((s) => s.user)
+  const brand = useBrand()
   const firstName = user?.first_name ?? user?.name?.split(' ')[0] ?? 'Scholar'
 
   const applicationQuery = useQuery({
@@ -266,7 +268,7 @@ export function StudentDashboardPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-content group-hover:text-primary transition-colors">Announcements</p>
-                <p className="text-xs text-content-muted mt-0.5">Latest news from LYDO</p>
+                <p className="text-xs text-content-muted mt-0.5">Latest news from {brand.officeShort}</p>
               </div>
               <ChevronRight size={15} className="text-content-muted group-hover:text-primary transition-colors" />
             </Link>

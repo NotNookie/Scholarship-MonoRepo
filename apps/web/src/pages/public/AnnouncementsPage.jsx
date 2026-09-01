@@ -7,6 +7,7 @@ import { Skeleton } from '../../components/shared/Skeleton'
 import { EmptyState } from '../../components/shared/EmptyState'
 import { Markdown } from '../../components/shared/Markdown'
 import { AttachmentList } from '../../components/shared/AttachmentList'
+import { useBrand } from '../../tenant/TenantContext'
 
 const FALLBACK_ANNOUNCEMENTS = [
   {
@@ -71,6 +72,7 @@ function CategoryBadge({ category }) {
 
 export function AnnouncementsPage() {
   const [search, setSearch] = useState('')
+  const brand = useBrand()
   const [showAll, setShowAll] = useState(false)
 
   const { data, isPending } = useQuery({
@@ -103,7 +105,7 @@ export function AnnouncementsPage() {
           <div className="flex-1">
             <h1 className="text-3xl font-bold mb-2">Public Announcements</h1>
             <p className="text-on-primary/70 text-sm">
-              Official updates and notices from the Iskolar ng Bayan program of Sta. Cruz, Laguna.
+              Official updates and notices from {brand.program} of {brand.municipality}.
             </p>
           </div>
           {/* Search */}
@@ -137,7 +139,7 @@ export function AnnouncementsPage() {
             description={
               search
                 ? `No announcements match "${search}". Try a different search term.`
-                : 'Check back later for updates from the LYDO scholarship office.'
+                : `Check back later for updates from the ${brand.officeShort} scholarship office.`
             }
           />
         ) : (

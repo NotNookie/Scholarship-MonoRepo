@@ -5,6 +5,7 @@ import {
   CalendarDays, MapPin, Users, Send,
 } from 'lucide-react'
 import { Skeleton } from '../../shared/Skeleton'
+import { useBrand } from '../../../tenant/TenantContext'
 import { CalendarPane } from './CalendarPane'
 import { CATEGORIES, CATEGORY_STYLES, formatDate, formatDateTime, relative, fileSize, isEvent } from './postUtils'
 
@@ -19,6 +20,7 @@ function CategoryBadge({ category }) {
 // ── Detail ────────────────────────────────────────────────────
 
 function Detail({ post, onEdit, onDelete, onTogglePin, onPublish, busy }) {
+  const brand = useBrand()
   return (
     <div className="flex flex-col h-full min-h-0">
       <div className="px-6 py-5 border-b border-border shrink-0">
@@ -44,7 +46,7 @@ function Detail({ post, onEdit, onDelete, onTogglePin, onPublish, busy }) {
           </div>
         </div>
         <h2 className="text-2xl font-bold text-content mt-3 leading-snug">{post.title}</h2>
-        <p className="text-sm text-content-muted mt-1">Posted by {post.author ?? 'LYDO Admin'}</p>
+        <p className="text-sm text-content-muted mt-1">Posted by {post.author ?? `${brand.officeShort} Admin`}</p>
       </div>
 
       <div className="flex-1 overflow-auto p-6 min-h-0">

@@ -41,7 +41,7 @@ export async function downloadPdf(title, columns, rows, subtitle) {
   doc.text(title, 14, 18)
   doc.setFontSize(9)
   doc.setTextColor(100, 116, 139) // content-muted
-  doc.text(subtitle ?? `Iskolar ng Bayan — Generated ${new Date().toLocaleString('en-PH')}`, 14, 24)
+  doc.text(subtitle ?? `Generated ${new Date().toLocaleString('en-PH')}`, 14, 24)
   autoTable(doc, {
     startY: 30,
     head: [columns],

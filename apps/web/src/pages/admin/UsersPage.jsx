@@ -6,6 +6,7 @@ import {
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
 import { Skeleton } from '../../components/shared/Skeleton'
+import { useBrand } from '../../tenant/TenantContext'
 
 // Internal role keys map to LYDO-facing labels (per mockup #12).
 const ROLES = {
@@ -130,6 +131,7 @@ function DeleteModal({ user, isPending, onClose, onConfirm }) {
 
 export function UsersPage() {
   const queryClient = useQueryClient()
+  const brand = useBrand()
   const [search, setSearch] = useState('')
   const [role, setRole] = useState('all')
   const [status, setStatus] = useState('all')
@@ -184,7 +186,7 @@ export function UsersPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-content">User Management</h1>
-          <p className="text-sm text-content-muted mt-1">Manage LYDO staff accounts, system roles, and platform access.</p>
+          <p className="text-sm text-content-muted mt-1">Manage {brand.officeShort} staff accounts, system roles, and platform access.</p>
         </div>
         <button onClick={() => setModal({ mode: 'edit' })}
           className="inline-flex items-center gap-2 bg-primary text-on-primary text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-colors shrink-0">

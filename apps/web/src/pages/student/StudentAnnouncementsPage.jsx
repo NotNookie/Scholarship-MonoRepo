@@ -14,6 +14,7 @@ import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { AnnouncementCard } from '../../components/shared/AnnouncementCard'
+import { useBrand } from '../../tenant/TenantContext'
 
 // ── Event type config (matches admin scheduling) ──────────────
 
@@ -70,6 +71,7 @@ function ScheduleCard({ event, muted }) {
 
 export function StudentAnnouncementsPage() {
   const [showPast, setShowPast] = useState(false)
+  const brand = useBrand()
 
   const announcementsQuery = useQuery({
     queryKey: queryKeys.announcements.list({ student: true }),
@@ -107,7 +109,7 @@ export function StudentAnnouncementsPage() {
         <div className="max-w-6xl mx-auto px-6 py-12">
           <h1 className="text-3xl font-bold mb-2">Announcements &amp; Schedules</h1>
           <p className="text-on-primary/70 text-sm">
-            Latest updates and upcoming events from the Iskolar ng Bayan program.
+            Latest updates and upcoming events from {brand.program}.
           </p>
         </div>
       </section>
@@ -173,7 +175,7 @@ export function StudentAnnouncementsPage() {
           ) : (
             <div className="bg-surface border border-border rounded-xl shadow-card p-8 flex flex-col items-center text-center gap-2">
               <Megaphone size={26} className="text-content-disabled" />
-              <p className="text-sm text-content-muted">No announcements yet. Check back later for updates from the LYDO office.</p>
+              <p className="text-sm text-content-muted">No announcements yet. Check back later for updates from the {brand.officeShort} office.</p>
             </div>
           )}
         </section>

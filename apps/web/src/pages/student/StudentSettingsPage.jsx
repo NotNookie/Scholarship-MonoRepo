@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { useAuthStore } from '../../store/authStore'
+import { useBrand } from '../../tenant/TenantContext'
 import { Skeleton } from '../../components/shared/Skeleton'
 
 const TABS = [
@@ -17,7 +18,7 @@ const TABS = [
 
 const NOTIF_TYPES = [
   { key: 'application_status', label: 'Application status updates', desc: 'When your application is verified, approved, or needs action.' },
-  { key: 'announcements', label: 'Announcements & news', desc: 'Official notices from the LYDO scholarship office.' },
+  { key: 'announcements', label: 'Announcements & news', desc: 'Official notices from the scholarship office.' },
   { key: 'schedules', label: 'Schedule reminders', desc: 'Upcoming examination, orientation, and payout events.' },
   { key: 'renewal', label: 'Renewal reminders', desc: 'When your renewal window opens and before it closes.' },
 ]
@@ -32,6 +33,7 @@ function initials(name) {
 }
 
 function Field({ id, label, locked, hint, children }) {
+  const brand = useBrand()
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={id} className="text-sm font-medium text-content flex items-center gap-1.5">
@@ -39,7 +41,7 @@ function Field({ id, label, locked, hint, children }) {
         {locked && <Lock size={12} className="text-content-muted" />}
       </label>
       {children}
-      {locked && <p className="text-xs text-content-muted">Locked while your application is under review. Contact LYDO to change.</p>}
+      {locked && <p className="text-xs text-content-muted">Locked while your application is under review. Contact {brand.officeShort} to change.</p>}
       {!locked && hint && <p className="text-xs text-content-muted">{hint}</p>}
     </div>
   )
@@ -151,6 +153,7 @@ function ProfileTab({ data, locked }) {
 // ── Security tab ──────────────────────────────────────────────
 
 function SecurityTab({ data }) {
+  const brand = useBrand()
   const [pw, setPw] = useState({ current: '', next: '', confirm: '' })
   const setP = (k) => (e) => setPw((p) => ({ ...p, [k]: e.target.value }))
 
@@ -175,7 +178,7 @@ function SecurityTab({ data }) {
             <BadgeCheck size={11} /> Verified
           </span>
         </div>
-        <p className="text-xs text-content-muted mt-2">To change your email, please contact the LYDO office.</p>
+        <p className="text-xs text-content-muted mt-2">To change your email, please contact the {brand.officeShort} office.</p>
       </div>
 
       {/* Change password */}

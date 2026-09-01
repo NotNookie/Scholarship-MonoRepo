@@ -4,6 +4,7 @@ import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { EmptyState } from '../../components/shared/EmptyState'
+import { useBrand } from '../../tenant/TenantContext'
 
 const FALLBACK_FORMS = [
   {
@@ -37,6 +38,7 @@ const FALLBACK_FORMS = [
 ]
 
 export function FormsPage() {
+  const brand = useBrand()
   const { data, isPending } = useQuery({
     queryKey: queryKeys.forms.all,
     queryFn: () => api.get('/forms').then((r) => r.data),
@@ -54,7 +56,7 @@ export function FormsPage() {
         <div className="max-w-6xl mx-auto px-6 py-12">
           <h1 className="text-3xl font-bold mb-2">Downloadable Forms</h1>
           <p className="text-on-primary/70 text-sm">
-            Download the official scholarship forms from the LYDO office.
+            Download the official scholarship forms from the {brand.officeShort} office.
           </p>
         </div>
       </section>
@@ -71,7 +73,7 @@ export function FormsPage() {
           <EmptyState
             icon={FolderOpen}
             title="No forms available yet"
-            description="Downloadable forms will be published here by the LYDO office."
+            description={`Downloadable forms will be published here by the ${brand.officeShort} office.`}
           />
         ) : (
           <div className="grid md:grid-cols-2 gap-4">
@@ -129,8 +131,7 @@ export function FormsPage() {
         )}
 
         <p className="mt-10 text-xs text-content-disabled text-center">
-          Forms are managed by the LYDO office. For questions, contact the office at the Municipality
-          of Sta. Cruz, Laguna.
+          Forms are managed by the {brand.officeShort} office. For questions, contact the office at {brand.municipality}.
         </p>
       </section>
     </>

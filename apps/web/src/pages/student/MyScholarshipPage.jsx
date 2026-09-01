@@ -15,6 +15,7 @@ import { StatusPill } from '../../components/shared/StatusPill'
 import { APPLICATION_STATUS } from '../../components/shared/statusConfig'
 import { ScholarshipCard } from '../../components/shared/ScholarshipCard'
 import { SCHOLARSHIPS } from '../../data/scholarships'
+import { useBrand } from '../../tenant/TenantContext'
 
 const SCHOLAR_STATUS = {
   active:      { label: 'Active Scholar', dot: 'bg-tertiary',  text: 'text-tertiary-dark' },
@@ -240,6 +241,7 @@ function AvailableScholarships({ compact }) {
 // ── Main ──────────────────────────────────────────────────────
 
 export function MyScholarshipPage() {
+  const brand = useBrand()
   const scholarshipQuery = useQuery({
     queryKey: ['student', 'scholarship'],
     queryFn: () => api.get('/student/scholarship').then((r) => r.data?.data ?? r.data),
@@ -358,7 +360,7 @@ export function MyScholarshipPage() {
             <p className="text-sm font-bold text-content">Your GWA is below the requirement</p>
             <p className="text-xs text-content-muted mt-1 leading-relaxed">
               Your latest GWA of {s.latest_gwa} does not meet the {s.required_gwa} requirement for this program.
-              Please coordinate with the LYDO office before the next renewal.
+              Please coordinate with the {brand.officeShort} office before the next renewal.
             </p>
           </div>
         </div>

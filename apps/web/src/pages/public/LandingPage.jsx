@@ -146,7 +146,7 @@ export function LandingPage() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h2 className="text-xl font-bold text-content">Latest Announcements</h2>
-              <p className="text-sm text-content-muted mt-0.5">Stay updated from the LYDO office</p>
+              <p className="text-sm text-content-muted mt-0.5">Stay updated from the {brand.officeShort} office</p>
             </div>
             <Link
               to="/announcements"

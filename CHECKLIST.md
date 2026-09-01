@@ -28,7 +28,7 @@ Everything left to take Iskolar from a working frontend to a shippable system.
 - [x] `[In app]` Tenant-driven branding — name/tagline/office/contact + per-tenant colour palette (overrides `@theme` vars); wired into public chrome, auth screens, and the landing
 - [ ] `[Decision]` Bare-host (no subdomain) behavior — currently falls back to the default tenant; the real root page (platform landing/gateway) is a later, deliberate task, not built yet
 - [ ] `[To build]` **Impersonation** — operator "Enter tenant" from the console → tenant's `/admin` with an "Impersonating <tenant> — Exit" banner *(decision locked: full impersonation)*
-- [ ] `[To build]` Point the deeper pages' remaining hardcoded "Iskolar ng Bayan / Sta. Cruz" strings at `useBrand()` *(student dashboard, My Scholarship, etc.)*
+- [x] `[In app]` Deeper pages now tenant-branded via `useBrand()` — admin portal header ("{office} Management Portal"), student dashboard/announcements/settings/docs/renewal/appeal/scholarship, public forms/announcements, report PDFs. Added a short `officeShort` label per tenant for inline mentions.
 - [ ] `[To build]` Swap the sample tenant registry (`tenant/tenants.js`) for the real API once the backend exists
 
 ## PUB. Public site — *re-audited; several are frontend-only quick wins*
@@ -126,7 +126,7 @@ Solid as a prototype (no action): nav, global search (Ctrl+K), notifications, on
 ## H. Maintenance / configuration — *makes the system generic & configurable*
 - [ ] `[In app]` Policies, cycles, eligibility, document checklist, org profile (UI)
 - [ ] `[To build]` Persist all configuration to the backend
-- [x] `[In app]` Tenant-driven branding (name, tagline, office, contact, colour palette) — done for the shared chrome + landing (§MT); a few deeper pages still have hardcoded strings to point at `useBrand()`; real logo upload needs the backend
+- [x] `[In app]` Tenant-driven branding (name, tagline, office, contact, colour palette) — done across the shared chrome, landing, and the deeper student/admin/public pages (§MT); real logo upload still needs the backend
 - [ ] `[To build]` Live theme switching *(theme is stored but not applied to the UI)*
 
 ## I. Reports

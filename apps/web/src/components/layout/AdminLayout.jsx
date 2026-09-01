@@ -15,6 +15,7 @@ import {
   Plus,
 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
+import { useBrand } from '../../tenant/TenantContext'
 import { api } from '../../lib/axios'
 
 const navItems = [
@@ -52,6 +53,7 @@ const ROLE_LABELS = {
 export function AdminLayout() {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
+  const brand = useBrand()
   // Maintenance + Users are the municipality Head's job (Admin); Staff don't see them.
   // (Platform Super Admin manages tenants elsewhere — that portal isn't built yet.)
   const isHead = user?.role === 'admin'
@@ -167,7 +169,7 @@ export function AdminLayout() {
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-16 bg-surface border-b border-border flex items-center px-6 shrink-0">
           <span className="text-sm font-semibold text-content">
-            LYDO Management Portal
+            {brand.officeShort} Management Portal
           </span>
         </header>
         <main className="flex-1 bg-surface-alt p-6 overflow-auto">

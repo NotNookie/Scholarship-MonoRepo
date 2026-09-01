@@ -12,6 +12,7 @@ export const TENANTS = [
     subdomain: 'stacruz',
     municipality: 'Sta. Cruz, Laguna',
     office: 'Municipal Youth Development Office',
+    officeShort: 'LYDO',                    // short label for inline mentions
     program: 'Iskolar ng Bayan',           // the tenant's program brand (wordmark)
     tagline: 'Empowering Youth Through Education',
     blurb:
@@ -40,6 +41,7 @@ export const TENANTS = [
     subdomain: 'pagsanjan',
     municipality: 'Pagsanjan, Laguna',
     office: 'Municipal Scholarship Office',
+    officeShort: 'MSO',
     program: 'Pag-asa Scholars Program',    // invented placeholder brand
     tagline: 'Investing in Every Pagsanjeño Scholar',
     blurb:

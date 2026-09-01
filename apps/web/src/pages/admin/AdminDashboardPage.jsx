@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import { useBrand } from '../../tenant/TenantContext'
 import {
   Users,
   ClipboardList,
@@ -142,6 +143,8 @@ function ScheduleRow({ event }) {
 // ── Main ──────────────────────────────────────────────────────
 
 export function AdminDashboardPage() {
+  const brand = useBrand()
+
   const statsQuery = useQuery({
     queryKey: queryKeys.stats.admin(),
     queryFn: () => api.get('/admin/stats').then((r) => r.data?.data ?? r.data),
@@ -292,7 +295,7 @@ export function AdminDashboardPage() {
             <div className="relative z-10">
               <h2 className="text-base font-bold">Generate Reports</h2>
               <p className="text-xs text-on-primary/70 mt-1 mb-4 leading-relaxed">
-                Export current cycle statistics for the LYDO and the Mayor's Office.
+                Export current cycle statistics for the {brand.officeShort} and the Mayor's Office.
               </p>
               <Link to="/admin/reports" className="inline-flex items-center gap-2 bg-surface text-primary text-sm font-semibold px-4 py-2.5 rounded-lg hover:opacity-90 transition-opacity">
                 Generate Reports <ChevronRight size={15} />

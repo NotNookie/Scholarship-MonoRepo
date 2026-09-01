@@ -15,6 +15,7 @@ import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
+import { useBrand } from '../../tenant/TenantContext'
 
 const APPEAL_REASONS = [
   'Document was incorrectly marked as invalid',
@@ -48,6 +49,7 @@ const inputCls = (err) =>
 
 export function AppealPage() {
   const { id } = useParams()
+  const brand = useBrand()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [file, setFile] = useState(null)
@@ -114,7 +116,7 @@ export function AppealPage() {
         <div>
           <h1 className="text-2xl font-bold text-content">Appeal for Reconsideration</h1>
           <p className="text-sm text-content-muted mt-1">
-            Submit a formal request to have your scholarship application reviewed again by the LYDO committee.
+            Submit a formal request to have your scholarship application reviewed again by the {brand.officeShort} committee.
           </p>
         </div>
       </header>

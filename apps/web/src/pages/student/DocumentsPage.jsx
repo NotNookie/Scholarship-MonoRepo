@@ -15,6 +15,7 @@ import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { StatusPill } from '../../components/shared/StatusPill'
+import { useBrand } from '../../tenant/TenantContext'
 
 const APPLICATION_STEPS = ['Draft', 'Submitted', 'Under Review', 'Decision', 'Awarded']
 
@@ -124,6 +125,7 @@ function DocumentRow({ doc }) {
 
 export function DocumentsPage() {
   const { id } = useParams()
+  const brand = useBrand()
 
   const { data, isPending, isError } = useQuery({
     queryKey: queryKeys.applications.detail(id),
@@ -249,7 +251,7 @@ export function DocumentsPage() {
             <div>
               <h2 className="text-base font-bold text-content">Submitted Documents</h2>
               <p className="text-sm text-content-muted mt-1">
-                Verification status of each document reviewed by the LYDO staff.
+                Verification status of each document reviewed by the {brand.officeShort} staff.
               </p>
             </div>
 
