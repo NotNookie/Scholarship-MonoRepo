@@ -27,7 +27,7 @@ Everything left to take Iskolar from a working frontend to a shippable system.
 - [x] `[In app]` Tenant resolution — subdomain → tenant via `TenantProvider` / `useTenant()`; `?tenant=` dev fallback; `*.localhost` works in dev
 - [x] `[In app]` Tenant-driven branding — name/tagline/office/contact + per-tenant colour palette (overrides `@theme` vars); wired into public chrome, auth screens, and the landing
 - [ ] `[Decision]` Bare-host (no subdomain) behavior — currently falls back to the default tenant; the real root page (platform landing/gateway) is a later, deliberate task, not built yet
-- [ ] `[To build]` **Impersonation** — operator "Enter tenant" from the console → tenant's `/admin` with an "Impersonating <tenant> — Exit" banner *(decision locked: full impersonation)*
+- [x] `[In app]` **Impersonation** — "Enter tenant" on a municipality's detail page drops the operator into that tenant's `/admin` (full Head access, tenant reskin) with a persistent "Impersonating <tenant> — Exit" banner. Client-side via `store/impersonationStore.js`; `RequireAuth` grants admin access while impersonating.
 - [x] `[In app]` Deeper pages now tenant-branded via `useBrand()` — admin portal header ("{office} Management Portal"), student dashboard/announcements/settings/docs/renewal/appeal/scholarship, public forms/announcements, report PDFs. Added a short `officeShort` label per tenant for inline mentions.
 - [ ] `[To build]` Swap the sample tenant registry (`tenant/tenants.js`) for the real API once the backend exists
 
@@ -138,7 +138,7 @@ Solid as a prototype (no action): nav, global search (Ctrl+K), notifications, on
 ## J. Operator console — *confirmed deliverable (multi-tenant approved)*
 - [ ] `[In app]` Console UI — analytics, onboarding, support, broadcasts, health *(sample data)*
 - [ ] `[To build]` Real API + live tenant management *(currently sample data — see §SUP)*
-- [ ] `[To build]` Impersonation ("Enter tenant") — full impersonation approved *(see §MT)*
+- [x] `[In app]` Impersonation ("Enter tenant") — built, full impersonation *(see §MT)*
 
 ## K. Testing & QA
 - [ ] `[To build]` Unit tests

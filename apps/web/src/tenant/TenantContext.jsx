@@ -3,30 +3,33 @@
    colocated with the context they share. */
 import { createContext, useContext, useEffect, useState } from 'react'
 import { resolveSubdomain, findTenant, DEFAULT_TENANT } from './tenants'
+import { useImpersonation } from '../store/impersonationStore'
 
 // Private — components read tenant state through the hooks below, never the
 // raw context (keeps this file Fast-Refresh friendly).
 const TenantContext = createContext(null)
 
 /**
- * Resolves "which municipality am I?" once from the URL and makes it available
- * app-wide. status is one of:
- *   'tenant'   — a known municipality (tenant is set)
- *   'root'     — the bare platform host, no subdomain (tenant is null)
- *   'notfound' — a subdomain that matches no municipality (tenant is null)
+ * Resolves "which municipality am I?" from the URL (or the tenant an operator is
+ * impersonating, which overrides it) and makes it available app-wide.
  */
 export function TenantProvider({ children }) {
-  // Resolved once from the URL; the host doesn't change without a full reload.
-  // No / unknown subdomain falls back to the default tenant for now.
-  const [value] = useState(() => {
+  // Base tenant, resolved once from the URL (host doesn't change without a full
+  // reload). No / unknown subdomain falls back to the default tenant for now.
+  const [base] = useState(() => {
     const subdomain = resolveSubdomain(window.location.hostname, window.location.search)
-    const tenant = findTenant(subdomain) ?? DEFAULT_TENANT
-    return { tenant, subdomain }
+    return findTenant(subdomain) ?? DEFAULT_TENANT
   })
 
-  // Apply the tenant's palette by overriding the @theme CSS variables on :root.
+  // When an operator is impersonating a municipality, that tenant wins.
+  const impersonated = useImpersonation((s) => s.tenant)
+  const tenant = impersonated ?? base
+  const isImpersonating = !!impersonated
+
+  // Apply the active tenant's palette by overriding the @theme CSS variables.
+  // Re-runs when impersonation starts/stops so the whole app reskins live.
   useEffect(() => {
-    const theme = value.tenant?.theme
+    const theme = tenant?.theme
     if (!theme) return
     const el = document.documentElement
     const previous = {}
@@ -40,12 +43,16 @@ export function TenantProvider({ children }) {
         else el.style.removeProperty(k)
       })
     }
-  }, [value.tenant])
+  }, [tenant])
 
-  return <TenantContext.Provider value={value}>{children}</TenantContext.Provider>
+  return (
+    <TenantContext.Provider value={{ tenant, isImpersonating }}>
+      {children}
+    </TenantContext.Provider>
+  )
 }
 
-// Full resolution result: { tenant, subdomain, status }.
+// Full resolution result: { tenant, isImpersonating }.
 export function useTenant() {
   const ctx = useContext(TenantContext)
   if (!ctx) throw new Error('useTenant must be used within a TenantProvider')

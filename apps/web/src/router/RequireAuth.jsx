@@ -1,8 +1,10 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { useImpersonation } from '../store/impersonationStore'
 
 export function RequireAuth({ children, roles }) {
   const { user, token, hasHydrated } = useAuthStore()
+  const impersonating = useImpersonation((s) => !!s.tenant)
   const location = useLocation()
 
   // Wait for persisted auth to load before deciding — otherwise a hard refresh
@@ -15,7 +17,9 @@ export function RequireAuth({ children, roles }) {
   }
 
   if (roles && !roles.includes(user.role)) {
-    return <Navigate to="/" replace />
+    // An operator impersonating a municipality gets that tenant's admin access.
+    const impersonationGrants = impersonating && (roles.includes('admin') || roles.includes('staff'))
+    if (!impersonationGrants) return <Navigate to="/" replace />
   }
 
   return children

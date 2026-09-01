@@ -13,9 +13,11 @@ import {
   Settings,
   LogOut,
   Plus,
+  Eye,
 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
-import { useBrand } from '../../tenant/TenantContext'
+import { useBrand, useTenant } from '../../tenant/TenantContext'
+import { useImpersonation } from '../../store/impersonationStore'
 import { api } from '../../lib/axios'
 
 const navItems = [
@@ -54,13 +56,20 @@ export function AdminLayout() {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
   const brand = useBrand()
+  const { isImpersonating } = useTenant()
+  const exitImpersonation = useImpersonation((s) => s.exit)
   // Maintenance + Users are the municipality Head's job (Admin); Staff don't see them.
-  // (Platform Super Admin manages tenants elsewhere — that portal isn't built yet.)
-  const isHead = user?.role === 'admin'
+  // An impersonating operator gets full Head access to the tenant's portal.
+  const isHead = user?.role === 'admin' || isImpersonating
 
   function handleLogout() {
     logout()
     navigate('/login')
+  }
+
+  function handleExitImpersonation() {
+    exitImpersonation()
+    navigate('/platform/municipalities')
   }
 
   const initials = getInitials(user?.name)
@@ -78,9 +87,29 @@ export function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-primary-dark text-on-primary flex flex-col shrink-0">
+    <div className="min-h-screen flex flex-col">
+      {/* Impersonation banner — operator viewing this tenant's portal */}
+      {isImpersonating && (
+        <div className="bg-content text-white px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4 shrink-0">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <Eye size={16} className="text-secondary shrink-0" />
+            <p className="text-sm min-w-0 truncate">
+              <span className="font-semibold">Impersonating {brand.municipality}</span>
+              <span className="text-white/60 hidden sm:inline"> — you&rsquo;re viewing this portal as an operator.</span>
+            </p>
+          </div>
+          <button
+            onClick={handleExitImpersonation}
+            className="shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold border border-white/30 text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors"
+          >
+            <LogOut size={13} /> Exit
+          </button>
+        </div>
+      )}
+
+      <div className="flex flex-1 min-h-0">
+        {/* Sidebar */}
+        <aside className="w-64 bg-primary-dark text-on-primary flex flex-col shrink-0">
 
         {/* User + New Announcement */}
         <div className="px-4 pt-5 pb-4 border-b border-white/10">
@@ -175,6 +204,7 @@ export function AdminLayout() {
         <main className="flex-1 bg-surface-alt p-6 overflow-auto">
           <Outlet />
         </main>
+        </div>
       </div>
     </div>
   )

@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useNavigate, useParams, Navigate } from 'react-router-dom'
-import { ChevronLeft, Ban, Check, CircleCheck, Download, Trash2 } from 'lucide-react'
+import { ChevronLeft, Ban, Check, CircleCheck, Download, Trash2, LogIn } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { usePlatformStore, sigilOf, SETUP_STEPS } from '../../store/platformStore'
+import { useImpersonation } from '../../store/impersonationStore'
 import { StatusTag } from '../../components/platform/PlatformBits'
 import { OffboardDrawer } from '../../components/platform/OffboardDrawer'
 
@@ -12,6 +13,7 @@ export function PlatformMunicipalityDetailPage() {
   const municipality = usePlatformStore((s) => s.municipalities.find((m) => m.id === id))
   const toggleStatus = usePlatformStore((s) => s.toggleStatus)
   const offboard = usePlatformStore((s) => s.offboard)
+  const enterTenant = useImpersonation((s) => s.enter)
   const [offboardOpen, setOffboardOpen] = useState(false)
 
   if (!municipality) return <Navigate to="/platform/municipalities" replace />
@@ -37,6 +39,11 @@ export function PlatformMunicipalityDetailPage() {
     document.body.appendChild(a); a.click(); a.remove()
     URL.revokeObjectURL(url)
     toast.success(`Exported ${m.name} data`)
+  }
+
+  function handleEnter() {
+    enterTenant(m)
+    navigate('/admin/dashboard')
   }
 
   function confirmOffboard() {
@@ -80,16 +87,20 @@ export function PlatformMunicipalityDetailPage() {
           </h1>
           <div className="pf-rec-sub">{m.subdomain}.iskolar.ph</div>
         </div>
-        <div className="pf-rec-actions">
+        <div className="pf-rec-actions" style={{ display: 'flex', gap: 12 }}>
+          <button className="pf-btn" type="button" onClick={handleEnter}>
+            <LogIn size={18} strokeWidth={2.2} />
+            Enter tenant
+          </button>
           {suspended ? (
-            <button className="pf-btn" type="button" onClick={handleToggle}>
+            <button className="pf-btn pf-btn--ghost" type="button" onClick={handleToggle}>
               <Check size={18} strokeWidth={2.4} />
               Reactivate
             </button>
           ) : (
             <button className="pf-btn pf-btn--danger" type="button" onClick={handleToggle}>
               <Ban size={18} strokeWidth={2.2} />
-              Suspend tenant
+              Suspend
             </button>
           )}
         </div>
