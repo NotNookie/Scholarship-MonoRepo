@@ -100,6 +100,10 @@ function ChartCard({ title, subtitle, Icon, children, empty }) {
 
 export function ReportsPage() {
   const brand = useBrand()
+  // Disbursement/payout tracking is optional per municipality — hide the payout
+  // report and the disbursement chart when this LGU doesn't track it.
+  const payoutTracking = brand.features?.payoutTracking !== false
+  const reports = payoutTracking ? REPORTS : REPORTS.filter((r) => r.key !== 'payout')
   const { data, isPending } = useQuery({
     queryKey: queryKeys.adminApplications.list({ report: true }),
     queryFn: () => api.get('/admin/applications?per_page=1000').then((r) => r.data),
@@ -198,9 +202,11 @@ export function ReportsPage() {
           </div>
 
           {/* Disbursement trends (placeholder until disbursement data exists) */}
-          <ChartCard title="Financial Disbursement Trends" subtitle="Projected budget vs. actual disbursements" Icon={TrendingUp} empty>
-            <div />
-          </ChartCard>
+          {payoutTracking && (
+            <ChartCard title="Financial Disbursement Trends" subtitle="Projected budget vs. actual disbursements" Icon={TrendingUp} empty>
+              <div />
+            </ChartCard>
+          )}
         </>
       )}
 
@@ -208,7 +214,7 @@ export function ReportsPage() {
       <section>
         <h2 className="text-base font-bold text-content mb-4">Generate Reports</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {REPORTS.map((r) => {
+          {reports.map((r) => {
             const rows = isPending ? [] : r.rows(apps)
             return (
               <div key={r.key} className="bg-surface border border-border rounded-xl shadow-card p-6 flex flex-col">

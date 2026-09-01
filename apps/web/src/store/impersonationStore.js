@@ -29,6 +29,13 @@ function brandFor(m) {
     website: null,
     facebook: null,
     manualUrl: null,
+    // Conservative defaults for an unknown municipality: essay on, extras off.
+    features: { essay: true, qualifyingExam: false, orientation: false, payoutTracking: false },
+    applicationDeadline: null,
+    programs: null,
+    qualifications: null,
+    guideSteps: null,
+    faqs: null,
     theme: DEFAULT_TENANT.theme,
   }
 }

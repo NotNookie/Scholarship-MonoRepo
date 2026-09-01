@@ -27,7 +27,15 @@ const SCHOLAR_STATUS = {
 }
 
 // The journey starts at the application — the scholarship is its continuation.
-const JOURNEY_STEPS = ['Applied', 'Submitted', 'Under Review', 'Decision', 'Awarded']
+// Some municipalities run extra milestones (a qualifying exam, an orientation)
+// between the decision and the award; those are optional per tenant.
+const BASE_JOURNEY = ['Applied', 'Submitted', 'Under Review', 'Decision']
+function journeyStepsFor(features = {}) {
+  const extras = []
+  if (features.qualifyingExam) extras.push('Qualifying Exam')
+  if (features.orientation) extras.push('Orientation')
+  return [...BASE_JOURNEY, ...extras, 'Awarded']
+}
 const STEP_INDEX = { draft: 0, submitted: 2, under_review: 2, incomplete: 2, approved: 3, rejected: 3 }
 
 function formatDate(v) {
@@ -62,6 +70,8 @@ function StatCard({ Icon, label, value, sub, chip, chipCls, accent }) {
 // ── Application-phase tracker ─────────────────────────────────
 
 function ApplicationStage({ application }) {
+  const { features } = useBrand()
+  const journeySteps = journeyStepsFor(features)
   const current = STEP_INDEX[application.status] ?? 0
   return (
     <section className="bg-surface border border-border rounded-xl shadow-card overflow-hidden">
@@ -82,9 +92,9 @@ function ApplicationStage({ application }) {
         <div className="relative flex items-center">
           <div className="absolute top-4 left-0 right-0 h-px bg-border z-0" />
           <div className="absolute top-4 left-0 h-px bg-primary z-0 transition-all duration-700"
-            style={{ width: `${(current / (JOURNEY_STEPS.length - 1)) * 100}%` }} />
+            style={{ width: `${(current / (journeySteps.length - 1)) * 100}%` }} />
           <div className="relative z-10 flex justify-between w-full">
-            {JOURNEY_STEPS.map((label, i) => {
+            {journeySteps.map((label, i) => {
               const done = i < current
               const active = i === current
               return (

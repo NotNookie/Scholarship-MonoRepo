@@ -10,6 +10,7 @@ import {
   Check,
   Loader2,
   Video,
+  ClipboardList,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
@@ -36,6 +37,11 @@ const DEFAULTS = {
   facebook_url: '',
   manual_url: '',
   map_embed_url: '',
+  application_deadline: '',
+  essay_enabled: true,
+  qualifying_exam_enabled: false,
+  orientation_enabled: false,
+  payout_tracking_enabled: false,
 }
 
 const inputCls = 'w-full text-sm px-3 py-2.5 rounded-lg border border-border bg-surface focus:outline-none focus:border-primary'
@@ -55,6 +61,18 @@ function Toggle({ checked, onChange, label }) {
       className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${checked ? 'bg-primary' : 'bg-border'}`}>
       <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-surface shadow-sm transition-transform ${checked ? 'translate-x-5' : ''}`} />
     </button>
+  )
+}
+
+function ToggleRow({ title, desc, checked, onChange }) {
+  return (
+    <div className="flex items-start justify-between gap-4">
+      <div>
+        <p className="text-sm font-medium text-content">{title}</p>
+        <p className="text-xs text-content-muted mt-1 max-w-md">{desc}</p>
+      </div>
+      <Toggle label={title} checked={checked} onChange={onChange} />
+    </div>
   )
 }
 
@@ -206,6 +224,48 @@ export function MaintenanceProfilePage() {
               <Field id="map_embed_url" label="Map embed URL">
                 <input id="map_embed_url" type="url" value={form.map_embed_url} onChange={set('map_embed_url')} placeholder="OpenStreetMap / Google Maps embed URL" className={inputCls} />
               </Field>
+            </div>
+          </section>
+
+          {/* Application & lifecycle options */}
+          <section className="bg-surface border border-border rounded-xl shadow-card p-6">
+            <h2 className="text-base font-bold text-content inline-flex items-center gap-2 pb-4 mb-5 border-b border-border">
+              <ClipboardList size={17} className="text-primary" /> Application &amp; Lifecycle
+            </h2>
+            <p className="text-xs text-content-muted mb-5">
+              Turn parts of the process on or off to match how your municipality actually runs its program.
+            </p>
+            <div className="flex flex-col gap-5">
+              <ToggleRow
+                title="Require a personal essay"
+                desc="Adds the “Essay & Statement” step to the application form. Turn off if your process doesn't collect an essay."
+                checked={!!form.essay_enabled}
+                onChange={() => setForm((s) => ({ ...s, essay_enabled: !s.essay_enabled }))}
+              />
+              <ToggleRow
+                title="Qualifying exam milestone"
+                desc="Shows a “Qualifying Exam” stage in the scholar's journey between the decision and the award."
+                checked={!!form.qualifying_exam_enabled}
+                onChange={() => setForm((s) => ({ ...s, qualifying_exam_enabled: !s.qualifying_exam_enabled }))}
+              />
+              <ToggleRow
+                title="Orientation milestone"
+                desc="Shows an “Orientation” stage in the scholar's journey before the award is finalized."
+                checked={!!form.orientation_enabled}
+                onChange={() => setForm((s) => ({ ...s, orientation_enabled: !s.orientation_enabled }))}
+              />
+              <ToggleRow
+                title="Disbursement / payout tracking"
+                desc="Shows the payout report and the disbursement trends chart under Reports. Turn off if payouts aren't tracked in-app."
+                checked={!!form.payout_tracking_enabled}
+                onChange={() => setForm((s) => ({ ...s, payout_tracking_enabled: !s.payout_tracking_enabled }))}
+              />
+              <div className="pt-5 border-t border-border">
+                <Field id="application_deadline" label="Application deadline (shown on the public Scholarships page)">
+                  <input id="application_deadline" type="text" value={form.application_deadline} onChange={set('application_deadline')} placeholder="e.g. August 15, 2026" className={inputCls} />
+                </Field>
+                <p className="text-xs text-content-muted mt-2">Leave blank to hide the deadline banner.</p>
+              </div>
             </div>
           </section>
         </div>

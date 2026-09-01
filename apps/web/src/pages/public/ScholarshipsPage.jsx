@@ -5,6 +5,7 @@ import {
 } from 'lucide-react'
 import { SCHOLARSHIPS, QUALIFICATIONS, FILTERS, SORT_OPTIONS } from '../../data/scholarships'
 import { ScholarshipCard } from '../../components/shared/ScholarshipCard'
+import { useBrand } from '../../tenant/TenantContext'
 
 // Largest peso figure mentioned in a benefit string, for the amount sort.
 function grantValue(benefit = '') {
@@ -23,11 +24,18 @@ const SORTERS = {
 }
 
 export function ScholarshipsPage() {
+  const brand = useBrand()
+  // Config-driven: a municipality can override the catalog / qualifications /
+  // deadline; otherwise we fall back to the shared defaults.
+  const programs = brand.programs ?? SCHOLARSHIPS
+  const qualifications = brand.qualifications ?? QUALIFICATIONS
+  const deadline = brand.applicationDeadline
+
   const [activeFilter, setActiveFilter] = useState('All Programs')
   const [sort, setSort] = useState('Deadline (Soonest)')
   const [search, setSearch] = useState('')
 
-  const filtered = SCHOLARSHIPS.filter((s) => {
+  const filtered = programs.filter((s) => {
     const matchFilter = activeFilter === 'All Programs' || s.filter === activeFilter
     const matchSearch =
       !search ||
@@ -90,7 +98,7 @@ export function ScholarshipsPage() {
               General eligibility requirements for most municipal scholarship programs.
             </p>
             <ul className="space-y-4">
-              {QUALIFICATIONS.map(({ label, text }) => (
+              {qualifications.map(({ label, text }) => (
                 <li key={label} className="flex items-start gap-3">
                   <CheckCircle2 size={15} className="text-success shrink-0 mt-0.5" />
                   <div>
@@ -119,9 +127,11 @@ export function ScholarshipsPage() {
               <p className="text-xs text-on-primary/70 mb-4 leading-relaxed">
                 Submit your requirements for the upcoming academic semester before the deadline.
               </p>
-              <span className="inline-block bg-secondary text-on-secondary text-xs font-bold px-3 py-1 rounded-full">
-                Deadline: Aug 15, 2026
-              </span>
+              {deadline && (
+                <span className="inline-block bg-secondary text-on-secondary text-xs font-bold px-3 py-1 rounded-full">
+                  Deadline: {deadline}
+                </span>
+              )}
             </div>
           </div>
         </aside>

@@ -42,8 +42,8 @@ Dead controls / affordances:
 - [x] `[In app]` Landing — real OpenStreetMap embed (no API key), **per-municipality**: shown when the tenant sets `mapEmbedUrl`, else the contact column goes full-width. Website / Facebook social links render only when set; empty contact rows (address/phone/email) are hidden. All controlled from Maintenance → Public Content.
 
 Hardcoded content that should be data/config-driven *(needs §H / §B)*:
-- [ ] `[To build]` Scholarships page — programs, "How to Qualify", and the deadline are all hardcoded *(feed from Maintenance config)*
-- [ ] `[To build]` Requirements page — forms, guide steps, and FAQ are all hardcoded
+- [x] `[In app]` Scholarships page — programs, "How to Qualify", and the **deadline** now read from tenant config (`brand.programs`/`qualifications`/`applicationDeadline`) with a shared fallback; Pagsanjan shows a different deadline (Sep 30) to prove it. Deadline is editable in Maintenance → Application &amp; Lifecycle; blank hides the banner.
+- [x] `[In app]` Requirements page — forms already unified with `/forms`; **guide steps and FAQ** now read from tenant config (`brand.guideSteps`/`faqs`) with a shared fallback
 - [x] `[In app]` Landing — name, tagline, office, and contact are now **tenant-driven** (via `useBrand()`); only the 5 "how it works" steps remain generic (fine — they're the same everywhere)
 
 Structure / redundancy:
@@ -129,7 +129,7 @@ Solid as a prototype (no action): nav, global search (Ctrl+K), notifications, on
 - [ ] `[To build]` Persist all configuration to the backend
 - [x] `[In app]` Tenant-driven branding (name, tagline, office, contact, colour palette) — done across the shared chrome, landing, and the deeper student/admin/public pages (§MT); real logo upload still needs the backend
 - [ ] `[To build]` Live theme switching *(theme is stored but not applied to the UI)*
-- [~] `[Partial]` Make other per-municipality content optional too (like the walkthrough video). **Done:** landing **map embed**, **website/social links**, downloadable **manual/handbook**, individual **contact fields** (hidden when blank). **Still to build:** **qualifying-exam** & **orientation** lifecycle stages, **essay** requirement in the application, and **payout/disbursement tracking**. Each is a tenant config flag; not every LGU has them.
+- [x] `[In app]` Make other per-municipality content optional too (like the walkthrough video). **Done:** landing **map embed**, **website/social links**, downloadable **manual/handbook**, individual **contact fields** (hidden when blank), **essay** requirement in the application (drops the step + review section), **qualifying-exam** & **orientation** journey milestones in My Scholarship, and **payout/disbursement tracking** (payout report + disbursement chart) in admin Reports. All driven by a `features` object on the tenant registry, with on/off toggles in Maintenance → Application &amp; Lifecycle. Pagsanjan runs the lean variant (no essay/exam/orientation/payout) to prove the flags gate.
 
 ## I. Reports
 - [ ] `[In app]` Report UI with charts

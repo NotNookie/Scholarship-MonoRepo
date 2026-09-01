@@ -78,6 +78,10 @@ export function RequirementsPage() {
   const brand = useBrand()
   const videoUrl = brand.walkthroughVideoUrl
   const hasVideo = !!videoUrl
+  // Config-driven with a shared fallback: a municipality can supply its own
+  // guide steps / FAQ, otherwise the generic defaults are used.
+  const guideSteps = brand.guideSteps ?? GUIDE_STEPS
+  const faqs = brand.faqs ?? FAQS
   const [showVideo, setShowVideo] = useState(false)
 
   const { data, isPending } = useQuery({
@@ -183,7 +187,7 @@ export function RequirementsPage() {
           <div className={`${hasVideo ? 'lg:col-span-2' : ''} p-7 flex flex-col gap-7 bg-surface-alt`}>
             <h3 className="text-base font-bold text-primary">Step-by-Step Process</h3>
             <div className="flex flex-col gap-6 relative before:absolute before:top-0 before:bottom-0 before:left-3.5 before:w-px before:bg-border">
-              {GUIDE_STEPS.map(({ n, title, desc, done }) => (
+              {guideSteps.map(({ n, title, desc, done }) => (
                 <div key={n} className="flex gap-4 relative">
                   <div
                     className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold shadow-sm z-10 relative ${
@@ -235,7 +239,7 @@ export function RequirementsPage() {
         </div>
 
         <div className="bg-surface border border-border rounded-xl shadow-card px-6">
-          {FAQS.map((item, i) => (
+          {faqs.map((item, i) => (
             <FaqItem key={item.q} q={item.q} a={item.a} defaultOpen={i === 0} />
           ))}
         </div>

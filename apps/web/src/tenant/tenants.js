@@ -30,6 +30,19 @@ export const TENANTS = [
     website: 'https://stacruzlaguna.gov.ph',
     facebook: 'https://www.facebook.com/',
     manualUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    // Optional lifecycle / application features — not every LGU runs these.
+    features: {
+      essay: true,           // "Essay & Statement" step in the application form
+      qualifyingExam: true,  // "Qualifying Exam" milestone in the scholar journey
+      orientation: true,     // "Orientation" milestone in the scholar journey
+      payoutTracking: true,  // Disbursement / payout tracking in admin Reports
+    },
+    applicationDeadline: 'August 15, 2026',  // public Scholarships page; null hides the pill
+    // Public catalog content — null falls back to the shared default (data/*.js).
+    programs: null,
+    qualifications: null,
+    guideSteps: null,
+    faqs: null,
     // Matches the app defaults (globals.css @theme) — applying it is a no-op.
     theme: {
       '--color-primary-dark': '#002576',
@@ -65,6 +78,19 @@ export const TENANTS = [
     website: null,
     facebook: 'https://www.facebook.com/',
     manualUrl: null,
+    // Pagsanjan runs a leaner process: no essay, no exam/orientation milestones,
+    // and disbursement isn't tracked in-app — proves the flags actually gate.
+    features: {
+      essay: false,
+      qualifyingExam: false,
+      orientation: false,
+      payoutTracking: false,
+    },
+    applicationDeadline: 'September 30, 2026',  // a different deadline proves it's config-driven
+    programs: null,
+    qualifications: null,
+    guideSteps: null,
+    faqs: null,
     // A visibly different palette (teal + warm orange) to prove the reskin.
     theme: {
       '--color-primary-dark': '#0a5654',

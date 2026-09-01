@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -12,25 +12,20 @@ import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { validateFile, measureSharpness, BLUR_THRESHOLD } from '../../lib/fileValidation'
+import { useBrand } from '../../tenant/TenantContext'
 
 // ── Constants ────────────────────────────────────────────────
 
 const DRAFT_KEY = 'iskolar-application-draft'
 
-const STEPS = [
-  { label: 'Personal Info',      Icon: User },
-  { label: 'Academic Records',   Icon: GraduationCap },
-  { label: 'Family Background',  Icon: Users },
-  { label: 'Essay & Statement',  Icon: FileText },
-  { label: 'Document Upload',    Icon: Upload },
-]
-
-const STEP_FIELDS = [
-  ['first_name', 'last_name', 'birthdate', 'sex', 'civil_status', 'street_address', 'barangay', 'mobile'],
-  ['school_name', 'course', 'year_level', 'gwa'],
-  ['annual_income_range', 'num_dependents', 'primary_earner', 'primary_earner_occupation', 'primary_earner_monthly_income', 'financial_need_statement'],
-  ['essay'],
-  ['doc_acknowledged', 'attest'],
+// Each step carries a stable `id` so optional steps (e.g. the essay) can be
+// filtered out per municipality without breaking numeric indexing.
+const STEP_DEFS = [
+  { id: 'personal',  label: 'Personal Info',     Icon: User,          fields: ['first_name', 'last_name', 'birthdate', 'sex', 'civil_status', 'street_address', 'barangay', 'mobile'] },
+  { id: 'academic',  label: 'Academic Records',  Icon: GraduationCap, fields: ['school_name', 'course', 'year_level', 'gwa'] },
+  { id: 'family',    label: 'Family Background', Icon: Users,         fields: ['annual_income_range', 'num_dependents', 'primary_earner', 'primary_earner_occupation', 'primary_earner_monthly_income', 'financial_need_statement'] },
+  { id: 'essay',     label: 'Essay & Statement', Icon: FileText,      fields: ['essay'] },
+  { id: 'documents', label: 'Document Upload',   Icon: Upload,        fields: ['doc_acknowledged', 'attest'] },
 ]
 
 const FALLBACK_DOCUMENTS = [
@@ -57,8 +52,8 @@ function countWords(s) {
 
 const docNameOf = (doc) => (typeof doc === 'string' ? doc : doc.name)
 
-function isStepComplete(stepIndex, values) {
-  return STEP_FIELDS[stepIndex].every((field) => {
+function isStepComplete(step, values) {
+  return step.fields.every((field) => {
     const v = values[field]
     if (typeof v === 'boolean') return v === true
     if (typeof v === 'number') return Number.isFinite(v)
@@ -683,7 +678,7 @@ function Step5Documents({ register, errors, documents, values, uploads, setUploa
 
 // ── Sidebar ───────────────────────────────────────────────────
 
-function AppSidebar({ step, setStep, progress, onSaveDraft, values }) {
+function AppSidebar({ steps, step, setStep, progress, onSaveDraft, values }) {
   return (
     <aside className="hidden md:flex flex-col w-64 shrink-0 bg-surface-alt border-r border-border h-full">
       {/* Progress */}
@@ -700,9 +695,9 @@ function AppSidebar({ step, setStep, progress, onSaveDraft, values }) {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-3 flex flex-col gap-0.5 overflow-y-auto">
-        {STEPS.map(({ label, Icon }, i) => {
+        {steps.map(({ label, Icon }, i) => {
           const active = i === step
-          const complete = isStepComplete(i, values)
+          const complete = isStepComplete(steps[i], values)
           return (
             <button
               key={i}
@@ -746,20 +741,20 @@ function AppSidebar({ step, setStep, progress, onSaveDraft, values }) {
 
 // ── Stepper ───────────────────────────────────────────────────
 
-function Stepper({ current, onStepClick, values }) {
+function Stepper({ steps, current, onStepClick, values }) {
   return (
     <div className="flex items-center">
       <div className="relative flex-1">
         <div className="absolute top-1/2 left-0 w-full h-px bg-border -translate-y-1/2 z-0" />
         <div
           className="absolute top-1/2 left-0 h-px bg-primary -translate-y-1/2 z-0 transition-all duration-500"
-          style={{ width: `${(current / (STEPS.length - 1)) * 100}%` }}
+          style={{ width: `${(current / (steps.length - 1)) * 100}%` }}
         />
         <div className="relative z-10 flex justify-between">
-          {STEPS.map((_, i) => {
+          {steps.map((_, i) => {
             const done = i < current
             const active = i === current
-            const complete = isStepComplete(i, values)
+            const complete = isStepComplete(steps[i], values)
             return (
               <div key={i} className="flex flex-col items-center gap-1.5">
                 <button
@@ -780,7 +775,7 @@ function Stepper({ current, onStepClick, values }) {
                     active ? 'text-primary' : done ? 'text-content' : 'text-content-muted'
                   }`}
                 >
-                  {STEPS[i].label.split(' ')[0]}
+                  {steps[i].label.split(' ')[0]}
                 </span>
               </div>
             )
@@ -816,7 +811,8 @@ function ReviewSection({ title, stepIndex, onEdit, children }) {
   )
 }
 
-function ReviewModal({ values, documents, uploads, onEdit, onClose, onConfirm, submitting }) {
+function ReviewModal({ steps, hasEssay, values, documents, uploads, onEdit, onClose, onConfirm, submitting }) {
+  const idx = (id) => steps.findIndex((s) => s.id === id)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
@@ -830,7 +826,7 @@ function ReviewModal({ values, documents, uploads, onEdit, onClose, onConfirm, s
         </div>
 
         <div className="flex-1 overflow-auto p-6 flex flex-col gap-4 min-h-0">
-          <ReviewSection title="Personal & Contact" stepIndex={0} onEdit={onEdit}>
+          <ReviewSection title="Personal & Contact" stepIndex={idx('personal')} onEdit={onEdit}>
             <ReviewRow label="Name" value={[values.first_name, values.last_name].filter(Boolean).join(' ')} />
             <ReviewRow label="Date of birth" value={values.birthdate} />
             <ReviewRow label="Sex" value={values.sex} />
@@ -839,26 +835,28 @@ function ReviewModal({ values, documents, uploads, onEdit, onClose, onConfirm, s
             <ReviewRow label="Address" value={values.street_address} />
           </ReviewSection>
 
-          <ReviewSection title="Academic Records" stepIndex={1} onEdit={onEdit}>
+          <ReviewSection title="Academic Records" stepIndex={idx('academic')} onEdit={onEdit}>
             <ReviewRow label="School" value={values.school_name} />
             <ReviewRow label="Course" value={values.course} />
             <ReviewRow label="Year level" value={values.year_level} />
             <ReviewRow label="GWA" value={values.gwa} />
           </ReviewSection>
 
-          <ReviewSection title="Family & Financial" stepIndex={2} onEdit={onEdit}>
+          <ReviewSection title="Family & Financial" stepIndex={idx('family')} onEdit={onEdit}>
             <ReviewRow label="Household income" value={values.annual_income_range} />
             <ReviewRow label="Dependents" value={values.num_dependents} />
             <ReviewRow label="Primary earner" value={values.primary_earner} />
             <ReviewRow label="Occupation" value={values.primary_earner_occupation} />
           </ReviewSection>
 
-          <ReviewSection title="Essay" stepIndex={3} onEdit={onEdit}>
-            <p className="text-xs text-content-muted line-clamp-4 leading-relaxed">{values.essay || '—'}</p>
-            <p className="text-xs text-content-muted mt-2">{countWords(values.essay)} words</p>
-          </ReviewSection>
+          {hasEssay && (
+            <ReviewSection title="Essay" stepIndex={idx('essay')} onEdit={onEdit}>
+              <p className="text-xs text-content-muted line-clamp-4 leading-relaxed">{values.essay || '—'}</p>
+              <p className="text-xs text-content-muted mt-2">{countWords(values.essay)} words</p>
+            </ReviewSection>
+          )}
 
-          <ReviewSection title="Documents" stepIndex={4} onEdit={onEdit}>
+          <ReviewSection title="Documents" stepIndex={idx('documents')} onEdit={onEdit}>
             <div className="space-y-1.5">
               {documents.map((d) => {
                 const dn = docNameOf(d)
@@ -896,6 +894,13 @@ function ReviewModal({ values, documents, uploads, onEdit, onClose, onConfirm, s
 
 export function ApplicationPage() {
   const navigate = useNavigate()
+  const brand = useBrand()
+  // The essay step is optional per municipality (Maintenance → Application).
+  const hasEssay = brand.features?.essay !== false
+  const steps = useMemo(
+    () => STEP_DEFS.filter((d) => d.id !== 'essay' || hasEssay),
+    [hasEssay],
+  )
   const [step, setStep] = useState(0)
   // Uploaded files live here (not in the RHF draft — File objects can't be
   // serialized to storage), so they can be enforced and shown in the summary.
@@ -927,8 +932,8 @@ export function ApplicationPage() {
   })
   const documents = requirements?.documents?.length ? requirements.documents : FALLBACK_DOCUMENTS
 
-  const completedSteps = STEPS.filter((_, i) => isStepComplete(i, values)).length
-  const progress = Math.round((completedSteps / STEPS.length) * 100)
+  const completedSteps = steps.filter((s) => isStepComplete(s, values)).length
+  const progress = Math.round((completedSteps / steps.length) * 100)
 
   function saveDraft() {
     const values = getValues()
@@ -937,7 +942,7 @@ export function ApplicationPage() {
   }
 
   async function handleNext() {
-    const fields = STEP_FIELDS[step]
+    const fields = steps[step].fields
     if (fields.length) {
       const valid = await trigger(fields)
       if (!valid) return
@@ -973,7 +978,7 @@ export function ApplicationPage() {
     const missing = documents.filter((d) => !uploads[docNameOf(d)])
     if (missing.length) {
       toast.error(`Please upload all required documents (${missing.length} remaining).`)
-      if (step !== STEPS.length - 1) setStep(STEPS.length - 1)
+      if (step !== steps.length - 1) setStep(steps.length - 1)
       return
     }
     setReviewOpen(true)
@@ -985,11 +990,12 @@ export function ApplicationPage() {
     submitMutation.mutate({ ...getValues(), documents: documents.map(docNameOf) })
   }
 
-  const isLast = step === STEPS.length - 1
+  const isLast = step === steps.length - 1
+  const currentId = steps[step].id
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)]">
-      <AppSidebar step={step} setStep={setStep} progress={progress} onSaveDraft={saveDraft} values={values} />
+      <AppSidebar steps={steps} step={step} setStep={setStep} progress={progress} onSaveDraft={saveDraft} values={values} />
 
         {/* Main */}
         <main className="flex-1 bg-surface-alt overflow-y-auto">
@@ -997,18 +1003,18 @@ export function ApplicationPage() {
 
             {/* Stepper */}
             <div className="mb-8 bg-surface border border-border rounded-xl p-4 shadow-card">
-              <Stepper current={step} onStepClick={setStep} values={values} />
+              <Stepper steps={steps} current={step} onStepClick={setStep} values={values} />
             </div>
 
             {/* Form card */}
             <div className="bg-surface border border-border rounded-xl shadow-card overflow-hidden">
               <div className="p-6 md:p-8">
                 <form noValidate>
-                  {step === 0 && <Step1Personal register={register} errors={errors} />}
-                  {step === 1 && <Step2Academic register={register} errors={errors} />}
-                  {step === 2 && <Step3Family   register={register} errors={errors} values={values} />}
-                  {step === 3 && <Step4Essay    register={register} errors={errors} values={values} />}
-                  {step === 4 && (
+                  {currentId === 'personal'  && <Step1Personal register={register} errors={errors} />}
+                  {currentId === 'academic'  && <Step2Academic register={register} errors={errors} />}
+                  {currentId === 'family'    && <Step3Family   register={register} errors={errors} values={values} />}
+                  {currentId === 'essay'     && <Step4Essay    register={register} errors={errors} values={values} />}
+                  {currentId === 'documents' && (
                     <Step5Documents
                       register={register}
                       errors={errors}
@@ -1029,7 +1035,7 @@ export function ApplicationPage() {
                     onClick={handleBack}
                     className="text-sm font-medium text-content-muted hover:text-content transition-colors flex items-center gap-1"
                   >
-                    ← {step === 4 ? 'Back to Essay' : 'Back'}
+                    ← {isLast && step > 0 ? `Back to ${steps[step - 1].label}` : 'Back'}
                   </button>
                 ) : (
                   <Link
@@ -1074,6 +1080,8 @@ export function ApplicationPage() {
 
         {reviewOpen && (
           <ReviewModal
+            steps={steps}
+            hasEssay={hasEssay}
             values={values}
             documents={documents}
             uploads={uploads}
