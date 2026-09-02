@@ -1,16 +1,12 @@
 import { useState } from 'react'
 import {
   Palette, ChevronDown, Pipette, RotateCcw, Bell, Search, ShieldAlert,
-  CheckCircle2, AlertTriangle, XCircle, Info, ArrowRight,
+  CheckCircle2, AlertTriangle, XCircle, Info, ArrowRight, Lock,
 } from 'lucide-react'
 import { useUiTheme } from '../../store/uiThemeStore'
-import { DEFAULT_TOKENS, ADVANCED_TOKEN_GROUPS, buildThemeTokens } from '../../tenant/themePresets'
+import { DEFAULT_TOKENS, ADVANCED_TOKEN_GROUPS, buildThemeTokens, THEME_PRESET_LIST } from '../../tenant/themePresets'
 import { isHex } from '../../lib/color'
 
-const THEMES = [
-  { value: 'corporate_blue', label: 'Corporate Blue (Default)', dots: ['bg-primary-dark', 'bg-primary', 'bg-primary-light'] },
-  { value: 'civic_green', label: 'Civic Green', dots: ['bg-tertiary-dark', 'bg-tertiary', 'bg-tertiary-light'] },
-]
 const EMPTY_CUSTOM = { primary: DEFAULT_TOKENS['--color-primary'], secondary: DEFAULT_TOKENS['--color-secondary'], overrides: {} }
 
 // A colour swatch (opens the OS colour wheel) paired with a hex field.
@@ -64,11 +60,25 @@ function Pill({ cls, Icon, children }) {
 
 function ThemePreview({ portalName, tagline }) {
   return (
-    <section className="bg-surface border border-border rounded-xl shadow-card overflow-hidden">
-      <div className="px-5 py-4 border-b border-border">
-        <p className="text-xs font-semibold text-content-muted uppercase tracking-wide">Live preview</p>
-        <p className="text-xs text-content-muted mt-0.5">Every element below uses your live theme — edit a colour and watch it change.</p>
+    <section className="rounded-xl border-2 border-dashed border-border bg-surface-alt shadow-card overflow-hidden">
+      {/* Browser chrome — signals this is a mock, not the real UI */}
+      <div className="flex items-center gap-3 px-4 py-2.5 bg-surface border-b border-border">
+        <span className="flex gap-1.5 shrink-0">
+          <span className="w-3 h-3 rounded-full bg-danger/60" />
+          <span className="w-3 h-3 rounded-full bg-secondary/70" />
+          <span className="w-3 h-3 rounded-full bg-tertiary/60" />
+        </span>
+        <span className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs text-content-muted bg-surface-alt rounded-md py-1 px-3 truncate">
+          <Lock size={11} /> iskolar.ph
+        </span>
+        <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-primary bg-primary-light px-2 py-0.5 rounded">Preview</span>
       </div>
+
+      <p className="px-4 pt-3 -mb-1 text-xs text-content-muted">A mock of the applicant-facing app — edit a colour and watch every element change. It doesn&rsquo;t affect your data.</p>
+
+      {/* The mini app, inset like a screen */}
+      <div className="p-3">
+        <div className="rounded-lg border border-border bg-surface overflow-hidden shadow-sm">
 
       {/* Mini app chrome */}
       <div className="bg-primary text-on-primary px-5 py-3 flex items-center justify-between">
@@ -150,6 +160,8 @@ function ThemePreview({ portalName, tagline }) {
           </div>
         </PreviewBlock>
       </div>
+        </div>
+      </div>
     </section>
   )
 }
@@ -193,23 +205,25 @@ export function MaintenanceThemePage() {
           <h2 className="text-base font-bold text-content inline-flex items-center gap-2 mb-4">
             <Palette size={17} className="text-primary" /> Theme
           </h2>
-          <div className="flex flex-col gap-3">
-            {THEMES.map((t) => {
+          <div className="flex flex-col gap-2.5">
+            {THEME_PRESET_LIST.map((t) => {
               const active = activePreset === t.value
               return (
                 <button
                   key={t.value}
                   onClick={() => setPreset(t.value)}
-                  className={`flex items-center justify-between p-4 rounded-lg border transition-colors text-left ${active ? 'border-primary bg-primary-light/40' : 'border-border hover:border-primary'}`}
+                  className={`flex items-center justify-between gap-2 p-3 rounded-lg border transition-colors text-left ${active ? 'border-primary bg-primary-light/40 ring-1 ring-primary/20' : 'border-border hover:border-primary'}`}
                 >
-                  <span className="flex items-center gap-2">
-                    <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${active ? 'border-primary' : 'border-border'}`}>
+                  <span className="flex items-center gap-2 min-w-0">
+                    <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${active ? 'border-primary' : 'border-border'}`}>
                       {active && <span className="w-2 h-2 rounded-full bg-primary" />}
                     </span>
-                    <span className="text-sm font-medium text-content">{t.label}</span>
+                    <span className="text-sm font-medium text-content truncate">{t.label}</span>
                   </span>
-                  <span className="flex items-center gap-1">
-                    {t.dots.map((d, i) => <span key={i} className={`w-3.5 h-3.5 rounded-full ${d}`} />)}
+                  <span className="flex items-center gap-0.5 shrink-0">
+                    {t.swatch.map((hex, i) => (
+                      <span key={i} className="w-3.5 h-3.5 rounded-full border border-border" style={{ background: hex }} />
+                    ))}
                   </span>
                 </button>
               )

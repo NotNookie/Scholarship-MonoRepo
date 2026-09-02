@@ -1,43 +1,34 @@
-// UI theme presets an admin can pick in Maintenance → Branding & System Settings.
-// Applied live by overriding the primary/secondary @theme tokens — the same
-// runtime mechanism TenantProvider uses for per-tenant palettes. A preset layers
-// on top of the tenant's base palette, so picking one reskins the whole app.
-export const THEME_PRESETS = {
-  corporate_blue: {
-    label: 'Corporate Blue (Default)',
-    tokens: {
-      '--color-primary-dark': '#002576',
-      '--color-primary': '#0038a8',
-      '--color-primary-light': '#e8effe',
-      '--color-on-primary': '#ffffff',
-      '--color-secondary-dark': '#735c00',
-      '--color-secondary': '#fecc00',
-      '--color-secondary-light': '#fff9e0',
-      '--color-on-secondary': '#735c00',
-    },
-  },
-  civic_green: {
-    label: 'Civic Green',
-    tokens: {
-      '--color-primary-dark': '#0a5e2a',
-      '--color-primary': '#158a3f',
-      '--color-primary-light': '#e6f4ea',
-      '--color-on-primary': '#ffffff',
-      '--color-secondary-dark': '#735c00',
-      '--color-secondary': '#fecc00',
-      '--color-secondary-light': '#fff9e0',
-      '--color-on-secondary': '#735c00',
-    },
-  },
+// UI theme presets an admin can pick on the Appearance page. Applied live by
+// overriding the primary/secondary @theme tokens — the same runtime mechanism
+// TenantProvider uses for per-tenant palettes. A preset layers on top of the
+// tenant's base palette, so picking one reskins the whole app.
+import { mix, contrastText, hexToRgba } from '../lib/color'
+
+// Build a preset from two base colours; shades auto-derive (same as a custom
+// theme), and `swatch` is the trio of dots shown in the picker.
+function preset(label, primary, secondary) {
+  return {
+    label,
+    swatch: [mix(primary, '#000000', 0.34), primary, secondary],
+    tokens: buildThemeTokens({ primary, secondary }),
+  }
 }
 
-// For the picker UI: [{ value, label }] in a stable order.
+export const THEME_PRESETS = {
+  corporate_blue: preset('Corporate Blue', '#0038a8', '#fecc00'),
+  civic_green: preset('Civic Green', '#158a3f', '#fecc00'),
+  royal_purple: preset('Royal Purple', '#6d28d9', '#f59e0b'),
+  maroon_gold: preset('Maroon & Gold', '#9f1239', '#eab308'),
+  teal_coral: preset('Teal & Coral', '#0f766e', '#fb7185'),
+  graphite_sky: preset('Graphite & Sky', '#334155', '#0ea5e9'),
+  midnight_amber: preset('Midnight & Amber', '#1e3a8a', '#f59e0b'),
+}
+
+// For the picker UI: [{ value, label, swatch }] in a stable order.
 export const THEME_PRESET_LIST = Object.entries(THEME_PRESETS).map(
-  ([value, p]) => ({ value, label: p.label }),
+  ([value, p]) => ({ value, label: p.label, swatch: p.swatch }),
 )
 
-// ── Custom themes ────────────────────────────────────────────────────
-import { mix, contrastText, hexToRgba } from '../lib/color'
 
 // The app's built-in palette (globals.css @theme) — the starting point a custom
 // theme derives from, and the fallback shown for any token the admin hasn't
