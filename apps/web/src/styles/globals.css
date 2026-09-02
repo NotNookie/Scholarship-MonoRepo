@@ -91,3 +91,28 @@
 @media (prefers-reduced-motion: reduce) {
   .auth-slide { animation: none; }
 }
+
+/* ── Print / PDF ─────────────────────────────────────────────────
+   Strips app chrome and heavy styling so any admin page prints as a clean,
+   ink-friendly document. Layout chrome carries `print:hidden`; this handles
+   the base treatment and page breaks. */
+@media print {
+  html, body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  /* Flatten cards: no shadows, hairline borders, keep them whole on a page. */
+  * { box-shadow: none !important; }
+  section, table, .shadow-card, .shadow-modal, .shadow-card * table {
+    break-inside: avoid;
+  }
+  thead { display: table-header-group; } /* repeat table headers across pages */
+  tr, img { break-inside: avoid; }
+  h1, h2, h3 { break-after: avoid; }
+  /* Let the main content use the full page width. */
+  main { overflow: visible !important; }
+  /* Anything explicitly marked as screen-only. */
+  .no-print { display: none !important; }
+  a { text-decoration: none !important; color: inherit !important; }
+  @page { margin: 1.5cm; }
+}

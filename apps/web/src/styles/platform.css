@@ -601,3 +601,11 @@
   .pf-board { grid-template-columns: 1fr; }
   .pf-bar-row { grid-template-columns: 96px 1fr auto; gap: 10px; }
 }
+
+/* ── Print / PDF ── keep only the page content of the operator console. */
+@media print {
+  .pf-masthead, .pf-phase, .pf-nav, .pf-op-out { display: none !important; }
+  .pf-body { display: block !important; }
+  .pf-main { padding: 0 !important; }
+  .platform-root { background: #fff !important; color: #000 !important; }
+}

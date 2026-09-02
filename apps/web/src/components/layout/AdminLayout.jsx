@@ -118,7 +118,7 @@ export function AdminLayout() {
       {/* Top banner: operator impersonation (dark), else the tenant's own
           "support access is active" indicator (amber) with revoke. */}
       {isImpersonating ? (
-        <div className="bg-content text-white px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4 shrink-0">
+        <div className="print:hidden bg-content text-white px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
             <Eye size={16} className="text-secondary shrink-0" />
             <p className="text-sm min-w-0 truncate">
@@ -134,7 +134,7 @@ export function AdminLayout() {
           </button>
         </div>
       ) : hasSupportAccess ? (
-        <div className="bg-warning-light border-b border-warning/30 px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4 shrink-0">
+        <div className="print:hidden bg-warning-light border-b border-warning/30 px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
             <ShieldAlert size={16} className="text-warning shrink-0" />
             <p className="text-sm text-content min-w-0 truncate">
@@ -153,7 +153,7 @@ export function AdminLayout() {
 
       <div className="flex flex-1 min-h-0">
         {/* Sidebar */}
-        <aside className="w-64 bg-primary-dark text-on-primary flex flex-col shrink-0">
+        <aside className="print:hidden w-64 bg-primary-dark text-on-primary flex flex-col shrink-0">
 
         {/* User + New Announcement */}
         <div className="px-4 pt-5 pb-4 border-b border-white/10">

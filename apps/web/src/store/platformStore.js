@@ -47,14 +47,38 @@ export const ONBOARD_TREND = [
   { m: 'Dec', n: 3 }, { m: 'Jan', n: 4 }, { m: 'Feb', n: 7 },
 ]
 
+// Categories a municipality can file a request under.
+export const SUPPORT_CATEGORIES = [
+  'Technical issue',
+  'Account & access',
+  'Configuration help',
+  'Billing',
+  'Feature request',
+  'Other',
+]
+
 // `grantsAccess` = the municipality authorized the platform team to enter their
 // portal while this request is open. `tenantId` matches a municipality id.
+// `messages` is the reply thread (tenant ⇄ platform); `attachments` are file refs.
 const SUPPORT = [
-  { id: 't-104', tenantId: 'pagsanjan', tenant: 'Pagsanjan', subject: 'Cannot upload office logo (file too large)', message: 'Our logo keeps failing to upload. Please take a look.', priority: 'normal', status: 'open', opened: '2026-02-18', requester: 'LYDO Head', grantsAccess: true },
-  { id: 't-103', tenantId: 'nagcarlan', tenant: 'Nagcarlan', subject: 'Requesting help configuring GWA threshold', message: 'We are unsure how to set the GWA rule for our new program.', priority: 'normal', status: 'open', opened: '2026-02-16', requester: 'Staff', grantsAccess: false },
-  { id: 't-102', tenantId: 'sta-cruz', tenant: 'Sta. Cruz', subject: 'OTP SMS not received by some applicants', message: 'A few applicants report not getting the OTP. Please investigate — you may enter to check our setup.', priority: 'high', status: 'open', opened: '2026-02-15', requester: 'LYDO Head', grantsAccess: true },
-  { id: 't-101', tenantId: 'pakil', tenant: 'Pakil', subject: 'How do I export the applicant list?', message: '', priority: 'low', status: 'resolved', opened: '2026-02-09', requester: 'Staff', grantsAccess: false },
-  { id: 't-100', tenantId: 'sta-cruz', tenant: 'Sta. Cruz', subject: 'Add a second reviewer account', message: '', priority: 'normal', status: 'resolved', opened: '2026-02-04', requester: 'LYDO Head', grantsAccess: false },
+  { id: 't-104', tenantId: 'pagsanjan', tenant: 'Pagsanjan', subject: 'Cannot upload office logo (file too large)', message: 'Our logo keeps failing to upload. Please take a look.', category: 'Technical issue', priority: 'normal', status: 'open', opened: '2026-02-18', requester: 'LYDO Head', grantsAccess: true,
+    attachments: [{ name: 'logo-attempt.png', size: 3_400_000 }],
+    messages: [
+      { id: 'm-1', from: 'platform', author: 'Platform Support', text: 'Thanks for flagging this — logos must be under 2MB. We can resize it for you if you grant access.', at: '2026-02-18' },
+    ] },
+  { id: 't-103', tenantId: 'nagcarlan', tenant: 'Nagcarlan', subject: 'Requesting help configuring GWA threshold', message: 'We are unsure how to set the GWA rule for our new program.', category: 'Configuration help', priority: 'normal', status: 'open', opened: '2026-02-16', requester: 'Staff', grantsAccess: false, attachments: [], messages: [] },
+  { id: 't-102', tenantId: 'sta-cruz', tenant: 'Sta. Cruz', subject: 'OTP SMS not received by some applicants', message: 'A few applicants report not getting the OTP. Please investigate — you may enter to check our setup.', category: 'Technical issue', priority: 'high', status: 'open', opened: '2026-02-15', requester: 'LYDO Head', grantsAccess: true,
+    attachments: [],
+    messages: [
+      { id: 'm-2', from: 'platform', author: 'Platform Support', text: 'We see elevated latency on the SMS provider right now and are looking into it. We may enter your portal to confirm your OTP settings.', at: '2026-02-15' },
+      { id: 'm-3', from: 'tenant', author: 'LYDO Head', text: 'Thank you — please go ahead, access is granted.', at: '2026-02-15' },
+    ] },
+  { id: 't-101', tenantId: 'sta-cruz', tenant: 'Sta. Cruz', subject: 'How do I export the applicant list?', message: '', category: 'Account & access', priority: 'low', status: 'resolved', opened: '2026-02-09', requester: 'Staff', grantsAccess: false,
+    attachments: [],
+    messages: [
+      { id: 'm-4', from: 'platform', author: 'Platform Support', text: 'Head to Applicant Records → Export Records (top right) for a CSV of the current filter. Marking this resolved — reopen anytime.', at: '2026-02-10' },
+    ] },
+  { id: 't-100', tenantId: 'sta-cruz', tenant: 'Sta. Cruz', subject: 'Add a second reviewer account', message: '', category: 'Account & access', priority: 'normal', status: 'resolved', opened: '2026-02-04', requester: 'LYDO Head', grantsAccess: false, attachments: [], messages: [] },
 ]
 
 const BROADCASTS = [
@@ -153,18 +177,56 @@ export const usePlatformStore = create((set) => ({
       ),
     })),
   // A municipality files a support request (optionally granting portal access).
-  requestSupport: ({ tenantId, tenant, subject, message, grantsAccess }) =>
+  requestSupport: ({ tenantId, tenant, subject, message, category, attachments, grantsAccess }) =>
     set((s) => ({
       supportTickets: [
-        { id: `t-${s.supportTickets.length + 105}`, tenantId, tenant, subject, message: message ?? '', priority: 'normal', status: 'open', opened: 'Just now', requester: 'LYDO Head', grantsAccess: !!grantsAccess },
+        {
+          id: `t-${Date.now()}`,
+          tenantId, tenant,
+          subject,
+          message: message ?? '',
+          category: category ?? 'Other',
+          attachments: attachments ?? [],
+          messages: [],
+          priority: 'normal',
+          status: 'open',
+          opened: 'Just now',
+          requester: 'LYDO Head',
+          grantsAccess: !!grantsAccess,
+        },
         ...s.supportTickets,
       ],
       activity: [makeActivity({ kind: 'support', before: 'New support request from ', strong: tenant }), ...s.activity],
     })),
-  // Revoke = close the request, which ends any granted access.
+  // Revoke = end the platform's access grant, but keep the request open so they
+  // can still help. (Cancelling the request is a separate action.)
   revokeSupport: (id) =>
     set((s) => ({
-      supportTickets: s.supportTickets.map((t) => (t.id === id ? { ...t, status: 'resolved' } : t)),
+      supportTickets: s.supportTickets.map((t) => (t.id === id ? { ...t, grantsAccess: false } : t)),
+    })),
+  // Re-grant or toggle the access grant on an open request.
+  setTicketAccess: (id, grant) =>
+    set((s) => ({
+      supportTickets: s.supportTickets.map((t) => (t.id === id ? { ...t, grantsAccess: !!grant } : t)),
+    })),
+  // Edit an open request (subject / details / category).
+  updateTicket: (id, patch) =>
+    set((s) => ({
+      supportTickets: s.supportTickets.map((t) => (t.id === id ? { ...t, ...patch } : t)),
+    })),
+  // Withdraw a request the municipality no longer needs.
+  cancelTicket: (id) =>
+    set((s) => ({
+      supportTickets: s.supportTickets.map((t) => (t.id === id ? { ...t, status: 'cancelled', grantsAccess: false } : t)),
+    })),
+  // Add a message to a request's thread (tenant ⇄ platform).
+  addTicketMessage: (id, { from, author, text }) =>
+    set((s) => ({
+      supportTickets: s.supportTickets.map((t) =>
+        t.id === id
+          ? { ...t, messages: [...(t.messages ?? []), { id: `m-${Date.now()}`, from, author, text, at: 'Just now' }] }
+          : t
+      ),
     })),
 
   // ── Broadcasts to tenants ──────────────────────────────────────

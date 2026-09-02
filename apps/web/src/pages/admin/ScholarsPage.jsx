@@ -23,21 +23,29 @@ function StatusPill({ status }) {
   return <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full border ${cfg.cls}`}>{cfg.label}</span>
 }
 
-function StatCard({ Icon, label, value, tone }) {
+function StatCard({ Icon, label, value, tone, onClick, active }) {
   const tones = {
     neutral: 'bg-primary-light text-primary',
     amber: 'bg-secondary-light text-on-secondary',
     red: 'bg-danger-light text-danger',
     muted: 'bg-surface-alt text-content-muted',
   }
+  const clickable = !!onClick
+  const Wrapper = clickable ? 'button' : 'div'
   return (
-    <div className="bg-surface border border-border rounded-xl shadow-card p-5">
+    <Wrapper
+      type={clickable ? 'button' : undefined}
+      onClick={onClick}
+      aria-pressed={clickable ? active : undefined}
+      className={`text-left w-full bg-surface border rounded-xl shadow-card p-5 transition-all ${active ? 'border-primary ring-2 ring-primary/20' : 'border-border'} ${clickable ? 'hover:border-primary hover:shadow-modal cursor-pointer' : ''}`}
+    >
       <div className="flex items-start justify-between">
         <p className="text-sm text-content-muted">{label}</p>
         <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${tones[tone]}`}><Icon size={17} /></div>
       </div>
       <p className="text-3xl font-bold text-content mt-2">{value}</p>
-    </div>
+      {clickable && <p className="text-xs text-content-muted mt-1">{active ? 'Filtered · tap to clear' : 'Tap to filter'}</p>}
+    </Wrapper>
   )
 }
 
@@ -217,10 +225,10 @@ export function ScholarsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          <StatCard Icon={Users} tone="neutral" label="Active Scholars" value={counts.active.toLocaleString()} />
-          <StatCard Icon={ClipboardCheck} tone="amber" label="Due for Renewal" value={counts.due.toLocaleString()} />
-          <StatCard Icon={AlertTriangle} tone="red" label="At Risk (GWA)" value={counts.atRisk.toLocaleString()} />
-          <StatCard Icon={GraduationCap} tone="muted" label="Terminated" value={counts.terminated.toLocaleString()} />
+          <StatCard Icon={Users} tone="neutral" label="Active Scholars" value={counts.active.toLocaleString()} active={status === 'active'} onClick={() => setStatus(status === 'active' ? 'all' : 'active')} />
+          <StatCard Icon={ClipboardCheck} tone="amber" label="Due for Renewal" value={counts.due.toLocaleString()} active={status === 'renewal_due'} onClick={() => setStatus(status === 'renewal_due' ? 'all' : 'renewal_due')} />
+          <StatCard Icon={AlertTriangle} tone="red" label="At Risk (GWA)" value={counts.atRisk.toLocaleString()} active={status === 'at_risk'} onClick={() => setStatus(status === 'at_risk' ? 'all' : 'at_risk')} />
+          <StatCard Icon={GraduationCap} tone="muted" label="Terminated" value={counts.terminated.toLocaleString()} active={status === 'terminated'} onClick={() => setStatus(status === 'terminated' ? 'all' : 'terminated')} />
         </div>
       )}
 

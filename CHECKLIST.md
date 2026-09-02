@@ -29,7 +29,7 @@ Everything left to take Iskolar from a working frontend to a shippable system.
 - [ ] `[Decision]` Bare-host (no subdomain) behavior — currently falls back to the default tenant; the real root page (platform landing/gateway) is a later, deliberate task, not built yet
 - [x] `[In app]` **Impersonation (consent-gated)** — the operator can enter a municipality's `/admin` **only when that municipality granted access**. The LYDO Head files a Request Support (`/admin/support`) with a consent checkbox; it lands in the platform Support inbox, where a granted request shows "Enter tenant". Full Head access + tenant reskin + persistent "Impersonating — Exit" banner. The Head sees a persistent "support access is active" banner and can **Revoke** anytime, which resolves the request and **kicks the operator out**. Unilateral entry is removed (disabled without a grant). Files: `store/impersonationStore.js`, `pages/admin/RequestSupportPage.jsx`, `platformStore` support tickets + `tenantHasActiveAccess`, `RequireAuth`.
 - [x] `[In app]` Deeper pages now tenant-branded via `useBrand()` — admin portal header ("{office} Management Portal"), student dashboard/announcements/settings/docs/renewal/appeal/scholarship, public forms/announcements, report PDFs. Added a short `officeShort` label per tenant for inline mentions.
-- [ ] `[To build]` Improve the admin-side **Request Support** page *(polish/UX — e.g. categories, attachments, request history/threading, clearer access-status, edit/cancel a request)*
+- [x] `[In app]` Improve the admin-side **Request Support** page — now has **categories**, **file attachments**, a **reply thread** per request, a **history** section (resolved/cancelled), **edit** and **cancel** on open requests, and clearer per-request access status (grant/revoke inline). Revoke now ends *access* while keeping the request open; cancel withdraws it. Store: `updateTicket` / `cancelTicket` / `setTicketAccess` / `addTicketMessage`.
 - [ ] `[To build]` Swap the sample tenant registry (`tenant/tenants.js`) for the real API once the backend exists
 
 ## PUB. Public site — *re-audited; several are frontend-only quick wins*
@@ -66,7 +66,7 @@ Everything is API-backed and wired: Verification Queue (search / status / **scho
 **Demo-data + workflow UX pass (dev, no backend):**
 - [x] `[In app]` **Dev demo-data layer** — a mock axios adapter (`src/mocks/`) serves `/admin/*` from a coherent A.Y. 2026–2027 sample cycle (42 applications across every status → scholars, renewals, appeals, schedules, policies, activity). Decisions/doc-review/bulk actually mutate the store. Every admin page now renders full and is demo/defense-ready; dead-code-eliminated in production.
 - [x] `[In app]` **Verification Queue — keyboard triage** (`j`/`k` move, `a`/`r`/`i` decide the selected applicant), **bulk actions** (row checkboxes → approve/reject/incomplete the selection at once), and **Undo toasts** on decisions (single + bulk) via a `/revert` mock endpoint.
-- [x] `[In app]` **Clickable stat cards → filtered lists** — dashboard tiles already link out; Applicant Records now honors `?status=` so those cards land pre-filtered.
+- [x] `[In app]` **Clickable stat cards → filtered lists** — dashboard tiles already link out; Applicant Records honors `?status=`; **Scholar Monitoring** stat cards (Active / Due / At-risk / Terminated) are now clickable toggles that filter the list in place.
 
 Honest placeholders only (clearly labeled, not silently dead) — become real with the backend:
 - [ ] `[Partial]` Reports — "Financial Disbursement Trends" chart + Payout list note that disbursement tracking isn't available yet
@@ -140,7 +140,7 @@ Solid as a prototype (no action): nav, global search (Ctrl+K), notifications, on
 - [ ] `[In app]` Report UI with charts
 - [ ] `[In app]` PDF / CSV export
 - [ ] `[To build]` Feed reports from real aggregate data
-- [ ] `[To build]` Print stylesheet *(optional polish)*
+- [x] `[In app]` Print stylesheet — a global `@media print` block (globals.css + platform.css) strips app chrome (`print:hidden` on sidebars/nav/footers/banners), flattens shadows, repeats table headers, avoids mid-card page breaks, and sets page margins, so any admin page prints/exports as a clean document
 
 ## J. Operator console — *confirmed deliverable (multi-tenant approved)*
 - [ ] `[In app]` Console UI — analytics, onboarding, support, broadcasts, health *(sample data)*

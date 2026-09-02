@@ -44,7 +44,7 @@ export function PublicLayout() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="h-16 bg-surface border-b border-border flex items-center px-6 shrink-0 sticky top-0 z-30">
+      <header className="print:hidden h-16 bg-surface border-b border-border flex items-center px-6 shrink-0 sticky top-0 z-30">
         <Link to={isScholar ? '/dashboard' : '/'} className="text-primary font-bold text-sm tracking-wide shrink-0 flex-1">
           {brand.program}
         </Link>
@@ -111,7 +111,7 @@ export function PublicLayout() {
         <Outlet />
       </main>
 
-      <footer className="bg-surface border-t border-border px-6 py-8">
+      <footer className="print:hidden bg-surface border-t border-border px-6 py-8">
         <div className="max-w-6xl mx-auto flex flex-col items-center gap-4">
           <p className="text-sm font-semibold text-content">{brand.program}</p>
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-1">
