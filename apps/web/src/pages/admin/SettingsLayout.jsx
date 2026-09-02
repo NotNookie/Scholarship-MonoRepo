@@ -2,7 +2,7 @@ import { useState, useMemo, useRef, useEffect } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import {
   LayoutGrid, Building2, Award, CalendarRange, SlidersHorizontal, Sparkles,
-  Search, CornerDownLeft,
+  Palette, Search, CornerDownLeft,
 } from 'lucide-react'
 
 // The persistent settings sub-nav — jump between any settings section without
@@ -10,6 +10,7 @@ import {
 const NAV = [
   { to: '/admin/maintenance', end: true, label: 'Overview', Icon: LayoutGrid },
   { to: '/admin/maintenance/profile', label: 'Organization Profile', Icon: Building2 },
+  { to: '/admin/maintenance/appearance', label: 'Appearance', Icon: Palette },
   { to: '/admin/maintenance/policies', label: 'Scholarship Policies', Icon: Award },
   { to: '/admin/maintenance/cycles', label: 'Cycles & Documents', Icon: CalendarRange },
   { to: '/admin/maintenance/eligibility', label: 'Eligibility Rules', Icon: SlidersHorizontal },
@@ -35,7 +36,8 @@ const SEARCH_INDEX = [
   { label: 'Orientation milestone', to: '/admin/maintenance/profile#application', kw: 'lifecycle' },
   { label: 'Payout / disbursement tracking', to: '/admin/maintenance/profile#application', kw: 'lifecycle reports' },
   { label: 'Application deadline', to: '/admin/maintenance/profile#application', kw: 'lifecycle date' },
-  { label: 'UI theme & custom colours', to: '/admin/maintenance/profile#theme', kw: 'brand colour palette' },
+  { label: 'UI theme & custom colours', to: '/admin/maintenance/appearance', kw: 'brand colour palette appearance preset' },
+  { label: 'Appearance · theme preview', to: '/admin/maintenance/appearance', kw: 'colour wheel custom' },
   { label: 'Scholarship policies · GWA · income cap', to: '/admin/maintenance/policies', kw: 'programs threshold slots' },
   { label: 'Application periods / cycles', to: '/admin/maintenance/cycles', kw: 'deadline schedule' },
   { label: 'Document checklist', to: '/admin/maintenance/cycles', kw: 'required documents' },

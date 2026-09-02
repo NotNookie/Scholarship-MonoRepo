@@ -50,6 +50,7 @@ import { MaintenanceCyclesPage } from '../pages/admin/MaintenanceCyclesPage'
 import { MaintenanceEligibilityPage } from '../pages/admin/MaintenanceEligibilityPage'
 import { MaintenanceProfilePage } from '../pages/admin/MaintenanceProfilePage'
 import { MaintenanceFeaturesPage } from '../pages/admin/MaintenanceFeaturesPage'
+import { MaintenanceThemePage } from '../pages/admin/MaintenanceThemePage'
 import { SettingsLayout } from '../pages/admin/SettingsLayout'
 import { RequestSupportPage } from '../pages/admin/RequestSupportPage'
 
@@ -160,6 +161,7 @@ export const router = createBrowserRouter([
           { path: 'cycles', element: <MaintenanceCyclesPage /> },
           { path: 'eligibility', element: <MaintenanceEligibilityPage /> },
           { path: 'profile', element: <MaintenanceProfilePage /> },
+          { path: 'appearance', element: <MaintenanceThemePage /> },
           { path: 'features', element: <MaintenanceFeaturesPage /> },
         ],
       },

@@ -6,6 +6,7 @@ import {
   ListChecks,
   CalendarRange,
   Building2,
+  Palette,
   Sparkles,
   ArrowRight,
 } from 'lucide-react'
@@ -37,9 +38,16 @@ const CARDS = [
   {
     Icon: Building2,
     title: 'Organization Profile',
-    description: 'Update office name, logo, contact details, tagline, and UI theme for the public portal.',
+    description: 'Update office name, logo, contact details, tagline, and public content for the portal.',
     to: '/admin/maintenance/profile',
     action: 'Manage Profile',
+  },
+  {
+    Icon: Palette,
+    title: 'Appearance',
+    description: 'Choose a theme preset or set custom brand colours — with a live preview of every element.',
+    to: '/admin/maintenance/appearance',
+    action: 'Customize Theme',
   },
   {
     Icon: SlidersHorizontal,

@@ -10,26 +10,12 @@ import {
   Loader2,
   Video,
   ClipboardList,
-  ChevronDown,
-  Pipette,
-  RotateCcw,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
-import { useUiTheme } from '../../store/uiThemeStore'
-import { DEFAULT_TOKENS, ADVANCED_TOKEN_GROUPS, buildThemeTokens } from '../../tenant/themePresets'
-import { isHex } from '../../lib/color'
 import { useDialog } from '../../lib/useDialog'
-
-// Named quick-start presets (each also live-applies via the UI-theme store).
-const THEMES = [
-  { value: 'corporate_blue', label: 'Corporate Blue (Default)', dots: ['bg-primary-dark', 'bg-primary', 'bg-primary-light'] },
-  { value: 'civic_green', label: 'Civic Green', dots: ['bg-tertiary-dark', 'bg-tertiary', 'bg-tertiary-light'] },
-]
-
-const EMPTY_CUSTOM = { primary: DEFAULT_TOKENS['--color-primary'], secondary: DEFAULT_TOKENS['--color-secondary'], overrides: {} }
 
 // In-page sections (anchors for the sticky section nav + search deep-links).
 const SECTIONS = [
@@ -37,42 +23,8 @@ const SECTIONS = [
   { id: 'contact', label: 'Contact' },
   { id: 'public', label: 'Public Content' },
   { id: 'application', label: 'Application' },
-  { id: 'theme', label: 'Theme' },
 ]
 const scrollToSection = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-
-// A colour swatch (opens the OS colour wheel) paired with a hex field. The
-// swatch shows a pipette badge + hover ring so it clearly reads as "click to
-// open the picker".
-function ColorField({ label, value, onChange }) {
-  const hex = isHex(value) ? value : '#000000'
-  return (
-    <div className="flex items-center gap-2.5">
-      <div className="relative shrink-0 group" title="Click to open the colour picker">
-        <input
-          type="color"
-          value={hex}
-          onChange={(e) => onChange(e.target.value)}
-          aria-label={`${label} colour — click to open the colour picker`}
-          className="w-10 h-10 rounded-lg border border-border cursor-pointer bg-transparent p-0.5 transition-all group-hover:border-primary group-hover:ring-2 group-hover:ring-primary/25"
-        />
-        <span className="pointer-events-none absolute -bottom-1 -right-1 w-[18px] h-[18px] rounded-full bg-surface border border-border shadow-sm flex items-center justify-center">
-          <Pipette size={10} className="text-content-muted group-hover:text-primary transition-colors" />
-        </span>
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-xs text-content-muted leading-tight">{label}</p>
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          aria-label={`${label} hex`}
-          className="w-full text-xs font-mono px-2 py-1 mt-0.5 rounded border border-border bg-surface focus:outline-none focus:border-primary uppercase"
-        />
-      </div>
-    </div>
-  )
-}
 
 const DEFAULTS = {
   portal_name: 'Iskolar ng Bayan',
@@ -131,30 +83,6 @@ export function MaintenanceProfilePage() {
   const queryClient = useQueryClient()
   // Only local edits are tracked; the live form derives from server data + edits.
   const [edits, setEdits] = useState({})
-  // The theme applies live (and persists on this device) via the UI-theme store,
-  // so picking a preset or editing a colour reskins the whole interface at once.
-  const activePreset = useUiTheme((s) => s.preset)
-  const setPreset = useUiTheme((s) => s.setPreset)
-  const storedCustom = useUiTheme((s) => s.customConfig)
-  const setCustomStore = useUiTheme((s) => s.setCustom)
-  const [custom, setCustomLocal] = useState(() => storedCustom ?? EMPTY_CUSTOM)
-  const [advancedOpen, setAdvancedOpen] = useState(false)
-  const isCustom = activePreset === 'custom'
-
-  // Push a custom-theme change to the store (live-applies + persists).
-  function applyCustom(next) {
-    setCustomLocal(next)
-    setCustomStore(next)
-  }
-  const setBase = (key) => (val) => applyCustom({ ...custom, [key]: val })
-  const setOverride = (token) => (val) => {
-    const overrides = { ...(custom.overrides || {}) }
-    overrides[token] = val
-    applyCustom({ ...custom, overrides })
-  }
-  // Auto-derived value shown for an advanced token the admin hasn't overridden.
-  const derived = buildThemeTokens({ primary: custom.primary, secondary: custom.secondary })
-  const tokenValue = (token) => custom.overrides?.[token] ?? derived[token] ?? DEFAULT_TOKENS[token]
 
   const { data, isPending } = useQuery({
     queryKey: queryKeys.maintenance.settings(),
@@ -233,7 +161,7 @@ export function MaintenanceProfilePage() {
             {saveMutation.isPending ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
             {dirty ? 'Save Changes' : 'Saved'}
           </button>
-          <p className="text-xs text-content-muted">Theme applies live · other settings save on submit</p>
+          <p className="text-xs text-content-muted">Changes are saved when you click Save</p>
         </div>
       </div>
 
@@ -250,9 +178,8 @@ export function MaintenanceProfilePage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: forms */}
-        <div className="lg:col-span-2 flex flex-col gap-6">
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6">
           {/* General branding */}
           <section id="general" className="scroll-mt-20 bg-surface border border-border rounded-xl shadow-card p-6">
             <h2 className="text-base font-bold text-content inline-flex items-center gap-2 pb-4 mb-5 border-b border-border">
@@ -391,130 +318,6 @@ export function MaintenanceProfilePage() {
           </section>
         </div>
 
-        {/* Right: theme + preview */}
-        <aside className="flex flex-col gap-6">
-          <section id="theme" className="scroll-mt-20 bg-surface border border-border rounded-xl shadow-card p-6">
-            <h2 className="text-base font-bold text-content inline-flex items-center gap-2 mb-4">
-              <Palette size={17} className="text-primary" /> UI Theme
-            </h2>
-            <div className="flex flex-col gap-3">
-              {THEMES.map((t) => {
-                const active = (activePreset ?? form.theme) === t.value
-                return (
-                  <button
-                    key={t.value}
-                    onClick={() => { setPreset(t.value); setForm((s) => ({ ...s, theme: t.value })) }}
-                    className={`flex items-center justify-between p-4 rounded-lg border transition-colors text-left ${active ? 'border-primary bg-primary-light/40' : 'border-border hover:border-primary'}`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${active ? 'border-primary' : 'border-border'}`}>
-                        {active && <span className="w-2 h-2 rounded-full bg-primary" />}
-                      </span>
-                      <span className="text-sm font-medium text-content">{t.label}</span>
-                    </span>
-                    <span className="flex items-center gap-1">
-                      {t.dots.map((d, i) => <span key={i} className={`w-3.5 h-3.5 rounded-full ${d}`} />)}
-                    </span>
-                  </button>
-                )
-              })}
-
-              {/* Custom colours */}
-              <button
-                onClick={() => setCustomStore(custom)}
-                className={`flex items-center justify-between p-4 rounded-lg border transition-colors text-left ${isCustom ? 'border-primary bg-primary-light/40' : 'border-border hover:border-primary'}`}
-              >
-                <span className="flex items-center gap-2">
-                  <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${isCustom ? 'border-primary' : 'border-border'}`}>
-                    {isCustom && <span className="w-2 h-2 rounded-full bg-primary" />}
-                  </span>
-                  <span className="text-sm font-medium text-content">Custom colours</span>
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-3.5 h-3.5 rounded-full border border-border" style={{ background: custom.primary }} />
-                  <span className="w-3.5 h-3.5 rounded-full border border-border" style={{ background: custom.secondary }} />
-                  <Pipette size={14} className="text-content-muted" />
-                </span>
-              </button>
-            </div>
-
-            {/* Custom editor */}
-            {isCustom && (
-              <div className="mt-4 pt-4 border-t border-border flex flex-col gap-4">
-                <p className="text-xs text-content-muted -mb-1 inline-flex items-center gap-1.5">
-                  <Pipette size={12} className="text-primary" /> Click a swatch to open the colour wheel, or type a hex code.
-                </p>
-                <ColorField label="Primary (brand)" value={custom.primary} onChange={setBase('primary')} />
-                <ColorField label="Secondary (accent)" value={custom.secondary} onChange={setBase('secondary')} />
-
-                <button
-                  type="button"
-                  onClick={() => setAdvancedOpen((v) => !v)}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary self-start"
-                  aria-expanded={advancedOpen}
-                >
-                  <ChevronDown size={14} className={`transition-transform ${advancedOpen ? 'rotate-180' : ''}`} />
-                  Advanced — full palette &amp; shades
-                </button>
-
-                {advancedOpen && (
-                  <div className="flex flex-col gap-4">
-                    <p className="text-xs text-content-muted">
-                      Shades auto-derive from your primary/secondary. Override any of them here — surfaces, text and status colours too.
-                    </p>
-                    {ADVANCED_TOKEN_GROUPS.map((group) => (
-                      <div key={group.label} className="flex flex-col gap-2.5">
-                        <p className="text-xs font-semibold text-content-muted uppercase tracking-wide">{group.label}</p>
-                        {group.tokens.map((t) => (
-                          <ColorField key={t.key} label={t.label} value={tokenValue(t.key)} onChange={setOverride(t.key)} />
-                        ))}
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => applyCustom({ ...custom, overrides: {} })}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-content-muted hover:text-primary self-start"
-                    >
-                      <RotateCcw size={13} /> Reset overrides to auto
-                    </button>
-                  </div>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => applyCustom(EMPTY_CUSTOM)}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-content-muted hover:text-danger self-start pt-1"
-                >
-                  <RotateCcw size={13} /> Reset custom colours to defaults
-                </button>
-              </div>
-            )}
-
-            <p className="text-xs text-content-muted mt-3">Applied live across the interface and remembered on this device.</p>
-          </section>
-
-          {/* Preview */}
-          <section className="bg-surface border border-border rounded-xl shadow-card p-5">
-            <p className="text-xs font-semibold text-content-muted uppercase tracking-wide mb-3">Applicant View Preview</p>
-            <div className="border border-border rounded-lg p-4">
-              <div className="flex items-center gap-2 pb-3 border-b border-border">
-                <div className="w-7 h-7 rounded bg-primary-light flex items-center justify-center"><Building2 size={14} className="text-primary" /></div>
-                <div>
-                  <p className="text-sm font-bold text-primary leading-tight">{form.portal_name || 'Portal Name'}</p>
-                  <p className="text-xs text-content-muted">{form.tagline || 'Tagline'}</p>
-                </div>
-              </div>
-              <div className="space-y-2 mt-3">
-                <div className="h-2 w-3/4 rounded bg-surface-alt" />
-                <div className="h-2 w-full rounded bg-surface-alt" />
-                <div className="flex gap-2 mt-3">
-                  <span className="h-6 w-16 rounded bg-surface-alt" />
-                  <span className="h-6 w-16 rounded bg-primary" />
-                </div>
-              </div>
-            </div>
-          </section>
-        </aside>
       </div>
 
       {/* Sticky unsaved-changes bar — always reachable on the long page */}
