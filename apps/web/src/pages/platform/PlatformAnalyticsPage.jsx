@@ -59,62 +59,82 @@ export function PlatformAnalyticsPage() {
         </div>
       </div>
 
-      {/* Platform health — surfaced first: service status before the numbers */}
-      <h2 className="pf-h2" id="health" style={{ scrollMarginTop: 24, marginTop: 0 }}>Platform health</h2>
-      <p className="pf-sub">Live status of the services every municipality depends on.</p>
-      <div
-        className="pf-banner pf-reveal"
-        style={
-          healthBanner.cls === 'ok'
-            ? undefined
-            : { background: healthBanner.cls === 'stop' ? 'var(--pf-stop-fg)' : '#946f00' }
-        }
-      >
-        {allGood ? <CircleCheck size={30} strokeWidth={2} /> : <AlertTriangle size={30} strokeWidth={2} />}
-        <div>
-          <div className="bt">{healthBanner.text}</div>
-          <div className="bs">{services.length} services monitored · checked just now</div>
-        </div>
-      </div>
-      <div style={{ borderTop: '2px solid var(--pf-ink)' }}>
-        {services.map((svc) => {
-          const meta = HEALTH_META[svc.status] ?? HEALTH_META.operational
-          return (
-            <div className="pf-health-row" key={svc.id}>
-              <span className={`pf-health-dot ${meta.cls}`} aria-hidden="true" />
-              <div className="pf-health-main">
-                <div className="pf-health-lbl">{svc.label}</div>
-                <div className="pf-health-detail">{svc.detail}</div>
-              </div>
-              <span className="pf-health-metric">{svc.metric}</span>
-              <span className={`pf-tag ${meta.cls}`}>{meta.label}</span>
+      {/* Health status and the headline numbers, side by side */}
+      <div className="pf-cols pf-reveal">
+        {/* Platform health */}
+        <div className="pf-block">
+          <h2 id="health" style={{ scrollMarginTop: 24 }}>Platform health</h2>
+          <p className="pf-sub">Live status of the services every municipality depends on.</p>
+          <div
+            className="pf-banner"
+            style={
+              healthBanner.cls === 'ok'
+                ? undefined
+                : { background: healthBanner.cls === 'stop' ? 'var(--pf-stop-fg)' : '#946f00' }
+            }
+          >
+            {allGood ? <CircleCheck size={30} strokeWidth={2} /> : <AlertTriangle size={30} strokeWidth={2} />}
+            <div>
+              <div className="bt">{healthBanner.text}</div>
+              <div className="bs">{services.length} services monitored · checked just now</div>
             </div>
-          )
-        })}
-      </div>
+          </div>
+          <div style={{ borderTop: '2px solid var(--pf-ink)' }}>
+            {services.map((svc) => {
+              const meta = HEALTH_META[svc.status] ?? HEALTH_META.operational
+              return (
+                <div className="pf-health-row" key={svc.id}>
+                  <span className={`pf-health-dot ${meta.cls}`} aria-hidden="true" />
+                  <div className="pf-health-main">
+                    <div className="pf-health-lbl">{svc.label}</div>
+                    <div className="pf-health-detail">{svc.detail}</div>
+                  </div>
+                  <span className="pf-health-metric">{svc.metric}</span>
+                  <span className={`pf-tag ${meta.cls}`}>{meta.label}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
 
-      <h2 className="pf-h2">Network performance</h2>
-      <p className="pf-sub">How the whole network is performing across every municipality.</p>
-      <div className="pf-vitals pf-reveal">
-        <div className="pf-vital">
-          <div className="lbl">Scholars served</div>
-          <div className="fig tnum">{scholars.toLocaleString('en-US')}</div>
-          <div className="sub">across {active} active municipalities</div>
-        </div>
-        <div className="pf-vital">
-          <div className="lbl">Applications, this cycle</div>
-          <div className="fig tnum">{applications.toLocaleString('en-US')}</div>
-          <div className="sub">A.Y. 2026–2027</div>
-        </div>
-        <div className="pf-vital">
-          <div className="lbl">Avg. scholars / municipality</div>
-          <div className="fig tnum">{avgPerTenant.toLocaleString('en-US')}</div>
-          <div className="sub">active tenants only</div>
-        </div>
-        <div className="pf-vital">
-          <div className="lbl">Municipalities</div>
-          <div className="fig tnum">{total}</div>
-          <div className="sub up">{active} live on the platform</div>
+        {/* Network performance — headline numbers + growth */}
+        <div className="pf-block">
+          <h2>Network performance</h2>
+          <p className="pf-sub">Headline numbers across every municipality.</p>
+          <div className="pf-vitals" style={{ gridTemplateColumns: 'repeat(2, 1fr)', borderTop: 'none' }}>
+            <div className="pf-vital">
+              <div className="lbl">Scholars served</div>
+              <div className="fig tnum">{scholars.toLocaleString('en-US')}</div>
+              <div className="sub">across {active} active municipalities</div>
+            </div>
+            <div className="pf-vital">
+              <div className="lbl">Applications, this cycle</div>
+              <div className="fig tnum">{applications.toLocaleString('en-US')}</div>
+              <div className="sub">A.Y. 2026–2027</div>
+            </div>
+            <div className="pf-vital">
+              <div className="lbl">Avg. scholars / municipality</div>
+              <div className="fig tnum">{avgPerTenant.toLocaleString('en-US')}</div>
+              <div className="sub">active tenants only</div>
+            </div>
+            <div className="pf-vital">
+              <div className="lbl">Municipalities</div>
+              <div className="fig tnum">{total}</div>
+              <div className="sub up">{active} live on the platform</div>
+            </div>
+          </div>
+
+          <div className="pf-sub" style={{ marginTop: 22, fontWeight: 700, color: 'var(--pf-ink)' }}>Network growth</div>
+          <p className="pf-sub" style={{ marginTop: 2 }}>Municipalities live at each month-end.</p>
+          <div className="pf-spark" role="img" aria-label="Municipalities live per month">
+            {ONBOARD_TREND.map((t) => (
+              <div className="pf-spark-col" key={t.m}>
+                <div className="pf-spark-n tnum">{t.n}</div>
+                <div className="pf-spark-bar" style={{ height: `${(t.n / trendMax) * 100}%` }} />
+                <div className="pf-spark-m">{t.m}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -125,19 +145,6 @@ export function PlatformAnalyticsPage() {
       <h2 className="pf-h2">Applications this cycle</h2>
       <p className="pf-sub">Applications received in A.Y. 2026–2027, per municipality.</p>
       <BarChart rows={appRows} />
-
-      <h2 className="pf-h2">Network growth</h2>
-      <p className="pf-sub">Municipalities live on the platform at each month-end.</p>
-      <div className="pf-spark" role="img" aria-label="Municipalities live per month">
-        {ONBOARD_TREND.map((t) => (
-          <div className="pf-spark-col" key={t.m}>
-            <div className="pf-spark-n tnum">{t.n}</div>
-            <div className="pf-spark-bar" style={{ height: `${(t.n / trendMax) * 100}%` }} />
-            <div className="pf-spark-m">{t.m}</div>
-          </div>
-        ))}
-      </div>
-
     </>
   )
 }
