@@ -1,4 +1,5 @@
-import { usePlatformStore, ONBOARD_TREND } from '../../store/platformStore'
+import { CircleCheck, AlertTriangle } from 'lucide-react'
+import { usePlatformStore, ONBOARD_TREND, HEALTH_META } from '../../store/platformStore'
 
 // Horizontal bar chart — one row per municipality.
 function BarChart({ rows, unit }) {
@@ -20,6 +21,16 @@ function BarChart({ rows, unit }) {
 
 export function PlatformAnalyticsPage() {
   const municipalities = usePlatformStore((s) => s.municipalities)
+  const services = usePlatformStore((s) => s.healthServices)
+
+  const anyDown = services.some((s) => s.status === 'down')
+  const anyDegraded = services.some((s) => s.status === 'degraded')
+  const allGood = !anyDown && !anyDegraded
+  const healthBanner = anyDown
+    ? { cls: 'stop', text: 'One or more services are down' }
+    : anyDegraded
+    ? { cls: 'warn', text: 'Some services are degraded' }
+    : { cls: 'ok', text: 'All systems operational' }
 
   const total = municipalities.length
   const active = municipalities.filter((m) => m.status === 'active').length
@@ -43,8 +54,8 @@ export function PlatformAnalyticsPage() {
     <>
       <div className="pf-page-head">
         <div>
-          <h1 className="pf-title">Analytics</h1>
-          <p className="pf-note">How the whole network is performing — across every municipality.</p>
+          <h1 className="pf-title">Analytics &amp; Health</h1>
+          <p className="pf-note">How the whole network is performing, and the live status of the services behind it.</p>
         </div>
       </div>
 
@@ -89,6 +100,40 @@ export function PlatformAnalyticsPage() {
             <div className="pf-spark-m">{t.m}</div>
           </div>
         ))}
+      </div>
+
+      {/* Platform health — folded in from the former Health tab */}
+      <h2 className="pf-h2" id="health" style={{ scrollMarginTop: 24 }}>Platform health</h2>
+      <p className="pf-sub">Live status of the services every municipality depends on.</p>
+      <div
+        className="pf-banner pf-reveal"
+        style={
+          healthBanner.cls === 'ok'
+            ? undefined
+            : { background: healthBanner.cls === 'stop' ? 'var(--pf-stop-fg)' : '#946f00' }
+        }
+      >
+        {allGood ? <CircleCheck size={30} strokeWidth={2} /> : <AlertTriangle size={30} strokeWidth={2} />}
+        <div>
+          <div className="bt">{healthBanner.text}</div>
+          <div className="bs">{services.length} services monitored · checked just now</div>
+        </div>
+      </div>
+      <div style={{ borderTop: '2px solid var(--pf-ink)' }}>
+        {services.map((svc) => {
+          const meta = HEALTH_META[svc.status] ?? HEALTH_META.operational
+          return (
+            <div className="pf-health-row" key={svc.id}>
+              <span className={`pf-health-dot ${meta.cls}`} aria-hidden="true" />
+              <div className="pf-health-main">
+                <div className="pf-health-lbl">{svc.label}</div>
+                <div className="pf-health-detail">{svc.detail}</div>
+              </div>
+              <span className="pf-health-metric">{svc.metric}</span>
+              <span className={`pf-tag ${meta.cls}`}>{meta.label}</span>
+            </div>
+          )
+        })}
       </div>
     </>
   )

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Search, Bell, Building2, Users, LayoutGrid, Activity, Settings,
-  LifeBuoy, Megaphone, HeartPulse, UserPlus, CircleCheck, AlertTriangle, Info,
+  LifeBuoy, Megaphone, HeartPulse, BarChart3, UserPlus, CircleCheck, AlertTriangle, Info,
 } from 'lucide-react'
 import { usePlatformStore, sigilOf } from '../../store/platformStore'
 
@@ -11,11 +11,11 @@ const PAGES = [
   { label: 'Overview', to: '/platform', Icon: LayoutGrid },
   { label: 'Municipalities', to: '/platform/municipalities', Icon: Building2 },
   { label: 'Onboarding', to: '/platform/onboarding', Icon: UserPlus },
-  { label: 'Analytics', to: '/platform/analytics', Icon: Activity },
+  { label: 'Analytics & Health', to: '/platform/analytics', Icon: BarChart3 },
   { label: 'Support', to: '/platform/support', Icon: LifeBuoy },
   { label: 'Broadcasts', to: '/platform/broadcasts', Icon: Megaphone },
-  { label: 'Activity', to: '/platform/activity', Icon: Activity },
-  { label: 'Platform health', to: '/platform/health', Icon: HeartPulse },
+  { label: 'Logs', to: '/platform/activity', Icon: Activity },
+  { label: 'Platform health', to: '/platform/analytics#health', Icon: HeartPulse },
   { label: 'Platform Users', to: '/platform/users', Icon: Users },
   { label: 'Settings', to: '/platform/settings', Icon: Settings },
 ]

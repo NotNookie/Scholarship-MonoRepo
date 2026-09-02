@@ -48,7 +48,7 @@ export function PlatformActivityPage() {
     <>
       <div className="pf-page-head">
         <div>
-          <h1 className="pf-title">Activity log</h1>
+          <h1 className="pf-title">Logs</h1>
           <p className="pf-note">Every platform event, newest first.</p>
         </div>
         <button className="pf-btn pf-btn--ghost" type="button" onClick={exportCsv} disabled={shown.length === 0}>

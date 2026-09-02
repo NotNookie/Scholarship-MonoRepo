@@ -86,7 +86,7 @@ const makeActivity = (partial) => ({ id: `ac-${activityId++}`, before: '', after
 
 let notifId = 4
 const NOTIFICATIONS = [
-  { id: 'n-3', kind: 'warn', text: 'SMS / OTP provider is reporting degraded delivery.', time: '25m ago', read: false, to: '/platform/health' },
+  { id: 'n-3', kind: 'warn', text: 'SMS / OTP provider is reporting degraded delivery.', time: '25m ago', read: false, to: '/platform/analytics#health' },
   { id: 'n-2', kind: 'info', text: 'New support request from Pagsanjan.', time: '2h ago', read: false, to: '/platform/support' },
   { id: 'n-1', kind: 'ok',   text: 'Nagcarlan completed onboarding and went live.', time: 'Yesterday', read: true, to: '/platform/onboarding' },
 ]
