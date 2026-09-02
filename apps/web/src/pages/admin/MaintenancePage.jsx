@@ -6,7 +6,6 @@ import {
   ListChecks,
   CalendarRange,
   Building2,
-  UserCog,
   Sparkles,
   ArrowRight,
 } from 'lucide-react'
@@ -41,13 +40,6 @@ const CARDS = [
     description: 'Update office name, logo, contact details, tagline, and UI theme for the public portal.',
     to: '/admin/maintenance/profile',
     action: 'Manage Profile',
-  },
-  {
-    Icon: UserCog,
-    title: 'System Roles',
-    description: 'Assign permissions, manage administrative accounts, and audit access.',
-    to: '/admin/users',
-    action: 'Manage Roles',
   },
   {
     Icon: SlidersHorizontal,
