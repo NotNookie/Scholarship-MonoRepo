@@ -9,8 +9,14 @@ import { persist } from 'zustand/middleware'
 export const useUiTheme = create(
   persist(
     (set) => ({
+      // 'corporate_blue' | 'civic_green' | 'custom' | null
       preset: null,
+      // Source config for a custom theme: { primary, secondary, overrides }.
+      customConfig: null,
+      // Pick a named preset (clears the custom flag).
       setPreset: (preset) => set({ preset }),
+      // Set/update the custom theme and make it active.
+      setCustom: (customConfig) => set({ preset: 'custom', customConfig }),
     }),
     { name: 'iskolar-ui-theme' },
   ),

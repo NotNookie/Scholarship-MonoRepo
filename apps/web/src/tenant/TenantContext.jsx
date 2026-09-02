@@ -3,7 +3,7 @@
    colocated with the context they share. */
 import { createContext, useContext, useEffect, useState } from 'react'
 import { resolveSubdomain, findTenant, DEFAULT_TENANT } from './tenants'
-import { THEME_PRESETS } from './themePresets'
+import { THEME_PRESETS, buildThemeTokens } from './themePresets'
 import { useImpersonation } from '../store/impersonationStore'
 import { useUiTheme } from '../store/uiThemeStore'
 
@@ -28,18 +28,22 @@ export function TenantProvider({ children }) {
   const tenant = impersonated ?? base
   const isImpersonating = !!impersonated
 
-  // The admin-selected UI theme preset (null = tenant palette as-is).
+  // The admin-selected UI theme (a named preset, a custom palette, or null).
   const preset = useUiTheme((s) => s.preset)
+  const customConfig = useUiTheme((s) => s.customConfig)
 
   // Apply the active palette by overriding the @theme CSS variables: the
-  // tenant's base palette first, then the selected preset on top. Re-runs when
-  // the tenant changes (impersonation) or the admin switches presets, so the
-  // whole app reskins live.
+  // tenant's base palette first, then the selected preset/custom theme on top.
+  // Re-runs when the tenant changes (impersonation) or the admin edits the
+  // theme, so the whole app reskins live.
   useEffect(() => {
-    const overrides = {
-      ...(tenant?.theme ?? {}),
-      ...(preset ? THEME_PRESETS[preset]?.tokens ?? {} : {}),
-    }
+    const themeTokens =
+      preset === 'custom'
+        ? (customConfig ? buildThemeTokens(customConfig) : {})
+        : preset
+        ? THEME_PRESETS[preset]?.tokens ?? {}
+        : {}
+    const overrides = { ...(tenant?.theme ?? {}), ...themeTokens }
     if (Object.keys(overrides).length === 0) return
     const el = document.documentElement
     const previous = {}
@@ -53,7 +57,7 @@ export function TenantProvider({ children }) {
         else el.style.removeProperty(k)
       })
     }
-  }, [tenant, preset])
+  }, [tenant, preset, customConfig])
 
   return (
     <TenantContext.Provider value={{ tenant, isImpersonating }}>

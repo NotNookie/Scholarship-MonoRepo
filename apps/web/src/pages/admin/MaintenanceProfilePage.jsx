@@ -11,18 +11,51 @@ import {
   Loader2,
   Video,
   ClipboardList,
+  ChevronDown,
+  Pipette,
+  RotateCcw,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { useUiTheme } from '../../store/uiThemeStore'
+import { DEFAULT_TOKENS, ADVANCED_TOKEN_GROUPS, buildThemeTokens } from '../../tenant/themePresets'
+import { isHex } from '../../lib/color'
 
-// Theme presets are STORED ONLY for now — they do not live-swap the app tokens.
+// Named quick-start presets (each also live-applies via the UI-theme store).
 const THEMES = [
   { value: 'corporate_blue', label: 'Corporate Blue (Default)', dots: ['bg-primary-dark', 'bg-primary', 'bg-primary-light'] },
   { value: 'civic_green', label: 'Civic Green', dots: ['bg-tertiary-dark', 'bg-tertiary', 'bg-tertiary-light'] },
 ]
+
+const EMPTY_CUSTOM = { primary: DEFAULT_TOKENS['--color-primary'], secondary: DEFAULT_TOKENS['--color-secondary'], overrides: {} }
+
+// A colour swatch (opens the OS colour wheel) paired with a hex field.
+function ColorField({ label, value, onChange }) {
+  const hex = isHex(value) ? value : '#000000'
+  return (
+    <div className="flex items-center gap-2.5">
+      <input
+        type="color"
+        value={hex}
+        onChange={(e) => onChange(e.target.value)}
+        aria-label={`${label} colour`}
+        className="w-9 h-9 rounded-lg border border-border cursor-pointer bg-transparent p-0.5 shrink-0"
+      />
+      <div className="flex-1 min-w-0">
+        <p className="text-xs text-content-muted leading-tight">{label}</p>
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          aria-label={`${label} hex`}
+          className="w-full text-xs font-mono px-2 py-1 mt-0.5 rounded border border-border bg-surface focus:outline-none focus:border-primary uppercase"
+        />
+      </div>
+    </div>
+  )
+}
 
 const DEFAULTS = {
   portal_name: 'Iskolar ng Bayan',
@@ -81,10 +114,30 @@ export function MaintenanceProfilePage() {
   const queryClient = useQueryClient()
   // Only local edits are tracked; the live form derives from server data + edits.
   const [edits, setEdits] = useState({})
-  // The theme preset applies live (and persists on this device) via the UI-theme
-  // store, so picking one reskins the whole interface immediately.
+  // The theme applies live (and persists on this device) via the UI-theme store,
+  // so picking a preset or editing a colour reskins the whole interface at once.
   const activePreset = useUiTheme((s) => s.preset)
   const setPreset = useUiTheme((s) => s.setPreset)
+  const storedCustom = useUiTheme((s) => s.customConfig)
+  const setCustomStore = useUiTheme((s) => s.setCustom)
+  const [custom, setCustomLocal] = useState(() => storedCustom ?? EMPTY_CUSTOM)
+  const [advancedOpen, setAdvancedOpen] = useState(false)
+  const isCustom = activePreset === 'custom'
+
+  // Push a custom-theme change to the store (live-applies + persists).
+  function applyCustom(next) {
+    setCustomLocal(next)
+    setCustomStore(next)
+  }
+  const setBase = (key) => (val) => applyCustom({ ...custom, [key]: val })
+  const setOverride = (token) => (val) => {
+    const overrides = { ...(custom.overrides || {}) }
+    overrides[token] = val
+    applyCustom({ ...custom, overrides })
+  }
+  // Auto-derived value shown for an advanced token the admin hasn't overridden.
+  const derived = buildThemeTokens({ primary: custom.primary, secondary: custom.secondary })
+  const tokenValue = (token) => custom.overrides?.[token] ?? derived[token] ?? DEFAULT_TOKENS[token]
 
   const { data, isPending } = useQuery({
     queryKey: queryKeys.maintenance.settings(),
@@ -279,7 +332,7 @@ export function MaintenanceProfilePage() {
         <aside className="flex flex-col gap-6">
           <section className="bg-surface border border-border rounded-xl shadow-card p-6">
             <h2 className="text-base font-bold text-content inline-flex items-center gap-2 mb-4">
-              <Palette size={17} className="text-primary" /> UI Theme Preset
+              <Palette size={17} className="text-primary" /> UI Theme
             </h2>
             <div className="flex flex-col gap-3">
               {THEMES.map((t) => {
@@ -302,7 +355,75 @@ export function MaintenanceProfilePage() {
                   </button>
                 )
               })}
+
+              {/* Custom colours */}
+              <button
+                onClick={() => setCustomStore(custom)}
+                className={`flex items-center justify-between p-4 rounded-lg border transition-colors text-left ${isCustom ? 'border-primary bg-primary-light/40' : 'border-border hover:border-primary'}`}
+              >
+                <span className="flex items-center gap-2">
+                  <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${isCustom ? 'border-primary' : 'border-border'}`}>
+                    {isCustom && <span className="w-2 h-2 rounded-full bg-primary" />}
+                  </span>
+                  <span className="text-sm font-medium text-content">Custom colours</span>
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-3.5 h-3.5 rounded-full border border-border" style={{ background: custom.primary }} />
+                  <span className="w-3.5 h-3.5 rounded-full border border-border" style={{ background: custom.secondary }} />
+                  <Pipette size={14} className="text-content-muted" />
+                </span>
+              </button>
             </div>
+
+            {/* Custom editor */}
+            {isCustom && (
+              <div className="mt-4 pt-4 border-t border-border flex flex-col gap-4">
+                <ColorField label="Primary (brand)" value={custom.primary} onChange={setBase('primary')} />
+                <ColorField label="Secondary (accent)" value={custom.secondary} onChange={setBase('secondary')} />
+
+                <button
+                  type="button"
+                  onClick={() => setAdvancedOpen((v) => !v)}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary self-start"
+                  aria-expanded={advancedOpen}
+                >
+                  <ChevronDown size={14} className={`transition-transform ${advancedOpen ? 'rotate-180' : ''}`} />
+                  Advanced — full palette &amp; shades
+                </button>
+
+                {advancedOpen && (
+                  <div className="flex flex-col gap-4">
+                    <p className="text-xs text-content-muted">
+                      Shades auto-derive from your primary/secondary. Override any of them here — surfaces, text and status colours too.
+                    </p>
+                    {ADVANCED_TOKEN_GROUPS.map((group) => (
+                      <div key={group.label} className="flex flex-col gap-2.5">
+                        <p className="text-xs font-semibold text-content-muted uppercase tracking-wide">{group.label}</p>
+                        {group.tokens.map((t) => (
+                          <ColorField key={t.key} label={t.label} value={tokenValue(t.key)} onChange={setOverride(t.key)} />
+                        ))}
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => applyCustom({ ...custom, overrides: {} })}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-content-muted hover:text-primary self-start"
+                    >
+                      <RotateCcw size={13} /> Reset overrides to auto
+                    </button>
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => applyCustom(EMPTY_CUSTOM)}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-content-muted hover:text-danger self-start pt-1"
+                >
+                  <RotateCcw size={13} /> Reset custom colours to defaults
+                </button>
+              </div>
+            )}
+
             <p className="text-xs text-content-muted mt-3">Applied live across the interface and remembered on this device.</p>
           </section>
 

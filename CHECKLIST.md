@@ -70,7 +70,7 @@ Everything is API-backed and wired: Verification Queue (search / status / **scho
 
 Honest placeholders only (clearly labeled, not silently dead) — become real with the backend:
 - [ ] `[Partial]` Reports — "Financial Disbursement Trends" chart + Payout list note that disbursement tracking isn't available yet
-- [x] `[In app]` Live theme switching — the org-profile theme preset now **applies live** across the whole UI and persists per device (`store/uiThemeStore.js` + `tenant/themePresets.js`, layered over the tenant palette by TenantProvider) *(= §H4)*
+- [x] `[In app]` Live theme switching — presets **and custom colours** apply live across the whole UI and persist per device (`store/uiThemeStore.js` + `tenant/themePresets.js`, layered over the tenant palette by TenantProvider). **Custom theme:** pick Primary + Secondary via a native colour wheel + hex (`lib/color.js` auto-derives dark/light/text-on shades for contrast); an **Advanced** panel exposes the full palette (surfaces, text, status) and per-shade overrides *(= §H4)*
 - [ ] `[Partial]` "Draft with AI" button in the composer — gated by the toggle; needs the LLM endpoint *(= §F3)*
 
 ## SUP. Super Admin / operator console — *re-audited; a complete-looking prototype on 100% sample data*
