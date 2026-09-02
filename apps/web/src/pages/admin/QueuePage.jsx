@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Search,
@@ -92,6 +92,24 @@ function applicantName(a) {
   return a.applicant_name ?? ([a.first_name, a.last_name].filter(Boolean).join(' ') || 'Unnamed Applicant')
 }
 
+// Toast with an Undo affordance — reversible actions beat a confirm every time.
+function undoToast(message, onUndo) {
+  toast((t) => (
+    <span className="flex items-center gap-3 text-sm text-content">
+      <CheckCircle2 size={16} className="text-tertiary-dark shrink-0" />
+      {message}
+      <button
+        onClick={() => { onUndo(); toast.dismiss(t.id) }}
+        className="font-semibold text-primary hover:underline shrink-0"
+      >
+        Undo
+      </button>
+    </span>
+  ), { duration: 6000 })
+}
+
+const DECISION_LABEL = { approve: 'approved', approved: 'approved', rejected: 'rejected', reject: 'rejected', incomplete: 'marked incomplete' }
+
 // ── Action modal ──────────────────────────────────────────────
 
 function ActionModal({ type, isPending, onConfirm, onClose }) {
@@ -181,27 +199,33 @@ function ActionModal({ type, isPending, onConfirm, onClose }) {
 
 // ── Queue list ────────────────────────────────────────────────
 
-function QueueRow({ application, active, onSelect }) {
+function QueueRow({ application, active, onSelect, checked, onToggle }) {
   return (
-    <button
-      onClick={() => onSelect(application.id)}
-      className={`w-full text-left px-4 py-3.5 border-b border-border transition-colors ${
-        active ? 'bg-primary-light' : 'hover:bg-surface-alt'
-      }`}
-    >
-      <div className="flex items-center justify-between gap-2 mb-1">
-        <p className={`text-sm font-semibold truncate ${active ? 'text-primary' : 'text-content'}`}>
-          {applicantName(application)}
+    <div className={`flex items-stretch border-b border-border transition-colors ${active ? 'bg-primary-light' : checked ? 'bg-primary-light/40' : 'hover:bg-surface-alt'}`}>
+      <label className="flex items-center pl-3.5 pr-1 cursor-pointer shrink-0">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={() => onToggle(application.id)}
+          className="w-4 h-4 accent-primary"
+          aria-label={`Select ${applicantName(application)} for bulk action`}
+        />
+      </label>
+      <button onClick={() => onSelect(application.id)} className="flex-1 text-left pl-2 pr-4 py-3.5 min-w-0">
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <p className={`text-sm font-semibold truncate ${active ? 'text-primary' : 'text-content'}`}>
+            {applicantName(application)}
+          </p>
+          <StatusPill status={application.status} size="sm" />
+        </div>
+        <p className="text-xs text-content-muted truncate">
+          {application.scholarship_name ?? 'Scholarship Application'}
         </p>
-        <StatusPill status={application.status} size="sm" />
-      </div>
-      <p className="text-xs text-content-muted truncate">
-        {application.scholarship_name ?? 'Scholarship Application'}
-      </p>
-      <p className="text-xs text-content-disabled mt-0.5">
-        Submitted {formatDate(application.submitted_at ?? application.created_at)}
-      </p>
-    </button>
+        <p className="text-xs text-content-disabled mt-0.5">
+          Submitted {formatDate(application.submitted_at ?? application.created_at)}
+        </p>
+      </button>
+    </div>
   )
 }
 
@@ -278,7 +302,7 @@ function DocReviewRow({ doc, onVerify, onReject, busy }) {
 
 // ── Detail pane ───────────────────────────────────────────────
 
-function DetailPane({ id, onBack }) {
+function DetailPane({ id, onBack, actionSignal }) {
   const queryClient = useQueryClient()
   const [modal, setModal] = useState(null) // { type, docId? }
 
@@ -290,26 +314,40 @@ function DetailPane({ id, onBack }) {
   })
 
   const application = data ?? null
+  const decided = application ? ['approved', 'rejected'].includes(application.status) : false
 
   function invalidate() {
     queryClient.invalidateQueries({ queryKey: queryKeys.adminApplications.detail(id) })
     queryClient.invalidateQueries({ queryKey: queryKeys.adminApplications.all })
   }
 
+  const revertMutation = useMutation({
+    mutationFn: () => api.post(`/admin/applications/${id}/revert`),
+    onSuccess: () => { toast.success('Decision undone.'); invalidate() },
+  })
+
   const decisionMutation = useMutation({
     mutationFn: ({ decision, reason, grant_amount }) =>
       api.post(`/admin/applications/${id}/decision`, { decision, remarks: reason, grant_amount }),
     onSuccess: (_res, vars) => {
-      toast.success(
-        vars.decision === 'approved' ? 'Application approved.'
-        : vars.decision === 'rejected' ? 'Application rejected.'
-        : 'Application marked as incomplete.'
-      )
+      const name = applicantName(application)
+      undoToast(`${name} ${DECISION_LABEL[vars.decision] ?? 'updated'}.`, () => revertMutation.mutate())
       invalidate()
       setModal(null)
     },
     onError: (err) => toast.error(err?.response?.data?.message ?? 'Action failed. Please try again.'),
   })
+
+  // Keyboard decision shortcuts (a/r/i) from the queue open the matching modal.
+  // Responds to an external keypress signal, so a setState here is intentional.
+  useEffect(() => {
+    if (!actionSignal || !application || decided) return
+    if (['approve', 'rejected', 'incomplete'].includes(actionSignal.type)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setModal({ type: actionSignal.type })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [actionSignal?.nonce])
 
   const docMutation = useMutation({
     mutationFn: ({ docId, status, reason }) =>
@@ -504,10 +542,14 @@ function DetailPane({ id, onBack }) {
 // ── Main ──────────────────────────────────────────────────────
 
 export function QueuePage() {
+  const queryClient = useQueryClient()
   const [filter, setFilter] = useState('submitted')
   const [search, setSearch] = useState('')
   const [year, setYear] = useState('all')
   const [selectedId, setSelectedId] = useState(null)
+  const [checked, setChecked] = useState(() => new Set()) // bulk selection
+  const [actionSignal, setActionSignal] = useState(null)  // keyboard a/r/i → detail
+  const [bulkModal, setBulkModal] = useState(null)        // { type }
 
   const { data, isPending } = useQuery({
     queryKey: queryKeys.adminApplications.list({ status: filter, search, year }),
@@ -526,11 +568,77 @@ export function QueuePage() {
   const years = Array.from(new Set(applications.map((a) => a.academic_year).filter(Boolean))).sort().reverse()
   const shown = year === 'all' ? applications : applications.filter((a) => a.academic_year === year)
 
+  // Kept current for the mount-only keyboard listener (avoids re-binding it).
+  const shownRef = useRef(shown)
+  const selectedRef = useRef(selectedId)
+  useEffect(() => {
+    shownRef.current = shown
+    selectedRef.current = selectedId
+  })
+
+  // Keyboard triage: j/k (or arrows) move through the list; a/r/i decide the
+  // selected application. Ignored while typing or when a dialog is open.
+  useEffect(() => {
+    function onKey(e) {
+      const tag = document.activeElement?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+      if (document.querySelector('[role="dialog"]')) return
+      const list = shownRef.current
+      if (!list.length) return
+      const idx = list.findIndex((a) => a.id === selectedRef.current)
+      if (e.key === 'j' || e.key === 'ArrowDown') {
+        e.preventDefault()
+        setSelectedId((list[Math.min(idx + 1, list.length - 1)] ?? list[0]).id)
+      } else if (e.key === 'k' || e.key === 'ArrowUp') {
+        e.preventDefault()
+        setSelectedId((list[Math.max(idx - 1, 0)] ?? list[0]).id)
+      } else if ((e.key === 'a' || e.key === 'r' || e.key === 'i') && selectedRef.current) {
+        const map = { a: 'approve', r: 'rejected', i: 'incomplete' }
+        setActionSignal({ type: map[e.key], nonce: Date.now() })
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
+  const bulkMutation = useMutation({
+    mutationFn: ({ ids, decision, reason, grant_amount }) =>
+      api.post('/admin/applications/bulk-decision', { ids, decision, remarks: reason, grant_amount }),
+    onSuccess: (_res, vars) => {
+      const ids = vars.ids
+      undoToast(`${ids.length} application${ids.length === 1 ? '' : 's'} ${DECISION_LABEL[vars.decision] ?? 'updated'}.`, () => {
+        api.post('/admin/applications/bulk-revert', { ids }).then(() => {
+          toast.success('Bulk decision undone.')
+          queryClient.invalidateQueries({ queryKey: queryKeys.adminApplications.all })
+        })
+      })
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminApplications.all })
+      setBulkModal(null)
+      setChecked(new Set())
+    },
+    onError: (err) => toast.error(err?.response?.data?.message ?? 'Bulk action failed.'),
+  })
+
+  function toggleCheck(id) {
+    setChecked((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id); else next.add(id)
+      return next
+    })
+  }
+  const checkedIds = shown.filter((a) => checked.has(a.id)).map((a) => a.id)
+
   return (
     <div className="flex flex-col h-[calc(100vh-7rem)] -m-6">
-      <div className="px-6 py-4 border-b border-border bg-surface shrink-0">
-        <h1 className="text-lg font-bold text-content">Verification Queue</h1>
-        <p className="text-xs text-content-muted mt-0.5">Review submitted applications and verify documents.</p>
+      <div className="px-6 py-4 border-b border-border bg-surface shrink-0 flex items-center justify-between gap-3">
+        <div>
+          <h1 className="text-lg font-bold text-content">Verification Queue</h1>
+          <p className="text-xs text-content-muted mt-0.5">Review submitted applications and verify documents.</p>
+        </div>
+        <p className="hidden lg:block text-xs text-content-muted">
+          <kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">j</kbd>/<kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">k</kbd> move ·{' '}
+          <kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">a</kbd>/<kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">r</kbd>/<kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">i</kbd> decide
+        </p>
       </div>
 
       <div className="flex-1 flex min-h-0">
@@ -574,6 +682,19 @@ export function QueuePage() {
             </select>
           </div>
 
+          {/* Bulk action bar — appears when rows are checked */}
+          {checkedIds.length > 0 && (
+            <div className="px-4 py-2.5 border-b border-border bg-primary-light flex items-center gap-2 shrink-0">
+              <span className="text-xs font-semibold text-primary shrink-0">{checkedIds.length} selected</span>
+              <div className="flex items-center gap-1.5 ml-auto">
+                <button onClick={() => setBulkModal({ type: 'approve' })} className="text-xs font-semibold text-tertiary-dark border border-tertiary/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-tertiary-light transition-colors">Approve</button>
+                <button onClick={() => setBulkModal({ type: 'incomplete' })} className="text-xs font-semibold text-on-secondary border border-secondary/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-secondary-light transition-colors">Incomplete</button>
+                <button onClick={() => setBulkModal({ type: 'rejected' })} className="text-xs font-semibold text-danger border border-danger/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-danger-light transition-colors">Reject</button>
+                <button onClick={() => setChecked(new Set())} className="text-xs font-medium text-content-muted hover:text-content px-1.5 py-1" aria-label="Clear selection">Clear</button>
+              </div>
+            </div>
+          )}
+
           {/* List */}
           <div className="flex-1 overflow-auto min-h-0">
             {isPending ? (
@@ -587,7 +708,7 @@ export function QueuePage() {
               </div>
             ) : shown.length > 0 ? (
               shown.map((a) => (
-                <QueueRow key={a.id} application={a} active={a.id === selectedId} onSelect={setSelectedId} />
+                <QueueRow key={a.id} application={a} active={a.id === selectedId} onSelect={setSelectedId} checked={checked.has(a.id)} onToggle={toggleCheck} />
               ))
             ) : (
               <div className="flex flex-col items-center justify-center text-center gap-3 py-20 px-6">
@@ -608,9 +729,21 @@ export function QueuePage() {
 
         {/* ── Detail pane ────────────────────────────────────── */}
         <div className={`${selectedId ? 'flex' : 'hidden lg:flex'} flex-1 bg-surface-alt min-w-0`}>
-          <DetailPane id={selectedId} onBack={() => setSelectedId(null)} />
+          <DetailPane id={selectedId} onBack={() => setSelectedId(null)} actionSignal={actionSignal} />
         </div>
       </div>
+
+      {/* Bulk decision modal */}
+      {bulkModal && (
+        <ActionModal
+          type={bulkModal.type}
+          isPending={bulkMutation.isPending}
+          onConfirm={({ reason, grant_amount }) =>
+            bulkMutation.mutate({ ids: checkedIds, decision: bulkModal.type, reason, grant_amount })
+          }
+          onClose={() => setBulkModal(null)}
+        />
+      )}
     </div>
   )
 }

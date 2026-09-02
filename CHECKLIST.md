@@ -63,6 +63,11 @@ Already solid (no action): dashboard, application form, My Scholarship (3 states
 
 Everything is API-backed and wired: Verification Queue (search / status / **school-year** filters, document verify/reject, approve/reject/incomplete decisions with grant + remarks modals), Applicant Records (pagination + CSV export + school-year filter), Appeals, Scholar Monitoring, Renewals, Announcements & Events (create/edit with attachments, pin, publish, delete + confirm), Reports (charts + PDF/CSV), Activity Logs (filters + CSV), Users (pagination), and all Maintenance sub-pages (Policies, Cycles, Document Checklist, Eligibility, Org Profile) with real save/delete/toggle mutations.
 
+**Demo-data + workflow UX pass (dev, no backend):**
+- [x] `[In app]` **Dev demo-data layer** — a mock axios adapter (`src/mocks/`) serves `/admin/*` from a coherent A.Y. 2026–2027 sample cycle (42 applications across every status → scholars, renewals, appeals, schedules, policies, activity). Decisions/doc-review/bulk actually mutate the store. Every admin page now renders full and is demo/defense-ready; dead-code-eliminated in production.
+- [x] `[In app]` **Verification Queue — keyboard triage** (`j`/`k` move, `a`/`r`/`i` decide the selected applicant), **bulk actions** (row checkboxes → approve/reject/incomplete the selection at once), and **Undo toasts** on decisions (single + bulk) via a `/revert` mock endpoint.
+- [x] `[In app]` **Clickable stat cards → filtered lists** — dashboard tiles already link out; Applicant Records now honors `?status=` so those cards land pre-filtered.
+
 Honest placeholders only (clearly labeled, not silently dead) — become real with the backend:
 - [ ] `[Partial]` Reports — "Financial Disbursement Trends" chart + Payout list note that disbursement tracking isn't available yet
 - [x] `[In app]` Live theme switching — the org-profile theme preset now **applies live** across the whole UI and persists per device (`store/uiThemeStore.js` + `tenant/themePresets.js`, layered over the tenant palette by TenantProvider) *(= §H4)*

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import {
   useReactTable,
@@ -86,7 +86,9 @@ function SortIcon({ dir }) {
 export function ApplicantsPage() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
-  const [status, setStatus] = useState('all')
+  // Honor ?status= from the dashboard stat cards so the list lands pre-filtered.
+  const [searchParams] = useSearchParams()
+  const [status, setStatus] = useState(searchParams.get('status') ?? 'all')
   const [category, setCategory] = useState('all')
   const [year, setYear] = useState('all')
   const [sorting, setSorting] = useState([{ id: 'submitted', desc: true }])

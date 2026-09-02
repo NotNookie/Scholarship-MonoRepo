@@ -28,6 +28,10 @@ function parseBody(config) {
 
 const byId = (list, id) => list.find((x) => String(x.id) === String(id))
 
+// Normalize a decision verb to a stored status.
+const STATUS_OF = { approve: 'approved', approved: 'approved', reject: 'rejected', rejected: 'rejected', incomplete: 'incomplete' }
+const statusOf = (decision) => STATUS_OF[decision] ?? decision
+
 async function route(config) {
   const method = (config.method || 'get').toLowerCase()
   const [path, qs] = (config.url || '').split('?')
@@ -68,7 +72,7 @@ async function route(config) {
     const app = byId(store.applications, m[1])
     if (app) {
       app._prevStatus = app.status
-      app.status = body.decision
+      app.status = statusOf(body.decision)
       app.decided_at = new Date().toISOString()
       app.decision_remarks = body.remarks ?? null
       if (body.grant_amount != null) app.grant_amount = body.grant_amount
