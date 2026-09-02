@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Trash2, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
-import { useEscapeToClose } from '../../lib/useEscapeToClose'
+import { useDialog } from '../../lib/useDialog'
 import { queryKeys } from '../../lib/queryKeys'
 import { PostModal } from '../../components/admin/comms/PostModal'
 import { AnnouncementsView } from '../../components/admin/comms/AnnouncementsView'
@@ -14,7 +14,7 @@ export function CommunicationsPage() {
   const [composing, setComposing] = useState(false)
   const [editing, setEditing] = useState(null)
   const [deleting, setDeleting] = useState(null)
-  useEscapeToClose(() => setDeleting(null), !!deleting)
+  const deleteDialogRef = useDialog(() => setDeleting(null), !!deleting)
 
   const { data, isPending } = useQuery({
     queryKey: queryKeys.announcements.all,
@@ -121,11 +121,11 @@ export function CommunicationsPage() {
       {deleting && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => setDeleting(null)} />
-          <div className="relative bg-surface rounded-xl shadow-modal w-full max-w-sm p-6">
+          <div ref={deleteDialogRef} role="dialog" aria-modal="true" aria-labelledby="post-delete-title" className="relative bg-surface rounded-xl shadow-modal w-full max-w-sm p-6">
             <div className="flex items-start gap-4">
               <div className="w-11 h-11 rounded-lg bg-danger-light text-danger flex items-center justify-center shrink-0"><Trash2 size={20} /></div>
               <div>
-                <h3 className="text-base font-bold text-content">Delete this post?</h3>
+                <h3 id="post-delete-title" className="text-base font-bold text-content">Delete this post?</h3>
                 <p className="text-xs text-content-muted mt-1 leading-relaxed">“{deleting.title}” will be permanently removed.</p>
               </div>
             </div>

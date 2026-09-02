@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
-import { useEscapeToClose } from '../../lib/useEscapeToClose'
+import { useDialog } from '../../lib/useDialog'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 
@@ -89,7 +89,7 @@ function PolicyCard({ policy, onEdit, onDelete }) {
 // ── Policy modal ──────────────────────────────────────────────
 
 function PolicyModal({ policy, isPending, onClose, onSubmit }) {
-  useEscapeToClose(onClose)
+  const dialogRef = useDialog(onClose)
   const editing = !!policy?.id
   const [form, setForm] = useState({
     name: policy?.name ?? '',
@@ -117,9 +117,9 @@ function PolicyModal({ policy, isPending, onClose, onSubmit }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-surface rounded-xl shadow-modal w-full max-w-lg overflow-hidden">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="policy-modal-title" className="relative bg-surface rounded-xl shadow-modal w-full max-w-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-border flex items-center justify-between">
-          <h3 className="text-base font-bold text-content">{editing ? 'Edit Program Policy' : 'New Program Policy'}</h3>
+          <h3 id="policy-modal-title" className="text-base font-bold text-content">{editing ? 'Edit Program Policy' : 'New Program Policy'}</h3>
           <button onClick={onClose} className="text-content-muted hover:text-content" aria-label="Close"><X size={18} /></button>
         </div>
 
@@ -184,15 +184,15 @@ function PolicyModal({ policy, isPending, onClose, onSubmit }) {
 // ── Delete confirm ────────────────────────────────────────────
 
 function DeleteModal({ policy, isPending, onClose, onConfirm }) {
-  useEscapeToClose(onClose)
+  const dialogRef = useDialog(onClose)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-surface rounded-xl shadow-modal w-full max-w-sm p-6">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="policy-delete-title" className="relative bg-surface rounded-xl shadow-modal w-full max-w-sm p-6">
         <div className="flex items-start gap-4">
           <div className="w-11 h-11 rounded-lg bg-danger-light text-danger flex items-center justify-center shrink-0"><Trash2 size={20} /></div>
           <div>
-            <h3 className="text-base font-bold text-content">Delete policy?</h3>
+            <h3 id="policy-delete-title" className="text-base font-bold text-content">Delete policy?</h3>
             <p className="text-xs text-content-muted mt-1 leading-relaxed">"{policy.name}" will be permanently removed. Existing scholars are not affected.</p>
           </div>
         </div>

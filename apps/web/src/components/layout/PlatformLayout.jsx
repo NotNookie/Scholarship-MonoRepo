@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutGrid, Building2, UserPlus, BarChart3, LifeBuoy, Megaphone,
@@ -6,6 +7,7 @@ import {
 import { useAuthStore } from '../../store/authStore'
 import { Crest } from '../platform/PlatformBits'
 import { PlatformTools } from '../platform/PlatformTools'
+import { ReportIssueDrawer } from '../platform/ReportIssueDrawer'
 import '../../styles/platform.css'
 
 // Locked design combo for the platform console. The stylesheet still carries
@@ -35,6 +37,7 @@ function initials(name) {
 export function PlatformLayout() {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
+  const [reportOpen, setReportOpen] = useState(false)
 
   function handleLogout() {
     logout()
@@ -70,7 +73,7 @@ export function PlatformLayout() {
         <div className="pf-wrap pf-phase-in">
           <span className="pf-badge">Platform</span>
           <span>
-            Operator console for the Iskolar network — <a href="#report">report an issue</a>.
+            Operator console for the Iskolar network — <button type="button" className="pf-inline-link" onClick={() => setReportOpen(true)}>report an issue</button>.
           </span>
           <span className="pf-live">
             <span className="pf-dot" aria-hidden="true" />
@@ -99,6 +102,8 @@ export function PlatformLayout() {
           </div>
         </main>
       </div>
+
+      <ReportIssueDrawer open={reportOpen} onClose={() => setReportOpen(false)} />
     </div>
   )
 }

@@ -19,7 +19,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
-import { useEscapeToClose } from '../../lib/useEscapeToClose'
+import { useDialog } from '../../lib/useDialog'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { StatusPill } from '../../components/shared/StatusPill'
@@ -95,7 +95,7 @@ function applicantName(a) {
 // ── Action modal ──────────────────────────────────────────────
 
 function ActionModal({ type, isPending, onConfirm, onClose }) {
-  useEscapeToClose(onClose)
+  const dialogRef = useDialog(onClose)
   const cfg = MODAL_CONFIG[type]
   const [reason, setReason] = useState('')
   const [grant, setGrant] = useState('')
@@ -111,14 +111,14 @@ function ActionModal({ type, isPending, onConfirm, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-surface rounded-xl shadow-modal w-full max-w-md overflow-hidden">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="queue-action-title" className="relative bg-surface rounded-xl shadow-modal w-full max-w-md overflow-hidden">
         <div className="p-6">
           <div className="flex items-start gap-4">
             <div className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 ${cfg.iconCls}`}>
               <Icon size={20} />
             </div>
             <div className="flex-1">
-              <h3 className="text-base font-bold text-content">{cfg.title}</h3>
+              <h3 id="queue-action-title" className="text-base font-bold text-content">{cfg.title}</h3>
               <p className="text-xs text-content-muted mt-1 leading-relaxed">{cfg.description}</p>
             </div>
             <button onClick={onClose} className="text-content-muted hover:text-content transition-colors shrink-0" aria-label="Close">

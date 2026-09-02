@@ -15,7 +15,7 @@ import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { FALLBACK_FORMS } from '../../data/forms'
 import { useBrand } from '../../tenant/TenantContext'
-import { useEscapeToClose } from '../../lib/useEscapeToClose'
+import { useDialog } from '../../lib/useDialog'
 
 const GUIDE_STEPS = [
   {
@@ -84,7 +84,7 @@ export function RequirementsPage() {
   const guideSteps = brand.guideSteps ?? GUIDE_STEPS
   const faqs = brand.faqs ?? FAQS
   const [showVideo, setShowVideo] = useState(false)
-  useEscapeToClose(() => setShowVideo(false), showVideo)
+  const videoRef = useDialog(() => setShowVideo(false), showVideo)
 
   const { data, isPending } = useQuery({
     queryKey: queryKeys.forms.all,
@@ -251,9 +251,9 @@ export function RequirementsPage() {
       {showVideo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60" onClick={() => setShowVideo(false)} />
-          <div className="relative bg-surface rounded-xl shadow-modal w-full max-w-2xl overflow-hidden">
+          <div ref={videoRef} role="dialog" aria-modal="true" aria-labelledby="video-modal-title" className="relative bg-surface rounded-xl shadow-modal w-full max-w-2xl overflow-hidden">
             <div className="flex items-center justify-between px-5 py-3 border-b border-border">
-              <p className="text-sm font-bold text-content">Application Walkthrough</p>
+              <p id="video-modal-title" className="text-sm font-bold text-content">Application Walkthrough</p>
               <button onClick={() => setShowVideo(false)} className="text-content-muted hover:text-content" aria-label="Close video">
                 <X size={18} />
               </button>

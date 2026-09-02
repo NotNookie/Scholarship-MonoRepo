@@ -72,6 +72,18 @@ const HEALTH = [
   { id: 'backup',  label: 'Backups',                  status: 'operational', detail: 'Nightly snapshot succeeded', metric: 'Last: today 03:00' },
 ]
 
+// ── Operator activity feed ───────────────────────────────────────
+// Each entry renders as "{before}<b>{strong}</b>{after}". `kind` picks the
+// icon + tone in the UI. New entries are prepended by the mutating actions
+// below, so the Overview feed reflects what the operator actually did.
+const ACTIVITY = [
+  { id: 'ac-3', kind: 'onboard', before: '', strong: 'Nagcarlan', after: ' onboarded and activated', time: 'Today · 09:14' },
+  { id: 'ac-2', kind: 'cycle',   before: '', strong: 'Pakil',     after: ' completed its first application cycle', time: 'Yesterday · 16:40' },
+  { id: 'ac-1', kind: 'invite',  before: 'Head admin invited for ', strong: 'Pila', after: '', time: '2 days ago · 11:02' },
+]
+let activityId = 4
+const makeActivity = (partial) => ({ id: `ac-${activityId++}`, before: '', after: '', time: 'Just now', ...partial })
+
 let notifId = 4
 const NOTIFICATIONS = [
   { id: 'n-3', kind: 'warn', text: 'SMS / OTP provider is reporting degraded delivery.', time: '25m ago', read: false, to: '/platform/health' },
@@ -86,17 +98,26 @@ function initials(name) {
 
 export const usePlatformStore = create((set) => ({
   municipalities: SAMPLE,
+  activity: ACTIVITY,
 
   // Toggle a tenant between active and suspended (reversible from the UI).
   toggleStatus: (id) =>
-    set((s) => ({
-      municipalities: s.municipalities.map((m) =>
-        m.id === id ? { ...m, status: m.status === 'suspended' ? 'active' : 'suspended' } : m
-      ),
-    })),
+    set((s) => {
+      const m = s.municipalities.find((x) => x.id === id)
+      const suspending = m?.status !== 'suspended'
+      return {
+        municipalities: s.municipalities.map((x) =>
+          x.id === id ? { ...x, status: x.status === 'suspended' ? 'active' : 'suspended' } : x
+        ),
+        activity: m
+          ? [makeActivity({ kind: suspending ? 'suspend' : 'reactivate', strong: m.name, after: suspending ? ' was suspended' : ' was reactivated' }), ...s.activity]
+          : s.activity,
+      }
+    }),
 
-  // Charter a new tenant (local only, for design iteration).
-  onboard: ({ name, province, subdomain }) =>
+  // Charter a new tenant (local only, for design iteration). The blur/OCR/AI
+  // starting state comes from the platform's new-municipality defaults.
+  onboard: ({ name, province, subdomain, ocr = false, ai = false }) =>
     set((s) => ({
       municipalities: [
         ...s.municipalities,
@@ -104,15 +125,24 @@ export const usePlatformStore = create((set) => ({
           id: subdomain || name.toLowerCase().replace(/\s+/g, '-'),
           name, province: province || '—', subdomain: subdomain || 'new',
           status: 'onboarding', scholars: 0, admins: 1, staff: 0, programs: 0,
-          cycle: '—', applications: 0, onboarded: 'Just now', ocr: false, ai: false,
+          cycle: '—', applications: 0, onboarded: 'Just now', ocr, ai,
           setup: { head_invited: true, head_active: false, branding: false, program: false, cycle: false },
         },
       ],
+      activity: [makeActivity({ kind: 'onboard', strong: name, after: ' chartered · invitation sent' }), ...s.activity],
     })),
 
   // Permanently remove a tenant from the platform (offboarding, last step).
   offboard: (id) =>
-    set((s) => ({ municipalities: s.municipalities.filter((m) => m.id !== id) })),
+    set((s) => {
+      const m = s.municipalities.find((x) => x.id === id)
+      return {
+        municipalities: s.municipalities.filter((x) => x.id !== id),
+        activity: m
+          ? [makeActivity({ kind: 'offboard', strong: m.name, after: ' was offboarded and removed' }), ...s.activity]
+          : s.activity,
+      }
+    }),
 
   // ── Support inbox ──────────────────────────────────────────────
   supportTickets: SUPPORT,
@@ -129,6 +159,7 @@ export const usePlatformStore = create((set) => ({
         { id: `t-${s.supportTickets.length + 105}`, tenantId, tenant, subject, message: message ?? '', priority: 'normal', status: 'open', opened: 'Just now', requester: 'LYDO Head', grantsAccess: !!grantsAccess },
         ...s.supportTickets,
       ],
+      activity: [makeActivity({ kind: 'support', before: 'New support request from ', strong: tenant }), ...s.activity],
     })),
   // Revoke = close the request, which ends any granted access.
   revokeSupport: (id) =>
@@ -144,6 +175,7 @@ export const usePlatformStore = create((set) => ({
         { id: `b-${s.broadcasts.length + 1}`, title, audience, body, sentBy: 'Platform Admin', sentAt: 'Just now' },
         ...s.broadcasts,
       ],
+      activity: [makeActivity({ kind: 'broadcast', before: 'Broadcast sent · ', strong: title }), ...s.activity],
     })),
 
   // ── Platform health ────────────────────────────────────────────
@@ -168,7 +200,32 @@ export const usePlatformStore = create((set) => ({
         ...s.platformUsers,
         { id: email || name, name: name || email, email, role, lastActive: 'Invited · pending' },
       ],
+      activity: [makeActivity({ kind: 'invite_team', before: 'Invited ', strong: name || email, after: ' to the platform team' }), ...s.activity],
     })),
+
+  // Change a teammate's platform role (Super Admin only; the UI blocks self-edits).
+  changePlatformUserRole: (id, role) =>
+    set((s) => {
+      const u = s.platformUsers.find((x) => x.id === id)
+      return {
+        platformUsers: s.platformUsers.map((x) => (x.id === id ? { ...x, role } : x)),
+        activity: u
+          ? [makeActivity({ kind: 'role', strong: u.name, after: ` is now ${PLATFORM_ROLES[role]?.label ?? role}` }), ...s.activity]
+          : s.activity,
+      }
+    }),
+
+  // Remove a teammate's access (Super Admin only; the UI blocks removing yourself).
+  removePlatformUser: (id) =>
+    set((s) => {
+      const u = s.platformUsers.find((x) => x.id === id)
+      return {
+        platformUsers: s.platformUsers.filter((x) => x.id !== id),
+        activity: u
+          ? [makeActivity({ kind: 'remove', strong: u.name, after: ' was removed from the platform team' }), ...s.activity]
+          : s.activity,
+      }
+    }),
 }))
 
 // Platform-level roles for our own team (distinct from the municipal roles).

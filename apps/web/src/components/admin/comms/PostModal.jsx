@@ -5,7 +5,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../../lib/axios'
-import { useEscapeToClose } from '../../../lib/useEscapeToClose'
+import { useDialog } from '../../../lib/useDialog'
 import { queryKeys } from '../../../lib/queryKeys'
 import { CATEGORIES, inputCls, fileSize } from './postUtils'
 
@@ -71,7 +71,7 @@ function MarkdownEditor({ value, onChange }) {
 // ── Post modal ────────────────────────────────────────────────
 
 export function PostModal({ post, isPending, onClose, onSubmit }) {
-  useEscapeToClose(onClose)
+  const dialogRef = useDialog(onClose)
   const editing = !!post?.id
   const [form, setForm] = useState({
     category: post?.category ?? 'General',
@@ -114,9 +114,9 @@ export function PostModal({ post, isPending, onClose, onSubmit }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-surface rounded-xl shadow-modal w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="post-modal-title" className="relative bg-surface rounded-xl shadow-modal w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
         <div className="px-6 py-4 border-b border-border flex items-center justify-between shrink-0">
-          <h2 className="text-base font-bold text-content">{editing ? 'Edit Post' : 'Create New Announcement'}</h2>
+          <h2 id="post-modal-title" className="text-base font-bold text-content">{editing ? 'Edit Post' : 'Create New Announcement'}</h2>
           <button onClick={onClose} className="text-content-muted hover:text-content" aria-label="Close"><X size={18} /></button>
         </div>
 

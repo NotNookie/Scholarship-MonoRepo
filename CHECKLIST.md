@@ -73,10 +73,10 @@ Honest placeholders only (clearly labeled, not silently dead) — become real wi
 > ✅ Confirmed as a real deliverable — multi-tenant is approved (§A). Wire this to the backend when it exists.
 
 - [ ] `[To build]` Whole console runs on `platformStore` sample data with local-only state — nothing persists (resets on reload); no API *(analytics trend, activity feed, health, tickets, users are all hardcoded)*
-- [ ] `[To build]` Phase-banner "report an issue" is a dead `#report` anchor *(wire to the support email that Settings already stores)*
-- [ ] `[To build]` Settings "Save" only shows a toast — doesn't persist, and the new-municipality defaults (blur/OCR/AI) don't feed the onboard flow
-- [ ] `[Partial]` Platform Users page says a Super Admin can "change roles or remove access," but there are no such controls — it's read-only + invite
-- [ ] `[Partial]` Overview "Recent activity" feed is hardcoded, not driven by the store
+- [x] `[In app]` Phase-banner "report an issue" now opens an **in-app report drawer** (accessible PlatformDrawer; confirms to the support email stored in Settings) — the dead `#report` anchor is gone
+- [x] `[In app]` Settings now **persist locally** (`store/platformSettingsStore.js`, zustand+persist) and the new-municipality **defaults (blur/OCR/AI) feed the onboard flow** — OnboardDrawer applies + previews them on the chartered tenant
+- [x] `[In app]` Platform Users — Super Admin can now **change a teammate's role** (inline dropdown) and **remove access** (confirm drawer); your own account is locked (no self-demote/-remove)
+- [x] `[In app]` Overview "Recent activity" feed is now **driven by the store** — an `activity` log that mutations (onboard/suspend/offboard/broadcast/support/role/remove) prepend to
 
 Solid as a prototype (no action): nav, global search (Ctrl+K), notifications, onboard / suspend (with undo) / offboard drawers, the analytics / onboarding / support / broadcasts / health screens, Activity CSV export.
 
@@ -146,8 +146,8 @@ Solid as a prototype (no action): nav, global search (Ctrl+K), notifications, on
 - [ ] `[To build]` Unit tests
 - [ ] `[To build]` Integration / end-to-end tests
 - [ ] `[To build]` Acceptance testing / ISO 25010 evaluation *(ties to §A4)*
-- [~] `[Partial]` Accessibility audit (keyboard, contrast, labels) — **pass done:** all 12 modals/lightboxes now dismiss on **Escape** (shared `lib/useEscapeToClose`); verified form labels are associated (shared `Field` + `htmlFor`/`id`, `aria-invalid`/`aria-describedby`/`role="alert"`), icon-only buttons carry `aria-label`, no `<img>` alt gaps (icon font), and gold-on-dark contrast is fine. *Not yet: automated axe run, full focus-trap in modals, screen-reader pass.*
-- [~] `[Partial]` Cross-browser & mobile QA — mobile/responsive verified on Chromium (Chrome/Edge) at the mobile single-column layout, the 768px breakpoint, and desktop — no overflow/breakage. *Not yet: Firefox (Gecko) and Safari (WebKit) — no engine available in this environment.*
+- [~] `[Partial]` Accessibility audit (keyboard, contrast, labels) — **done:** every modal/lightbox/drawer now has a full **focus-trap + focus-restore + Escape** and `role="dialog"`/`aria-modal`/`aria-labelledby` (shared `lib/useDialog` for municipal modals; the platform drawers already had it); form labels associated (shared `Field` + `htmlFor`/`id`, `aria-invalid`/`aria-describedby`/`role="alert"`), icon-only buttons carry `aria-label`, no `<img>` alt gaps, gold-on-dark contrast fine. *Not yet: automated axe run (needs a scriptable browser not available here) and a screen-reader pass on real AT.*
+- [~] `[Partial]` Cross-browser & mobile QA — verified on Chromium (Chrome/Edge): mobile single-column, 768px breakpoint, desktop — no overflow/breakage. Firefox (Gecko) + Safari (WebKit) can't run in this environment, so a manual checklist is documented at [apps/web/docs/qa-cross-browser.md](apps/web/docs/qa-cross-browser.md) to run on real browsers before release.
 
 ## L. Deployment & ops
 - [ ] `[To build]` Host the frontend, backend, and database

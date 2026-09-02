@@ -5,7 +5,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
-import { useEscapeToClose } from '../../lib/useEscapeToClose'
+import { useDialog } from '../../lib/useDialog'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { useBrand } from '../../tenant/TenantContext'
 
@@ -52,7 +52,7 @@ function StatusPill({ status }) {
 // ── User modal ────────────────────────────────────────────────
 
 function UserModal({ user, isPending, onClose, onSubmit }) {
-  useEscapeToClose(onClose)
+  const dialogRef = useDialog(onClose)
   const editing = !!user?.id
   const [form, setForm] = useState({
     name: user?.name ?? '',
@@ -66,9 +66,9 @@ function UserModal({ user, isPending, onClose, onSubmit }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-surface rounded-xl shadow-modal w-full max-w-md overflow-hidden">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="user-modal-title" className="relative bg-surface rounded-xl shadow-modal w-full max-w-md overflow-hidden">
         <div className="px-6 py-4 border-b border-border flex items-center justify-between">
-          <h3 className="text-base font-bold text-content">{editing ? 'Edit User' : 'Add New User'}</h3>
+          <h3 id="user-modal-title" className="text-base font-bold text-content">{editing ? 'Edit User' : 'Add New User'}</h3>
           <button onClick={onClose} className="text-content-muted hover:text-content" aria-label="Close"><X size={18} /></button>
         </div>
         <div className="p-6 flex flex-col gap-4">
@@ -107,15 +107,15 @@ function UserModal({ user, isPending, onClose, onSubmit }) {
 }
 
 function DeleteModal({ user, isPending, onClose, onConfirm }) {
-  useEscapeToClose(onClose)
+  const dialogRef = useDialog(onClose)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-surface rounded-xl shadow-modal w-full max-w-sm p-6">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="user-delete-title" className="relative bg-surface rounded-xl shadow-modal w-full max-w-sm p-6">
         <div className="flex items-start gap-4">
           <div className="w-11 h-11 rounded-lg bg-danger-light text-danger flex items-center justify-center shrink-0"><Trash2 size={20} /></div>
           <div>
-            <h3 className="text-base font-bold text-content">Remove user?</h3>
+            <h3 id="user-delete-title" className="text-base font-bold text-content">Remove user?</h3>
             <p className="text-xs text-content-muted mt-1 leading-relaxed">{user.name}'s account will be permanently removed and they'll lose portal access.</p>
           </div>
         </div>

@@ -4,7 +4,7 @@ import {
   Search, Download, X, ChevronLeft, ChevronRight, Eye, ScrollText, Calendar,
 } from 'lucide-react'
 import { api } from '../../lib/axios'
-import { useEscapeToClose } from '../../lib/useEscapeToClose'
+import { useDialog } from '../../lib/useDialog'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { downloadCsv } from '../../lib/reportExport'
 
@@ -51,15 +51,15 @@ function fmtTime(v) {
 // ── Detail modal ──────────────────────────────────────────────
 
 function LogModal({ log, onClose }) {
-  useEscapeToClose(onClose)
+  const dialogRef = useDialog(onClose)
   const cfg = ACTION_TYPES[log.action_type]
   const isSystem = log.actor_type === 'system'
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-surface rounded-xl shadow-modal w-full max-w-md overflow-hidden">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="log-modal-title" className="relative bg-surface rounded-xl shadow-modal w-full max-w-md overflow-hidden">
         <div className="px-6 py-4 border-b border-border flex items-center justify-between">
-          <h3 className="text-base font-bold text-content">Log Entry</h3>
+          <h3 id="log-modal-title" className="text-base font-bold text-content">Log Entry</h3>
           <button onClick={onClose} className="text-content-muted hover:text-content" aria-label="Close"><X size={18} /></button>
         </div>
         <div className="p-6 space-y-4">

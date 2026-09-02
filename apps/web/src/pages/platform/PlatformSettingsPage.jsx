@@ -1,16 +1,6 @@
-import { useState } from 'react'
 import { Save } from 'lucide-react'
 import toast from 'react-hot-toast'
-
-const DEFAULTS = {
-  platformName: 'Iskolar',
-  issueEmail: 'support@iskolar.ph',
-  subdomainRoot: 'iskolar.ph',
-  requireHeadInvite: true,
-  defaultBlur: true,
-  defaultOcr: false,
-  defaultAi: false,
-}
+import { usePlatformSettings } from '../../store/platformSettingsStore'
 
 function Toggle({ label, checked, onChange }) {
   return (
@@ -26,9 +16,12 @@ function Toggle({ label, checked, onChange }) {
 }
 
 export function PlatformSettingsPage() {
-  const [s, setS] = useState(DEFAULTS)
-  const set = (k) => (v) => setS((prev) => ({ ...prev, [k]: v }))
-  const setInput = (k) => (e) => set(k)(e.target.value)
+  // Bound to the persisted store, so edits survive reloads and feed the onboard
+  // flow. `save` is an explicit confirmation — the values persist as you type.
+  const s = usePlatformSettings()
+  const update = usePlatformSettings((st) => st.set)
+  const set = (k) => (v) => update({ [k]: v })
+  const setInput = (k) => (e) => update({ [k]: e.target.value })
 
   function save() {
     toast.success('Platform settings saved')

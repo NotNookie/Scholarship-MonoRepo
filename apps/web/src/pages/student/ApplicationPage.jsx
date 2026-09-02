@@ -13,7 +13,7 @@ import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { validateFile, measureSharpness, BLUR_THRESHOLD } from '../../lib/fileValidation'
 import { useBrand } from '../../tenant/TenantContext'
-import { useEscapeToClose } from '../../lib/useEscapeToClose'
+import { useDialog } from '../../lib/useDialog'
 
 // ── Constants ────────────────────────────────────────────────
 
@@ -813,15 +813,15 @@ function ReviewSection({ title, stepIndex, onEdit, children }) {
 }
 
 function ReviewModal({ steps, hasEssay, values, documents, uploads, onEdit, onClose, onConfirm, submitting }) {
-  useEscapeToClose(onClose)
+  const dialogRef = useDialog(onClose)
   const idx = (id) => steps.findIndex((s) => s.id === id)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-surface rounded-xl shadow-modal w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="review-modal-title" className="relative bg-surface rounded-xl shadow-modal w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
         <div className="px-6 py-4 border-b border-border flex items-start justify-between gap-3 shrink-0">
           <div>
-            <h2 className="text-base font-bold text-content">Review your application</h2>
+            <h2 id="review-modal-title" className="text-base font-bold text-content">Review your application</h2>
             <p className="text-xs text-content-muted mt-0.5">Check everything before submitting — you can still edit any section.</p>
           </div>
           <button onClick={onClose} className="text-content-muted hover:text-content shrink-0" aria-label="Close"><X size={18} /></button>

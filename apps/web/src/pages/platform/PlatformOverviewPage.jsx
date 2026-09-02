@@ -1,12 +1,32 @@
 import { useNavigate } from 'react-router-dom'
-import { CircleCheck, Check, Plus, UserPlus, TrendingUp } from 'lucide-react'
+import {
+  CircleCheck, Check, Plus, UserPlus, TrendingUp,
+  Ban, Trash2, UserMinus, Megaphone, LifeBuoy, Shield,
+} from 'lucide-react'
 import { usePlatformStore } from '../../store/platformStore'
 import { OnboardDrawer } from '../../components/platform/OnboardDrawer'
 import { useState } from 'react'
 
+// Maps an activity `kind` to its feed icon + tone (b = blue, g = green,
+// stop = red-attention). Keeps the feed visually consistent with the store.
+const ACTIVITY_META = {
+  onboard:     { Icon: Plus,      tone: 'b' },
+  invite_team: { Icon: UserPlus,  tone: 'b' },
+  cycle:       { Icon: Check,     tone: 'g' },
+  reactivate:  { Icon: Check,     tone: 'g' },
+  invite:      { Icon: UserPlus,  tone: '' },
+  support:     { Icon: LifeBuoy,  tone: '' },
+  broadcast:   { Icon: Megaphone, tone: '' },
+  role:        { Icon: Shield,    tone: '' },
+  suspend:     { Icon: Ban,       tone: 'stop' },
+  offboard:    { Icon: Trash2,    tone: 'stop' },
+  remove:      { Icon: UserMinus, tone: 'stop' },
+}
+
 export function PlatformOverviewPage() {
   const navigate = useNavigate()
   const municipalities = usePlatformStore((s) => s.municipalities)
+  const activity = usePlatformStore((s) => s.activity)
   const [onboardOpen, setOnboardOpen] = useState(false)
 
   const total = municipalities.length
@@ -75,27 +95,32 @@ export function PlatformOverviewPage() {
 
         <div className="pf-block">
           <h2>Recent activity</h2>
-          <div className="pf-feed">
-            <div className="pf-feed-ic b"><Plus size={18} /></div>
-            <div>
-              <div className="pf-feed-tx"><b>Nagcarlan</b> onboarded and activated</div>
-              <div className="pf-feed-tm">Today · 09:14</div>
+          {activity.length === 0 ? (
+            <div className="pf-empty">
+              <Check size={30} strokeWidth={1.8} />
+              <b>No activity yet</b>
+              Onboarding, suspensions, broadcasts and team changes appear here.
             </div>
-          </div>
-          <div className="pf-feed">
-            <div className="pf-feed-ic g"><Check size={18} /></div>
-            <div>
-              <div className="pf-feed-tx"><b>Pakil</b> completed its first application cycle</div>
-              <div className="pf-feed-tm">Yesterday · 16:40</div>
-            </div>
-          </div>
-          <div className="pf-feed">
-            <div className="pf-feed-ic"><UserPlus size={18} /></div>
-            <div>
-              <div className="pf-feed-tx">Head admin invited for <b>Pila</b></div>
-              <div className="pf-feed-tm">2 days ago · 11:02</div>
-            </div>
-          </div>
+          ) : (
+            activity.slice(0, 6).map((a) => {
+              const meta = ACTIVITY_META[a.kind] ?? { Icon: Check, tone: '' }
+              const stop = meta.tone === 'stop'
+              return (
+                <div key={a.id} className="pf-feed">
+                  <div
+                    className={`pf-feed-ic ${stop ? '' : meta.tone}`}
+                    style={stop ? { background: 'var(--pf-stop-bg)', color: 'var(--pf-stop-fg)' } : undefined}
+                  >
+                    <meta.Icon size={18} />
+                  </div>
+                  <div>
+                    <div className="pf-feed-tx">{a.before}<b>{a.strong}</b>{a.after}</div>
+                    <div className="pf-feed-tm">{a.time}</div>
+                  </div>
+                </div>
+              )
+            })
+          )}
         </div>
       </div>
 
