@@ -59,6 +59,42 @@ export function PlatformAnalyticsPage() {
         </div>
       </div>
 
+      {/* Platform health — surfaced first: service status before the numbers */}
+      <h2 className="pf-h2" id="health" style={{ scrollMarginTop: 24, marginTop: 0 }}>Platform health</h2>
+      <p className="pf-sub">Live status of the services every municipality depends on.</p>
+      <div
+        className="pf-banner pf-reveal"
+        style={
+          healthBanner.cls === 'ok'
+            ? undefined
+            : { background: healthBanner.cls === 'stop' ? 'var(--pf-stop-fg)' : '#946f00' }
+        }
+      >
+        {allGood ? <CircleCheck size={30} strokeWidth={2} /> : <AlertTriangle size={30} strokeWidth={2} />}
+        <div>
+          <div className="bt">{healthBanner.text}</div>
+          <div className="bs">{services.length} services monitored · checked just now</div>
+        </div>
+      </div>
+      <div style={{ borderTop: '2px solid var(--pf-ink)' }}>
+        {services.map((svc) => {
+          const meta = HEALTH_META[svc.status] ?? HEALTH_META.operational
+          return (
+            <div className="pf-health-row" key={svc.id}>
+              <span className={`pf-health-dot ${meta.cls}`} aria-hidden="true" />
+              <div className="pf-health-main">
+                <div className="pf-health-lbl">{svc.label}</div>
+                <div className="pf-health-detail">{svc.detail}</div>
+              </div>
+              <span className="pf-health-metric">{svc.metric}</span>
+              <span className={`pf-tag ${meta.cls}`}>{meta.label}</span>
+            </div>
+          )
+        })}
+      </div>
+
+      <h2 className="pf-h2">Network performance</h2>
+      <p className="pf-sub">How the whole network is performing across every municipality.</p>
       <div className="pf-vitals pf-reveal">
         <div className="pf-vital">
           <div className="lbl">Scholars served</div>
@@ -102,39 +138,6 @@ export function PlatformAnalyticsPage() {
         ))}
       </div>
 
-      {/* Platform health — folded in from the former Health tab */}
-      <h2 className="pf-h2" id="health" style={{ scrollMarginTop: 24 }}>Platform health</h2>
-      <p className="pf-sub">Live status of the services every municipality depends on.</p>
-      <div
-        className="pf-banner pf-reveal"
-        style={
-          healthBanner.cls === 'ok'
-            ? undefined
-            : { background: healthBanner.cls === 'stop' ? 'var(--pf-stop-fg)' : '#946f00' }
-        }
-      >
-        {allGood ? <CircleCheck size={30} strokeWidth={2} /> : <AlertTriangle size={30} strokeWidth={2} />}
-        <div>
-          <div className="bt">{healthBanner.text}</div>
-          <div className="bs">{services.length} services monitored · checked just now</div>
-        </div>
-      </div>
-      <div style={{ borderTop: '2px solid var(--pf-ink)' }}>
-        {services.map((svc) => {
-          const meta = HEALTH_META[svc.status] ?? HEALTH_META.operational
-          return (
-            <div className="pf-health-row" key={svc.id}>
-              <span className={`pf-health-dot ${meta.cls}`} aria-hidden="true" />
-              <div className="pf-health-main">
-                <div className="pf-health-lbl">{svc.label}</div>
-                <div className="pf-health-detail">{svc.detail}</div>
-              </div>
-              <span className="pf-health-metric">{svc.metric}</span>
-              <span className={`pf-tag ${meta.cls}`}>{meta.label}</span>
-            </div>
-          )
-        })}
-      </div>
     </>
   )
 }
