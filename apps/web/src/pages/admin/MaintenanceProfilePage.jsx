@@ -1,8 +1,7 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useLocation, useBlocker } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  ChevronLeft,
   Palette,
   Building2,
   Contact,
@@ -22,6 +21,7 @@ import { Skeleton } from '../../components/shared/Skeleton'
 import { useUiTheme } from '../../store/uiThemeStore'
 import { DEFAULT_TOKENS, ADVANCED_TOKEN_GROUPS, buildThemeTokens } from '../../tenant/themePresets'
 import { isHex } from '../../lib/color'
+import { useDialog } from '../../lib/useDialog'
 
 // Named quick-start presets (each also live-applies via the UI-theme store).
 const THEMES = [
@@ -30,6 +30,16 @@ const THEMES = [
 ]
 
 const EMPTY_CUSTOM = { primary: DEFAULT_TOKENS['--color-primary'], secondary: DEFAULT_TOKENS['--color-secondary'], overrides: {} }
+
+// In-page sections (anchors for the sticky section nav + search deep-links).
+const SECTIONS = [
+  { id: 'general', label: 'General' },
+  { id: 'contact', label: 'Contact' },
+  { id: 'public', label: 'Public Content' },
+  { id: 'application', label: 'Application' },
+  { id: 'theme', label: 'Theme' },
+]
+const scrollToSection = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
 // A colour swatch (opens the OS colour wheel) paired with a hex field.
 function ColorField({ label, value, onChange }) {
@@ -153,10 +163,42 @@ export function MaintenanceProfilePage() {
     mutationFn: (payload) => api.put('/admin/maintenance/settings', payload),
     onSuccess: () => {
       toast.success('Settings saved.')
+      setEdits({}) // clear dirty state
       queryClient.invalidateQueries({ queryKey: queryKeys.maintenance.settings() })
     },
     onError: (e) => toast.error(e?.response?.data?.message ?? 'Could not save settings.'),
   })
+
+  // Dirty = there are unsaved form edits. (Theme applies live and isn't part of
+  // this — see the note by the Save button.)
+  const dirty = Object.keys(edits).length > 0
+
+  // Warn before leaving with unsaved changes — closing the tab…
+  useEffect(() => {
+    if (!dirty) return
+    const onBeforeUnload = (e) => { e.preventDefault(); e.returnValue = '' }
+    window.addEventListener('beforeunload', onBeforeUnload)
+    return () => window.removeEventListener('beforeunload', onBeforeUnload)
+  }, [dirty])
+
+  // …and navigating within the app.
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) => dirty && currentLocation.pathname !== nextLocation.pathname,
+  )
+
+  // Deep-link support: scroll to the section named in the URL hash (from search).
+  const { hash } = useLocation()
+  useEffect(() => {
+    if (!hash) return
+    const el = document.getElementById(hash.slice(1))
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [hash, isPending])
+
+  function discard() {
+    setEdits({})
+    if (blocker.state === 'blocked') blocker.proceed()
+  }
+  const guardRef = useDialog(() => blocker.reset?.(), blocker.state === 'blocked')
 
   if (isPending) {
     return (
@@ -170,28 +212,42 @@ export function MaintenanceProfilePage() {
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div>
-          <Link to="/admin/maintenance" className="inline-flex items-center gap-1.5 text-sm text-content-muted hover:text-primary transition-colors mb-3">
-            <ChevronLeft size={15} /> Maintenance Hub
-          </Link>
           <h1 className="text-2xl font-bold text-content">Branding &amp; System Settings</h1>
           <p className="text-sm text-content-muted mt-1">Configure the public appearance and contact details of the scholarship portal.</p>
         </div>
-        <button
-          onClick={() => saveMutation.mutate(form)}
-          disabled={saveMutation.isPending}
-          className="inline-flex items-center gap-2 bg-primary text-on-primary text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 shrink-0"
-        >
-          {saveMutation.isPending ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />} Save Changes
-        </button>
+        <div className="flex flex-col sm:items-end gap-1 shrink-0">
+          <button
+            onClick={() => saveMutation.mutate(form)}
+            disabled={!dirty || saveMutation.isPending}
+            className="inline-flex items-center gap-2 bg-primary text-on-primary text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {saveMutation.isPending ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
+            {dirty ? 'Save Changes' : 'Saved'}
+          </button>
+          <p className="text-xs text-content-muted">Theme applies live · other settings save on submit</p>
+        </div>
+      </div>
+
+      {/* Sticky section nav — jump between sections */}
+      <div className="sticky top-0 z-10 -mt-2 py-2 bg-surface-alt/90 backdrop-blur-sm flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
+        {SECTIONS.map((s) => (
+          <button
+            key={s.id}
+            onClick={() => scrollToSection(s.id)}
+            className="whitespace-nowrap text-xs font-semibold px-3 py-1.5 rounded-full border border-border bg-surface text-content-muted hover:border-primary hover:text-primary transition-colors"
+          >
+            {s.label}
+          </button>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: forms */}
         <div className="lg:col-span-2 flex flex-col gap-6">
           {/* General branding */}
-          <section className="bg-surface border border-border rounded-xl shadow-card p-6">
+          <section id="general" className="scroll-mt-20 bg-surface border border-border rounded-xl shadow-card p-6">
             <h2 className="text-base font-bold text-content inline-flex items-center gap-2 pb-4 mb-5 border-b border-border">
               <Palette size={17} className="text-primary" /> General Branding
             </h2>
@@ -225,7 +281,7 @@ export function MaintenanceProfilePage() {
           </section>
 
           {/* Office contact */}
-          <section className="bg-surface border border-border rounded-xl shadow-card p-6">
+          <section id="contact" className="scroll-mt-20 bg-surface border border-border rounded-xl shadow-card p-6">
             <h2 className="text-base font-bold text-content inline-flex items-center gap-2 pb-4 mb-5 border-b border-border">
               <Contact size={17} className="text-primary" /> Office Contact Information
             </h2>
@@ -245,7 +301,7 @@ export function MaintenanceProfilePage() {
           </section>
 
           {/* Content options */}
-          <section className="bg-surface border border-border rounded-xl shadow-card p-6">
+          <section id="public" className="scroll-mt-20 bg-surface border border-border rounded-xl shadow-card p-6">
             <h2 className="text-base font-bold text-content inline-flex items-center gap-2 pb-4 mb-5 border-b border-border">
               <Video size={17} className="text-primary" /> Public Content
             </h2>
@@ -286,7 +342,7 @@ export function MaintenanceProfilePage() {
           </section>
 
           {/* Application & lifecycle options */}
-          <section className="bg-surface border border-border rounded-xl shadow-card p-6">
+          <section id="application" className="scroll-mt-20 bg-surface border border-border rounded-xl shadow-card p-6">
             <h2 className="text-base font-bold text-content inline-flex items-center gap-2 pb-4 mb-5 border-b border-border">
               <ClipboardList size={17} className="text-primary" /> Application &amp; Lifecycle
             </h2>
@@ -330,7 +386,7 @@ export function MaintenanceProfilePage() {
 
         {/* Right: theme + preview */}
         <aside className="flex flex-col gap-6">
-          <section className="bg-surface border border-border rounded-xl shadow-card p-6">
+          <section id="theme" className="scroll-mt-20 bg-surface border border-border rounded-xl shadow-card p-6">
             <h2 className="text-base font-bold text-content inline-flex items-center gap-2 mb-4">
               <Palette size={17} className="text-primary" /> UI Theme
             </h2>
@@ -450,6 +506,40 @@ export function MaintenanceProfilePage() {
           </section>
         </aside>
       </div>
+
+      {/* Sticky unsaved-changes bar — always reachable on the long page */}
+      {dirty && (
+        <div className="sticky bottom-4 z-20 flex items-center justify-between gap-3 rounded-xl border border-border bg-surface shadow-modal px-5 py-3">
+          <p className="text-sm text-content inline-flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-secondary shrink-0" /> You have unsaved changes
+          </p>
+          <div className="flex items-center gap-2 shrink-0">
+            <button onClick={() => setEdits({})} className="text-sm font-medium text-content-muted px-3 py-2 rounded-lg hover:text-content transition-colors">Discard</button>
+            <button
+              onClick={() => saveMutation.mutate(form)}
+              disabled={saveMutation.isPending}
+              className="inline-flex items-center gap-2 bg-primary text-on-primary text-sm font-semibold px-5 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
+            >
+              {saveMutation.isPending ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />} Save Changes
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Leave-with-unsaved-changes guard */}
+      {blocker.state === 'blocked' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40" onClick={() => blocker.reset()} />
+          <div ref={guardRef} role="dialog" aria-modal="true" aria-labelledby="unsaved-title" className="relative bg-surface rounded-xl shadow-modal w-full max-w-sm p-6">
+            <h3 id="unsaved-title" className="text-base font-bold text-content">Discard unsaved changes?</h3>
+            <p className="text-sm text-content-muted mt-1.5 leading-relaxed">You have edits that haven&rsquo;t been saved. Leaving now will lose them.</p>
+            <div className="flex items-center justify-end gap-3 mt-6">
+              <button onClick={() => blocker.reset()} className="text-sm font-medium text-content-muted px-4 py-2 rounded-lg hover:text-content transition-colors">Keep editing</button>
+              <button onClick={discard} className="text-sm font-semibold bg-danger text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">Discard &amp; leave</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

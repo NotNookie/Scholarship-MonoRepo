@@ -50,6 +50,7 @@ import { MaintenanceCyclesPage } from '../pages/admin/MaintenanceCyclesPage'
 import { MaintenanceEligibilityPage } from '../pages/admin/MaintenanceEligibilityPage'
 import { MaintenanceProfilePage } from '../pages/admin/MaintenanceProfilePage'
 import { MaintenanceFeaturesPage } from '../pages/admin/MaintenanceFeaturesPage'
+import { SettingsLayout } from '../pages/admin/SettingsLayout'
 import { RequestSupportPage } from '../pages/admin/RequestSupportPage'
 
 // Platform (Super Admin) pages
@@ -150,12 +151,18 @@ export const router = createBrowserRouter([
       { path: 'activity',      element: <ActivityLogsPage /> },
       { path: 'support',       element: <RequestSupportPage /> },
       { path: 'users',         element: <UsersPage /> },
-      { path: 'maintenance',          element: <MaintenancePage /> },
-      { path: 'maintenance/policies', element: <MaintenancePoliciesPage /> },
-      { path: 'maintenance/cycles',      element: <MaintenanceCyclesPage /> },
-      { path: 'maintenance/eligibility', element: <MaintenanceEligibilityPage /> },
-      { path: 'maintenance/profile',  element: <MaintenanceProfilePage /> },
-      { path: 'maintenance/features', element: <MaintenanceFeaturesPage /> },
+      {
+        path: 'maintenance',
+        element: <SettingsLayout />,
+        children: [
+          { index: true, element: <MaintenancePage /> },
+          { path: 'policies', element: <MaintenancePoliciesPage /> },
+          { path: 'cycles', element: <MaintenanceCyclesPage /> },
+          { path: 'eligibility', element: <MaintenanceEligibilityPage /> },
+          { path: 'profile', element: <MaintenanceProfilePage /> },
+          { path: 'features', element: <MaintenanceFeaturesPage /> },
+        ],
+      },
     ],
   },
 
