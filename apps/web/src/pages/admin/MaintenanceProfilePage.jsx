@@ -41,18 +41,25 @@ const SECTIONS = [
 ]
 const scrollToSection = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
-// A colour swatch (opens the OS colour wheel) paired with a hex field.
+// A colour swatch (opens the OS colour wheel) paired with a hex field. The
+// swatch shows a pipette badge + hover ring so it clearly reads as "click to
+// open the picker".
 function ColorField({ label, value, onChange }) {
   const hex = isHex(value) ? value : '#000000'
   return (
     <div className="flex items-center gap-2.5">
-      <input
-        type="color"
-        value={hex}
-        onChange={(e) => onChange(e.target.value)}
-        aria-label={`${label} colour`}
-        className="w-9 h-9 rounded-lg border border-border cursor-pointer bg-transparent p-0.5 shrink-0"
-      />
+      <div className="relative shrink-0 group" title="Click to open the colour picker">
+        <input
+          type="color"
+          value={hex}
+          onChange={(e) => onChange(e.target.value)}
+          aria-label={`${label} colour — click to open the colour picker`}
+          className="w-10 h-10 rounded-lg border border-border cursor-pointer bg-transparent p-0.5 transition-all group-hover:border-primary group-hover:ring-2 group-hover:ring-primary/25"
+        />
+        <span className="pointer-events-none absolute -bottom-1 -right-1 w-[18px] h-[18px] rounded-full bg-surface border border-border shadow-sm flex items-center justify-center">
+          <Pipette size={10} className="text-content-muted group-hover:text-primary transition-colors" />
+        </span>
+      </div>
       <div className="flex-1 min-w-0">
         <p className="text-xs text-content-muted leading-tight">{label}</p>
         <input
@@ -434,6 +441,9 @@ export function MaintenanceProfilePage() {
             {/* Custom editor */}
             {isCustom && (
               <div className="mt-4 pt-4 border-t border-border flex flex-col gap-4">
+                <p className="text-xs text-content-muted -mb-1 inline-flex items-center gap-1.5">
+                  <Pipette size={12} className="text-primary" /> Click a swatch to open the colour wheel, or type a hex code.
+                </p>
                 <ColorField label="Primary (brand)" value={custom.primary} onChange={setBase('primary')} />
                 <ColorField label="Secondary (accent)" value={custom.secondary} onChange={setBase('secondary')} />
 
