@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useAuthStore } from '../store/authStore'
+import { installMockAdapter } from '../mocks/adapter'
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -25,3 +26,9 @@ api.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+// DEV-ONLY: serve /admin/* from an in-memory demo dataset so the admin portal
+// renders full without a backend. Dead-code-eliminated in production builds.
+if (import.meta.env.DEV) {
+  installMockAdapter(api)
+}
