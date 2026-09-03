@@ -20,6 +20,7 @@ import {
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
 import { useDialog } from '../../lib/useDialog'
+import { undoToast } from '../../lib/undoToast'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { StatusPill } from '../../components/shared/StatusPill'
@@ -90,22 +91,6 @@ function formatDate(value) {
 
 function applicantName(a) {
   return a.applicant_name ?? ([a.first_name, a.last_name].filter(Boolean).join(' ') || 'Unnamed Applicant')
-}
-
-// Toast with an Undo affordance — reversible actions beat a confirm every time.
-function undoToast(message, onUndo) {
-  toast((t) => (
-    <span className="flex items-center gap-3 text-sm text-content">
-      <CheckCircle2 size={16} className="text-tertiary-dark shrink-0" />
-      {message}
-      <button
-        onClick={() => { onUndo(); toast.dismiss(t.id) }}
-        className="font-semibold text-primary hover:underline shrink-0"
-      >
-        Undo
-      </button>
-    </span>
-  ), { duration: 6000 })
 }
 
 const DECISION_LABEL = { approve: 'approved', approved: 'approved', rejected: 'rejected', reject: 'rejected', incomplete: 'marked incomplete' }

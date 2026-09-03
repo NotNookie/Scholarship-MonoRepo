@@ -6,6 +6,7 @@ import {
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
 import { useDialog } from '../../lib/useDialog'
+import { undoToast } from '../../lib/undoToast'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { useBrand } from '../../tenant/TenantContext'
 
@@ -34,11 +35,6 @@ function lastActive(v) {
   const yst = new Date(today); yst.setDate(today.getDate() - 1)
   if (d.toDateString() === yst.toDateString()) return `Yesterday, ${d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' })}`
   return d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })
-}
-
-function RoleBadge({ role }) {
-  const cfg = ROLES[role] ?? { label: role ?? '—', cls: 'bg-surface-alt text-content-muted border-border' }
-  return <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full border ${cfg.cls}`}>{cfg.label}</span>
 }
 function StatusPill({ status }) {
   const active = status !== 'inactive'
@@ -157,9 +153,28 @@ export function UsersPage() {
   })
   const toggleMutation = useMutation({
     mutationFn: (u) => api.patch(`/admin/users/${u.id}`, { status: u.status === 'inactive' ? 'active' : 'inactive' }),
-    onSuccess: (_r, u) => { toast.success(u.status === 'inactive' ? 'User activated.' : 'User deactivated.'); invalidate() },
+    onSuccess: (_r, u) => {
+      undoToast(`${u.name} ${u.status === 'inactive' ? 'activated' : 'deactivated'}.`, () => {
+        api.patch(`/admin/users/${u.id}`, { status: u.status }).then(invalidate)
+      })
+      invalidate()
+    },
     onError: (e) => toast.error(e?.response?.data?.message ?? 'Action failed.'),
   })
+  const roleMutation = useMutation({
+    mutationFn: ({ id, role }) => api.patch(`/admin/users/${id}`, { role }),
+    onSuccess: (_r, v) => {
+      undoToast(`${v.name} is now ${ROLES[v.role]?.label ?? v.role}.`, () => {
+        api.patch(`/admin/users/${v.id}`, { role: v.prevRole }).then(invalidate)
+      })
+      invalidate()
+    },
+    onError: (e) => toast.error(e?.response?.data?.message ?? 'Could not change role.'),
+  })
+  function changeRole(u, newRole) {
+    if (newRole === u.role) return
+    roleMutation.mutate({ id: u.id, name: u.name, role: newRole, prevRole: u.role })
+  }
   const deleteMutation = useMutation({
     mutationFn: (u) => api.delete(`/admin/users/${u.id}`),
     onSuccess: () => { toast.success('User removed.'); invalidate(); setModal(null) },
@@ -259,7 +274,16 @@ export function UsersPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-5 py-4"><RoleBadge role={u.role} /></td>
+                      <td className="px-5 py-4">
+                        <select
+                          value={u.role}
+                          onChange={(e) => changeRole(u, e.target.value)}
+                          aria-label={`Role for ${u.name}`}
+                          className="text-xs font-semibold border border-border rounded-lg px-2.5 py-1.5 bg-surface text-content focus:outline-none focus:border-primary"
+                        >
+                          {ROLE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                        </select>
+                      </td>
                       <td className="px-5 py-4"><StatusPill status={u.status} /></td>
                       <td className="px-5 py-4 text-sm text-content-muted whitespace-nowrap">{lastActive(u.last_active_at)}</td>
                       <td className="px-5 py-4">

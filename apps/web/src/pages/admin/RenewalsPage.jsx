@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
@@ -8,6 +8,7 @@ import {
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
 import { useDialog } from '../../lib/useDialog'
+import { undoToast } from '../../lib/undoToast'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { StatusPill } from '../../components/shared/StatusPill'
@@ -277,6 +278,8 @@ export function RenewalsPage() {
   const [search, setSearch] = useState('')
   const [needsAction, setNeedsAction] = useState(false)
   const [modalType, setModalType] = useState(null)
+  const [bulkType, setBulkType] = useState(null)
+  const [checked, setChecked] = useState(() => new Set())
 
   const renewalsQuery = useQuery({
     queryKey: ['admin', 'renewals'],
@@ -307,14 +310,17 @@ export function RenewalsPage() {
     queryClient.invalidateQueries({ queryKey: ['admin', 'scholars'] })
   }
 
+  const revertMutation = useMutation({
+    mutationFn: (id) => api.post(`/admin/renewals/${id}/revert`),
+    onSuccess: () => { toast.success('Decision undone.'); invalidate() },
+  })
+
   const decisionMutation = useMutation({
     mutationFn: ({ id, decision, remarks }) => api.post(`/admin/renewals/${id}/decision`, { decision, remarks }),
     onSuccess: (_r, v) => {
-      toast.success(
-        v.decision === 'approved' ? 'Renewal approved.'
-        : v.decision === 'terminated' ? 'Scholarship terminated.'
-        : 'Correction requested.',
-      )
+      const name = scholarName(renewals.find((r) => String(r.id) === String(v.id)) ?? {})
+      if (v.decision === 'correction') toast.success('Correction requested.')
+      else undoToast(`Renewal ${v.decision === 'approved' ? 'approved' : 'terminated'} — ${name}.`, () => revertMutation.mutate(v.id))
       invalidate()
       setModalType(null)
     },
@@ -327,12 +333,49 @@ export function RenewalsPage() {
     onError: (e) => toast.error(e?.response?.data?.message ?? 'Could not update document.'),
   })
 
+  const checkedIds = filtered.filter((r) => checked.has(r.id)).map((r) => r.id)
+  const bulkMutation = useMutation({
+    mutationFn: ({ ids, decision, remarks }) => api.post('/admin/renewals/bulk-decision', { ids, decision, remarks }),
+    onSuccess: (_r, v) => {
+      const ids = v.ids
+      if (v.decision === 'correction') toast.success(`Correction requested on ${ids.length} renewal${ids.length === 1 ? '' : 's'}.`)
+      else undoToast(`${ids.length} renewal${ids.length === 1 ? '' : 's'} ${v.decision === 'approved' ? 'approved' : 'terminated'}.`, () => {
+        api.post('/admin/renewals/bulk-revert', { ids }).then(() => { toast.success('Bulk decision undone.'); invalidate() })
+      })
+      invalidate(); setBulkType(null); setChecked(new Set())
+    },
+    onError: (e) => toast.error(e?.response?.data?.message ?? 'Bulk action failed.'),
+  })
+
+  function toggleCheck(id) {
+    setChecked((prev) => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n })
+  }
+
   const busy = decisionMutation.isPending || docMutation.isPending
   const pendingCount = renewals.filter((r) => r.status === 'pending').length
+  const isDecided = (r) => !!r && (r.status === 'approved' || r.status === 'rejected')
 
   function select(id) {
     setParams(id ? { scholar: String(id) } : {}, { replace: true })
   }
+
+  // Keyboard triage: j/k move through the list; a/r/i decide the selected scholar.
+  useEffect(() => {
+    function onKey(e) {
+      const tag = document.activeElement?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+      if (document.querySelector('[role="dialog"]')) return
+      if (!filtered.length) return
+      const idx = filtered.findIndex((r) => String(r.id) === String(selectedId))
+      if (e.key === 'j' || e.key === 'ArrowDown') { e.preventDefault(); select((filtered[Math.min(idx + 1, filtered.length - 1)] ?? filtered[0]).id) }
+      else if (e.key === 'k' || e.key === 'ArrowUp') { e.preventDefault(); select((filtered[Math.max(idx - 1, 0)] ?? filtered[0]).id) }
+      else if ((e.key === 'a' || e.key === 'r' || e.key === 'i') && selected && !isDecided(selected)) {
+        setModalType({ a: 'approved', r: 'terminated', i: 'correction' }[e.key])
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [filtered, selectedId, selected]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="flex flex-col h-[calc(100vh-7rem)] -m-6">
@@ -344,7 +387,13 @@ export function RenewalsPage() {
           </Link>
           <h1 className="text-lg font-bold text-content">Renewal Review</h1>
         </div>
-        <span className="text-xs text-content-muted shrink-0">{pendingCount} pending</span>
+        <div className="flex items-center gap-3 shrink-0">
+          <p className="hidden lg:block text-xs text-content-muted">
+            <kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">j</kbd>/<kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">k</kbd> move ·{' '}
+            <kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">a</kbd>/<kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">r</kbd>/<kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">i</kbd> decide
+          </p>
+          <span className="text-xs text-content-muted">{pendingCount} pending</span>
+        </div>
       </div>
 
       <div className="flex-1 flex min-h-0">
@@ -366,6 +415,18 @@ export function RenewalsPage() {
             </div>
           </div>
 
+          {checkedIds.length > 0 && (
+            <div className="px-4 py-2.5 border-b border-border bg-primary-light flex items-center gap-2 shrink-0">
+              <span className="text-xs font-semibold text-primary shrink-0">{checkedIds.length} selected</span>
+              <div className="flex items-center gap-1.5 ml-auto">
+                <button onClick={() => setBulkType('approved')} className="text-xs font-semibold text-tertiary-dark border border-tertiary/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-tertiary-light transition-colors">Approve</button>
+                <button onClick={() => setBulkType('correction')} className="text-xs font-semibold text-on-secondary border border-secondary/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-secondary-light transition-colors">Correction</button>
+                <button onClick={() => setBulkType('terminated')} className="text-xs font-semibold text-danger border border-danger/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-danger-light transition-colors">Terminate</button>
+                <button onClick={() => setChecked(new Set())} className="text-xs font-medium text-content-muted hover:text-content px-1.5 py-1" aria-label="Clear selection">Clear</button>
+              </div>
+            </div>
+          )}
+
           <div className="flex-1 overflow-auto min-h-0">
             {renewalsQuery.isPending ? (
               <div className="p-4 space-y-4">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-28 w-full rounded-lg" />)}</div>
@@ -374,24 +435,28 @@ export function RenewalsPage() {
                 const policy = resolvePolicy(r, policies)
                 const active = String(r.id) === String(selectedId)
                 return (
-                  <button key={r.id} onClick={() => select(r.id)}
-                    className={`w-full text-left px-4 py-4 border-b border-border transition-colors ${active ? 'bg-primary-light border-l-4 border-l-primary' : 'hover:bg-surface-alt'}`}>
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <p className={`text-sm font-semibold truncate ${active ? 'text-primary' : 'text-content'}`}>{scholarName(r)}</p>
-                      <RenewalPill status={r.status} />
-                    </div>
-                    <p className="text-xs text-content-muted truncate mb-3">{r.program ?? '—'}</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="border border-border rounded-lg px-3 py-2 bg-surface">
-                        <p className="text-[10px] font-semibold text-content-muted uppercase">Submitted GWA</p>
-                        <p className="text-sm font-bold text-content">{r.submitted_gwa ?? '—'}</p>
+                  <div key={r.id} className={`flex items-stretch border-b border-border transition-colors ${active ? 'bg-primary-light' : checked.has(r.id) ? 'bg-primary-light/40' : 'hover:bg-surface-alt'}`}>
+                    <label className="flex items-center pl-3.5 pr-1 cursor-pointer shrink-0">
+                      <input type="checkbox" checked={checked.has(r.id)} onChange={() => toggleCheck(r.id)} className="w-4 h-4 accent-primary" aria-label={`Select ${scholarName(r)} for bulk action`} />
+                    </label>
+                    <button onClick={() => select(r.id)} className="flex-1 text-left pl-2 pr-4 py-4 min-w-0">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <p className={`text-sm font-semibold truncate ${active ? 'text-primary' : 'text-content'}`}>{scholarName(r)}</p>
+                        <RenewalPill status={r.status} />
                       </div>
-                      <div className="border border-border rounded-lg px-3 py-2 bg-surface">
-                        <p className="text-[10px] font-semibold text-content-muted uppercase">Required GWA</p>
-                        <p className="text-sm font-bold text-content">{policy ? policy.min : '—'}</p>
+                      <p className="text-xs text-content-muted truncate mb-3">{r.program ?? '—'}</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="border border-border rounded-lg px-3 py-2 bg-surface">
+                          <p className="text-[10px] font-semibold text-content-muted uppercase">Submitted GWA</p>
+                          <p className="text-sm font-bold text-content">{r.submitted_gwa ?? '—'}</p>
+                        </div>
+                        <div className="border border-border rounded-lg px-3 py-2 bg-surface">
+                          <p className="text-[10px] font-semibold text-content-muted uppercase">Required GWA</p>
+                          <p className="text-sm font-bold text-content">{policy ? policy.min : '—'}</p>
+                        </div>
                       </div>
-                    </div>
-                  </button>
+                    </button>
+                  </div>
                 )
               })
             ) : (
@@ -429,6 +494,15 @@ export function RenewalsPage() {
           isPending={decisionMutation.isPending}
           onClose={() => setModalType(null)}
           onConfirm={(remarks) => decisionMutation.mutate({ id: selected.id, decision: modalType, remarks })}
+        />
+      )}
+
+      {bulkType && (
+        <ActionModal
+          type={bulkType}
+          isPending={bulkMutation.isPending}
+          onClose={() => setBulkType(null)}
+          onConfirm={(remarks) => bulkMutation.mutate({ ids: checkedIds, decision: bulkType, remarks })}
         />
       )}
     </div>

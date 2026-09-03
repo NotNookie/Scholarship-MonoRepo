@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   ChevronLeft,
@@ -17,6 +18,7 @@ import {
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
 import { useDialog } from '../../lib/useDialog'
+import { undoToast } from '../../lib/undoToast'
 import { Skeleton } from '../../components/shared/Skeleton'
 
 // ── Appeal status config ──────────────────────────────────────
@@ -149,20 +151,22 @@ function ActionModal({ type, isPending, onConfirm, onClose }) {
 
 // ── List row ──────────────────────────────────────────────────
 
-function AppealRow({ appeal, active, onSelect }) {
+function AppealRow({ appeal, active, onSelect, checked, onToggle }) {
   return (
-    <button
-      onClick={() => onSelect(appeal.id)}
-      className={`w-full text-left px-4 py-3.5 border-b border-border transition-colors ${active ? 'bg-primary-light' : 'hover:bg-surface-alt'}`}
-    >
-      <div className="flex items-center justify-between gap-2 mb-1">
-        <p className={`text-sm font-semibold truncate ${active ? 'text-primary' : 'text-content'}`}>{appellantName(appeal)}</p>
-        <AppealStatusPill status={appeal.status} size="sm" />
-      </div>
-      <p className="text-xs text-content-muted truncate">{appeal.reference_no ?? appeal.application_id}</p>
-      {appeal.reason && <p className="text-xs font-medium text-content mt-1 truncate">{appeal.reason}</p>}
-      {appeal.statement && <p className="text-xs text-content-muted mt-0.5 line-clamp-2 leading-snug">"{appeal.statement}"</p>}
-    </button>
+    <div className={`flex items-stretch border-b border-border transition-colors ${active ? 'bg-primary-light' : checked ? 'bg-primary-light/40' : 'hover:bg-surface-alt'}`}>
+      <label className="flex items-center pl-3.5 pr-1 cursor-pointer shrink-0">
+        <input type="checkbox" checked={checked} onChange={() => onToggle(appeal.id)} className="w-4 h-4 accent-primary" aria-label={`Select ${appellantName(appeal)} for bulk action`} />
+      </label>
+      <button onClick={() => onSelect(appeal.id)} className="flex-1 text-left pl-2 pr-4 py-3.5 min-w-0">
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <p className={`text-sm font-semibold truncate ${active ? 'text-primary' : 'text-content'}`}>{appellantName(appeal)}</p>
+          <AppealStatusPill status={appeal.status} size="sm" />
+        </div>
+        <p className="text-xs text-content-muted truncate">{appeal.reference_no ?? appeal.application_id}</p>
+        {appeal.reason && <p className="text-xs font-medium text-content mt-1 truncate">{appeal.reason}</p>}
+        {appeal.statement && <p className="text-xs text-content-muted mt-0.5 line-clamp-2 leading-snug">"{appeal.statement}"</p>}
+      </button>
+    </div>
   )
 }
 
@@ -290,37 +294,85 @@ function APPLICATION_LABEL(status) {
 
 export function AppealsPage() {
   const queryClient = useQueryClient()
-  const [filter, setFilter] = useState('pending')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const filter = searchParams.get('status') ?? 'pending'
   const [selectedId, setSelectedId] = useState(null)
-  const [modalType, setModalType] = useState(null)
+  const [modalType, setModalType] = useState(null)   // single decision modal
+  const [bulkType, setBulkType] = useState(null)      // bulk decision modal
+  const [checked, setChecked] = useState(() => new Set())
+
+  function setFilter(f) {
+    setSearchParams(f === 'pending' ? {} : { status: f }, { replace: true })
+    setSelectedId(null); setChecked(new Set())
+  }
 
   const { data, isPending } = useQuery({
     queryKey: ['admin', 'appeals', filter],
-    queryFn: () => {
-      const q = filter === 'all' ? '' : `?status=${filter}`
-      return api.get(`/admin/appeals${q}`).then((r) => r.data)
-    },
+    queryFn: () => api.get(`/admin/appeals${filter === 'all' ? '' : `?status=${filter}`}`).then((r) => r.data),
     retry: false,
   })
 
   const appeals = useMemo(() => data?.data ?? [], [data])
   const selected = appeals.find((a) => a.id === selectedId) ?? null
+  const isDecided = (a) => !!a && (a.status === 'approved' || a.status === 'rejected')
+
+  function invalidate() {
+    queryClient.invalidateQueries({ queryKey: ['admin', 'appeals'] })
+    queryClient.invalidateQueries({ queryKey: ['admin', 'applications'] })
+  }
+
+  const revertMutation = useMutation({
+    mutationFn: (id) => api.post(`/admin/appeals/${id}/revert`),
+    onSuccess: () => { toast.success('Decision undone.'); invalidate() },
+  })
 
   const decisionMutation = useMutation({
-    mutationFn: ({ id, decision, remarks }) =>
-      api.post(`/admin/appeals/${id}/decision`, { decision, remarks }),
+    mutationFn: ({ id, decision, remarks }) => api.post(`/admin/appeals/${id}/decision`, { decision, remarks }),
     onSuccess: (_r, vars) => {
-      toast.success(
-        vars.decision === 'approved' ? 'Appeal approved — application reopened.'
-        : vars.decision === 'rejected' ? 'Appeal rejected.'
-        : 'Information request sent.'
-      )
-      queryClient.invalidateQueries({ queryKey: ['admin', 'appeals'] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'applications'] })
-      setModalType(null)
+      const name = appellantName(appeals.find((a) => a.id === vars.id) ?? {})
+      if (vars.decision === 'more_info') toast.success('Information request sent.')
+      else undoToast(`Appeal ${vars.decision === 'approved' ? 'approved' : 'rejected'} — ${name}.`, () => revertMutation.mutate(vars.id))
+      invalidate(); setModalType(null)
     },
     onError: (e) => toast.error(e?.response?.data?.message ?? 'Action failed. Please try again.'),
   })
+
+  const checkedIds = appeals.filter((a) => checked.has(a.id)).map((a) => a.id)
+  const bulkMutation = useMutation({
+    mutationFn: ({ ids, decision, remarks }) => api.post('/admin/appeals/bulk-decision', { ids, decision, remarks }),
+    onSuccess: (_r, vars) => {
+      const ids = vars.ids
+      if (vars.decision !== 'more_info') {
+        undoToast(`${ids.length} appeal${ids.length === 1 ? '' : 's'} ${vars.decision === 'approved' ? 'approved' : 'rejected'}.`, () => {
+          api.post('/admin/appeals/bulk-revert', { ids }).then(() => { toast.success('Bulk decision undone.'); invalidate() })
+        })
+      } else toast.success(`Info requested on ${ids.length} appeal${ids.length === 1 ? '' : 's'}.`)
+      invalidate(); setBulkType(null); setChecked(new Set())
+    },
+    onError: (e) => toast.error(e?.response?.data?.message ?? 'Bulk action failed.'),
+  })
+
+  function toggleCheck(id) {
+    setChecked((prev) => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n })
+  }
+
+  // Keyboard triage: j/k move through the list; a/r/i decide the selected appeal.
+  useEffect(() => {
+    function onKey(e) {
+      const tag = document.activeElement?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+      if (document.querySelector('[role="dialog"]')) return
+      if (!appeals.length) return
+      const idx = appeals.findIndex((a) => a.id === selectedId)
+      if (e.key === 'j' || e.key === 'ArrowDown') { e.preventDefault(); setSelectedId((appeals[Math.min(idx + 1, appeals.length - 1)] ?? appeals[0]).id) }
+      else if (e.key === 'k' || e.key === 'ArrowUp') { e.preventDefault(); setSelectedId((appeals[Math.max(idx - 1, 0)] ?? appeals[0]).id) }
+      else if ((e.key === 'a' || e.key === 'r' || e.key === 'i') && selected && !isDecided(selected)) {
+        setModalType({ a: 'approved', r: 'rejected', i: 'more_info' }[e.key])
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [appeals, selectedId, selected])
 
   const pendingCount = appeals.filter((a) => a.status === 'pending').length
 
@@ -332,13 +384,19 @@ export function AppealsPage() {
           <h1 className="text-lg font-bold text-content">Appeal Handling</h1>
           <p className="text-xs text-content-muted mt-0.5">Review and adjudicate scholarship appeals.</p>
         </div>
-        <select
-          value={filter}
-          onChange={(e) => { setFilter(e.target.value); setSelectedId(null) }}
-          className="text-sm border border-border rounded-lg px-3 py-2 bg-surface text-content focus:outline-none focus:border-primary self-start sm:self-auto"
-        >
-          {FILTERS.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
-        </select>
+        <div className="flex items-center gap-3 self-start sm:self-auto">
+          <p className="hidden lg:block text-xs text-content-muted">
+            <kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">j</kbd>/<kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">k</kbd> move ·{' '}
+            <kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">a</kbd>/<kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">r</kbd>/<kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">i</kbd> decide
+          </p>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="text-sm border border-border rounded-lg px-3 py-2 bg-surface text-content focus:outline-none focus:border-primary"
+          >
+            {FILTERS.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
+          </select>
+        </div>
       </div>
 
       <div className="flex-1 flex min-h-0">
@@ -350,6 +408,19 @@ export function AppealsPage() {
               <span className="ml-1.5 text-content-muted">({isPending ? '…' : appeals.length})</span>
             </p>
           </div>
+
+          {checkedIds.length > 0 && (
+            <div className="px-4 py-2.5 border-b border-border bg-primary-light flex items-center gap-2 shrink-0">
+              <span className="text-xs font-semibold text-primary shrink-0">{checkedIds.length} selected</span>
+              <div className="flex items-center gap-1.5 ml-auto">
+                <button onClick={() => setBulkType('approved')} className="text-xs font-semibold text-tertiary-dark border border-tertiary/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-tertiary-light transition-colors">Approve</button>
+                <button onClick={() => setBulkType('more_info')} className="text-xs font-semibold text-on-secondary border border-secondary/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-secondary-light transition-colors">Request info</button>
+                <button onClick={() => setBulkType('rejected')} className="text-xs font-semibold text-danger border border-danger/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-danger-light transition-colors">Reject</button>
+                <button onClick={() => setChecked(new Set())} className="text-xs font-medium text-content-muted hover:text-content px-1.5 py-1" aria-label="Clear selection">Clear</button>
+              </div>
+            </div>
+          )}
+
           <div className="flex-1 overflow-auto min-h-0">
             {isPending ? (
               <div className="p-4 space-y-4">
@@ -361,7 +432,7 @@ export function AppealsPage() {
               </div>
             ) : appeals.length > 0 ? (
               appeals.map((a) => (
-                <AppealRow key={a.id} appeal={a} active={a.id === selectedId} onSelect={setSelectedId} />
+                <AppealRow key={a.id} appeal={a} active={a.id === selectedId} onSelect={setSelectedId} checked={checked.has(a.id)} onToggle={toggleCheck} />
               ))
             ) : (
               <div className="flex flex-col items-center justify-center text-center gap-3 py-20 px-6">
@@ -392,6 +463,15 @@ export function AppealsPage() {
           isPending={decisionMutation.isPending}
           onClose={() => setModalType(null)}
           onConfirm={(remarks) => decisionMutation.mutate({ id: selected.id, decision: modalType, remarks })}
+        />
+      )}
+
+      {bulkType && (
+        <ActionModal
+          type={bulkType}
+          isPending={bulkMutation.isPending}
+          onClose={() => setBulkType(null)}
+          onConfirm={(remarks) => bulkMutation.mutate({ ids: checkedIds, decision: bulkType, remarks })}
         />
       )}
     </div>
