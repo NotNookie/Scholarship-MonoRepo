@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Search,
@@ -528,10 +529,22 @@ function DetailPane({ id, onBack, actionSignal }) {
 
 export function QueuePage() {
   const queryClient = useQueryClient()
-  const [filter, setFilter] = useState('submitted')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const filter = searchParams.get('status') ?? 'submitted'
+  const year = searchParams.get('ay') ?? 'all'
   const [search, setSearch] = useState('')
-  const [year, setYear] = useState('all')
   const [selectedId, setSelectedId] = useState(null)
+
+  function setFilter(f) {
+    const n = new URLSearchParams(searchParams)
+    if (f === 'submitted') n.delete('status'); else n.set('status', f)
+    setSearchParams(n, { replace: true })
+  }
+  function setYear(y) {
+    const n = new URLSearchParams(searchParams)
+    if (y === 'all') n.delete('ay'); else n.set('ay', y)
+    setSearchParams(n, { replace: true })
+  }
   const [checked, setChecked] = useState(() => new Set()) // bulk selection
   const [actionSignal, setActionSignal] = useState(null)  // keyboard a/r/i → detail
   const [bulkModal, setBulkModal] = useState(null)        // { type }

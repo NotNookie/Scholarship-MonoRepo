@@ -12,11 +12,16 @@ import {
   ChevronRight,
   Plus,
   Inbox,
+  AlertTriangle,
+  Gavel,
+  RefreshCw,
+  CheckCircle2,
 } from 'lucide-react'
 import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { StatusPill } from '../../components/shared/StatusPill'
+import { scholarStatus } from '../../components/admin/scholars/scholarUtils'
 
 // ── Helpers ───────────────────────────────────────────────────
 
@@ -48,6 +53,12 @@ const TONES = {
   amber:   { chip: 'bg-secondary-light text-on-secondary', bar: 'bg-secondary' },
   green:   { chip: 'bg-tertiary-light text-tertiary-dark', bar: 'bg-tertiary' },
   red:     { chip: 'bg-danger-light text-danger',          bar: 'bg-danger' },
+}
+const ATT_TONE = {
+  amber: 'bg-secondary-light text-on-secondary',
+  red: 'bg-danger-light text-danger',
+  blue: 'bg-primary-light text-primary',
+  primary: 'bg-primary-light text-primary',
 }
 
 // ── Stat card ─────────────────────────────────────────────────
@@ -163,12 +174,45 @@ export function AdminDashboardPage() {
     retry: false,
   })
 
+  // Actionable "needs attention" counts.
+  const appealsQuery = useQuery({
+    queryKey: ['admin', 'appeals', 'pending'],
+    queryFn: () => api.get('/admin/appeals?status=pending').then((r) => r.data),
+    retry: false,
+  })
+  const renewalsQuery = useQuery({
+    queryKey: ['admin', 'renewals'],
+    queryFn: () => api.get('/admin/renewals').then((r) => r.data),
+    retry: false,
+  })
+  const scholarsQuery = useQuery({
+    queryKey: ['admin', 'scholars'],
+    queryFn: () => api.get('/admin/scholars').then((r) => r.data),
+    retry: false,
+  })
+  const policiesQuery = useQuery({
+    queryKey: [...queryKeys.maintenance.all, 'policies'],
+    queryFn: () => api.get('/admin/maintenance/policies').then((r) => r.data),
+    retry: false,
+  })
+
   const stats = statsQuery.data ?? {}
   const recent = recentQuery.data?.data ?? []
   const schedules = schedulesQuery.data?.data ?? []
 
   const incompleteRejected =
     stats.incomplete_rejected ?? ((stats.incomplete ?? 0) + (stats.rejected ?? 0))
+
+  const scholars = scholarsQuery.data?.data ?? []
+  const policies = policiesQuery.data?.data ?? []
+  const attention = [
+    { key: 'pending', label: 'Pending review', count: stats.pending_review ?? stats.pending ?? 0, to: '/admin/applications', Icon: ClipboardList, tone: 'amber' },
+    { key: 'atrisk', label: 'Scholars at risk', count: scholars.filter((s) => scholarStatus(s, policies) === 'at_risk').length, to: '/admin/scholars?status=at_risk', Icon: AlertTriangle, tone: 'red' },
+    { key: 'renewals', label: 'Renewals to review', count: (renewalsQuery.data?.data ?? []).filter((r) => r.status === 'pending').length, to: '/admin/scholars/renewals', Icon: RefreshCw, tone: 'blue' },
+    { key: 'appeals', label: 'Open appeals', count: (appealsQuery.data?.data ?? []).length, to: '/admin/appeals?status=pending', Icon: Gavel, tone: 'primary' },
+  ]
+  const attentionLoading = appealsQuery.isPending || renewalsQuery.isPending || scholarsQuery.isPending
+  const totalAttention = attention.reduce((s, a) => s + a.count, 0)
 
   return (
     <div className="flex flex-col gap-6">
@@ -186,6 +230,37 @@ export function AdminDashboardPage() {
           {new Date().toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}
         </div>
       </div>
+
+      {/* ── Needs attention ────────────────────────────────────── */}
+      {attentionLoading ? (
+        <Skeleton className="h-24 w-full rounded-xl" />
+      ) : (
+        <section className="bg-surface border border-border rounded-xl shadow-card overflow-hidden">
+          <div className="px-5 py-3.5 border-b border-border flex items-center gap-2">
+            {totalAttention > 0 ? (
+              <><AlertTriangle size={16} className="text-secondary" /><h2 className="text-sm font-bold text-content">Needs attention today</h2></>
+            ) : (
+              <><CheckCircle2 size={16} className="text-tertiary-dark" /><h2 className="text-sm font-bold text-content">All caught up</h2></>
+            )}
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-border">
+            {attention.map((a) => (
+              <Link key={a.key} to={a.to} className="group bg-surface p-4 flex items-start gap-3 hover:bg-surface-alt transition-colors">
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${ATT_TONE[a.tone]}`}>
+                  <a.Icon size={16} />
+                </div>
+                <div className="min-w-0">
+                  <p className={`text-2xl font-bold leading-none ${a.count > 0 ? 'text-content' : 'text-content-disabled'}`}>{a.count}</p>
+                  <p className="text-xs text-content-muted mt-1 inline-flex items-center gap-1">
+                    {a.label}
+                    <ChevronRight size={11} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ── Stat cards ─────────────────────────────────────────── */}
       {statsQuery.isPending ? (

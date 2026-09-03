@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import {
   useReactTable, getCoreRowModel, getSortedRowModel, getPaginationRowModel, flexRender,
@@ -57,8 +57,14 @@ function SortIcon({ dir }) {
 
 export function ScholarsPage() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const status = searchParams.get('status') ?? 'all'
+  const setStatus = (s) => {
+    const n = new URLSearchParams(searchParams)
+    if (!s || s === 'all') n.delete('status'); else n.set('status', s)
+    setSearchParams(n, { replace: true })
+  }
   const [search, setSearch] = useState('')
-  const [status, setStatus] = useState('all')
   const [program, setProgram] = useState('all')
   const [year, setYear] = useState('all')
   const [sorting, setSorting] = useState([{ id: 'name', desc: false }])

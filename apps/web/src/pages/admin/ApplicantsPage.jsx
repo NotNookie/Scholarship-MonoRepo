@@ -92,6 +92,7 @@ export function ApplicantsPage() {
   const [category, setCategory] = useState('all')
   const [year, setYear] = useState('all')
   const [sorting, setSorting] = useState([{ id: 'submitted', desc: true }])
+  const [selected, setSelected] = useState(() => new Set())
 
   const { data, isPending } = useQuery({
     queryKey: queryKeys.adminApplicants.list({}),
@@ -125,8 +126,30 @@ export function ApplicantsPage() {
     })
   }, [records, search, status, category, year])
 
+  const toggleOne = (id) => setSelected((prev) => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n })
+  const allSelected = filtered.length > 0 && filtered.every((r) => selected.has(r.id))
+  const toggleAll = () => setSelected(allSelected ? new Set() : new Set(filtered.map((r) => r.id)))
+  const selectedRows = filtered.filter((r) => selected.has(r.id))
+
   const columns = useMemo(
     () => [
+      {
+        id: 'select',
+        enableSorting: false,
+        header: () => (
+          <input type="checkbox" checked={allSelected} onChange={toggleAll} aria-label="Select all rows" className="w-4 h-4 accent-primary align-middle" />
+        ),
+        cell: ({ row }) => (
+          <input
+            type="checkbox"
+            checked={selected.has(row.original.id)}
+            onChange={() => toggleOne(row.original.id)}
+            onClick={(e) => e.stopPropagation()}
+            aria-label={`Select ${applicantName(row.original)}`}
+            className="w-4 h-4 accent-primary align-middle"
+          />
+        ),
+      },
       {
         id: 'applicant',
         header: 'Applicant Name',
@@ -171,7 +194,8 @@ export function ApplicantsPage() {
         cell: ({ row }) => <StatusPill status={row.original.status} size="sm" />,
       },
     ],
-    [],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [selected, allSelected, filtered],
   )
 
   const table = useReactTable({
@@ -211,11 +235,11 @@ export function ApplicantsPage() {
           </p>
         </div>
         <button
-          onClick={() => exportCsv(filtered)}
+          onClick={() => exportCsv(selectedRows.length ? selectedRows : filtered)}
           disabled={filtered.length === 0}
           className="inline-flex items-center gap-2 bg-primary text-on-primary text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
         >
-          <Download size={15} /> Export Records
+          <Download size={15} /> {selectedRows.length ? `Export selected (${selectedRows.length})` : 'Export Records'}
         </button>
       </div>
 
