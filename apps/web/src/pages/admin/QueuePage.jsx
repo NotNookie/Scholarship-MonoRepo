@@ -533,7 +533,7 @@ export function QueuePage() {
   const filter = searchParams.get('status') ?? 'submitted'
   const year = searchParams.get('ay') ?? 'all'
   const [search, setSearch] = useState('')
-  const [selectedId, setSelectedId] = useState(null)
+  const [selectedId, setSelectedId] = useState(() => searchParams.get('select'))
 
   function setFilter(f) {
     const n = new URLSearchParams(searchParams)

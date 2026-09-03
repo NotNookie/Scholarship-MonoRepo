@@ -18,8 +18,10 @@ import {
   LifeBuoy,
   ShieldAlert,
   ShieldOff,
+  Search,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { CommandPalette } from '../admin/CommandPalette'
 import { useAuthStore } from '../../store/authStore'
 import { useBrand, useTenant } from '../../tenant/TenantContext'
 import { useImpersonation } from '../../store/impersonationStore'
@@ -240,16 +242,25 @@ export function AdminLayout() {
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-surface border-b border-border flex items-center px-6 shrink-0">
+        <header className="h-16 bg-surface border-b border-border flex items-center px-6 shrink-0 gap-4">
           <span className="text-sm font-semibold text-content">
             {brand.officeShort} Management Portal
           </span>
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('admin:cmdk'))}
+            className="ml-auto inline-flex items-center gap-2 text-sm text-content-muted border border-border rounded-lg pl-3 pr-2 py-1.5 hover:border-primary hover:text-content transition-colors"
+          >
+            <Search size={14} /> Search…
+            <kbd className="text-[10px] font-mono border border-border rounded px-1.5 py-0.5 bg-surface-alt">⌘K</kbd>
+          </button>
         </header>
         <main className="flex-1 bg-surface-alt p-6 overflow-auto">
           <Outlet />
         </main>
         </div>
       </div>
+      <CommandPalette />
     </div>
   )
 }
