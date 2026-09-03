@@ -116,7 +116,7 @@ export function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="h-screen overflow-hidden flex flex-col print:h-auto print:overflow-visible">
       {/* Top banner: operator impersonation (dark), else the tenant's own
           "support access is active" indicator (amber) with revoke. */}
       {isImpersonating ? (
@@ -241,7 +241,7 @@ export function AdminLayout() {
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0">
         <header className="h-16 bg-surface border-b border-border flex items-center px-6 shrink-0 gap-4">
           <span className="text-sm font-semibold text-content">
             {brand.officeShort} Management Portal
