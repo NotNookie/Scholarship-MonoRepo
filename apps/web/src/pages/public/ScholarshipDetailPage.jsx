@@ -17,7 +17,7 @@ function StatusBadge({ status, daysLeft }) {
     return <span className="inline-flex items-center gap-1.5 bg-tertiary-light text-tertiary-dark text-xs font-semibold px-3 py-1.5 rounded-md border border-tertiary/30"><CalendarCheck size={13} /> Accepting Applications</span>
   }
   if (status === 'closing_soon') {
-    return <span className="inline-flex items-center gap-1.5 bg-secondary-light text-on-secondary text-xs font-semibold px-3 py-1.5 rounded-md border border-secondary/30"><Clock size={13} /> Closes in {daysLeft} Days</span>
+    return <span className="inline-flex items-center gap-1.5 bg-secondary-light text-secondary-dark text-xs font-semibold px-3 py-1.5 rounded-md border border-secondary/30"><Clock size={13} /> Closes in {daysLeft} Days</span>
   }
   return <span className="inline-flex items-center gap-1.5 bg-surface-alt text-content-muted text-xs font-semibold px-3 py-1.5 rounded-md border border-border"><Lock size={13} /> Closed</span>
 }

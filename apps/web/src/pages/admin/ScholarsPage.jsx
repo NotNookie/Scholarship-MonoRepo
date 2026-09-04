@@ -26,7 +26,7 @@ function StatusPill({ status }) {
 function StatCard({ Icon, label, value, tone, onClick, active }) {
   const tones = {
     neutral: 'bg-primary-light text-primary',
-    amber: 'bg-secondary-light text-on-secondary',
+    amber: 'bg-secondary-light text-secondary-dark',
     red: 'bg-danger-light text-danger',
     muted: 'bg-surface-alt text-content-muted',
   }

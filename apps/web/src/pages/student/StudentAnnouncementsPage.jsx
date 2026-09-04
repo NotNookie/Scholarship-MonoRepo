@@ -19,7 +19,7 @@ import { useBrand } from '../../tenant/TenantContext'
 // ── Event type config (matches admin scheduling) ──────────────
 
 const EVENT_TYPES = {
-  examination: { label: 'Examination', color: 'text-on-secondary',  bg: 'bg-secondary-light', Icon: PencilLine },
+  examination: { label: 'Examination', color: 'text-secondary-dark',  bg: 'bg-secondary-light', Icon: PencilLine },
   orientation: { label: 'Orientation', color: 'text-tertiary-dark', bg: 'bg-tertiary-light',  Icon: Users },
   payout:      { label: 'Payout',      color: 'text-primary',       bg: 'bg-primary-light',   Icon: CalendarClock },
 }

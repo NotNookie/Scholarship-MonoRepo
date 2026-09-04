@@ -24,7 +24,7 @@ import { Skeleton } from '../../components/shared/Skeleton'
 // ── Appeal status config ──────────────────────────────────────
 
 const APPEAL_STATUS = {
-  pending:   { label: 'Pending',        Icon: Clock,        color: 'text-on-secondary',  bg: 'bg-secondary-light', border: 'border-secondary/30' },
+  pending:   { label: 'Pending',        Icon: Clock,        color: 'text-secondary-dark',  bg: 'bg-secondary-light', border: 'border-secondary/30' },
   more_info: { label: 'Info Requested', Icon: Info,         color: 'text-primary',       bg: 'bg-primary-light',   border: 'border-primary/20' },
   approved:  { label: 'Approved',       Icon: CheckCircle2, color: 'text-tertiary-dark', bg: 'bg-tertiary-light',  border: 'border-tertiary/30' },
   rejected:  { label: 'Rejected',       Icon: XCircle,      color: 'text-danger',        bg: 'bg-danger-light',    border: 'border-danger/30' },
@@ -67,7 +67,7 @@ const MODAL_CONFIG = {
     confirmLabel: 'Send Request',
     confirmCls: 'bg-secondary text-on-secondary hover:opacity-90',
     Icon: MessageSquare,
-    iconCls: 'bg-secondary-light text-on-secondary',
+    iconCls: 'bg-secondary-light text-secondary-dark',
   },
 }
 
@@ -254,7 +254,7 @@ function DetailPane({ appeal, onBack, onAction, busy }) {
           <button
             onClick={() => onAction('more_info')}
             disabled={busy}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm font-semibold border border-border text-on-secondary bg-secondary-light px-5 py-2.5 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm font-semibold border border-border text-secondary-dark bg-secondary-light px-5 py-2.5 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
             <MessageSquare size={15} /> Request More Info
           </button>
@@ -414,7 +414,7 @@ export function AppealsPage() {
               <span className="text-xs font-semibold text-primary shrink-0">{checkedIds.length} selected</span>
               <div className="flex items-center gap-1.5 ml-auto">
                 <button onClick={() => setBulkType('approved')} className="text-xs font-semibold text-tertiary-dark border border-tertiary/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-tertiary-light transition-colors">Approve</button>
-                <button onClick={() => setBulkType('more_info')} className="text-xs font-semibold text-on-secondary border border-secondary/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-secondary-light transition-colors">Request info</button>
+                <button onClick={() => setBulkType('more_info')} className="text-xs font-semibold text-secondary-dark border border-secondary/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-secondary-light transition-colors">Request info</button>
                 <button onClick={() => setBulkType('rejected')} className="text-xs font-semibold text-danger border border-danger/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-danger-light transition-colors">Reject</button>
                 <button onClick={() => setChecked(new Set())} className="text-xs font-medium text-content-muted hover:text-content px-1.5 py-1" aria-label="Clear selection">Clear</button>
               </div>

@@ -70,7 +70,7 @@ const MODAL_CONFIG = {
     confirmLabel: 'Mark Incomplete',
     confirmCls: 'bg-secondary text-on-secondary hover:opacity-90',
     Icon: AlertTriangle,
-    iconCls: 'bg-secondary-light text-on-secondary',
+    iconCls: 'bg-secondary-light text-secondary-dark',
   },
   docReject: {
     title: 'Reject Document',
@@ -480,7 +480,7 @@ function DetailPane({ id, onBack, actionSignal }) {
           <button
             onClick={() => setModal({ type: 'incomplete' })}
             disabled={busy}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm font-semibold border border-border text-on-secondary bg-secondary-light px-5 py-2.5 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm font-semibold border border-border text-secondary-dark bg-secondary-light px-5 py-2.5 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
             <AlertTriangle size={15} /> Mark Incomplete
           </button>
@@ -686,7 +686,7 @@ export function QueuePage() {
               <span className="text-xs font-semibold text-primary shrink-0">{checkedIds.length} selected</span>
               <div className="flex items-center gap-1.5 ml-auto">
                 <button onClick={() => setBulkModal({ type: 'approve' })} className="text-xs font-semibold text-tertiary-dark border border-tertiary/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-tertiary-light transition-colors">Approve</button>
-                <button onClick={() => setBulkModal({ type: 'incomplete' })} className="text-xs font-semibold text-on-secondary border border-secondary/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-secondary-light transition-colors">Incomplete</button>
+                <button onClick={() => setBulkModal({ type: 'incomplete' })} className="text-xs font-semibold text-secondary-dark border border-secondary/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-secondary-light transition-colors">Incomplete</button>
                 <button onClick={() => setBulkModal({ type: 'rejected' })} className="text-xs font-semibold text-danger border border-danger/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-danger-light transition-colors">Reject</button>
                 <button onClick={() => setChecked(new Set())} className="text-xs font-medium text-content-muted hover:text-content px-1.5 py-1" aria-label="Clear selection">Clear</button>
               </div>

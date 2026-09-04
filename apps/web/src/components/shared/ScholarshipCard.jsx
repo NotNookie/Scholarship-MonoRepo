@@ -17,7 +17,7 @@ function StatusBadge({ status, daysLeft }) {
   }
   if (status === 'closing_soon') {
     return (
-      <span className="inline-flex items-center gap-1.5 bg-secondary-light text-on-secondary text-xs font-semibold px-2.5 py-1 rounded-md border border-secondary/30">
+      <span className="inline-flex items-center gap-1.5 bg-secondary-light text-secondary-dark text-xs font-semibold px-2.5 py-1 rounded-md border border-secondary/30">
         <Clock size={12} /> Closes in {daysLeft} Days
       </span>
     )
@@ -55,7 +55,7 @@ export function ScholarshipCard({ scholarship }) {
           aria-pressed={saved}
           className="relative z-10 -m-1 p-1 rounded-md hover:bg-surface-alt transition-colors"
         >
-          <Bookmark size={16} className={`transition-colors ${saved ? 'text-primary fill-primary' : 'text-border hover:text-primary'}`} />
+          <Bookmark size={16} className={`transition-colors ${saved ? 'text-primary fill-primary' : 'text-content-disabled hover:text-primary'}`} />
         </button>
       </div>
 

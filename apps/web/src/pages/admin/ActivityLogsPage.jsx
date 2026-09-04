@@ -11,7 +11,7 @@ import { downloadCsv } from '../../lib/reportExport'
 // ── Action-type config (colours per mockup) ───────────────────
 
 const ACTION_TYPES = {
-  status_update:   { label: 'Status Update',   cls: 'bg-secondary-light text-on-secondary border-secondary/30' },
+  status_update:   { label: 'Status Update',   cls: 'bg-secondary-light text-secondary-dark border-secondary/30' },
   document_review: { label: 'Document Review', cls: 'bg-primary-light text-primary border-primary/20' },
   policy_change:   { label: 'Policy Change',   cls: 'bg-tertiary-light text-tertiary-dark border-tertiary/30' },
   data_export:     { label: 'Data Export',     cls: 'bg-surface-alt text-content-muted border-border' },

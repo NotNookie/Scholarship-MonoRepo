@@ -45,9 +45,11 @@ export function PublicLayout() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="print:hidden h-16 bg-surface border-b border-border flex items-center px-6 shrink-0 sticky top-0 z-30">
-        <Link to={isScholar ? '/dashboard' : '/'} className="text-primary font-bold text-sm tracking-wide shrink-0 flex-1">
-          {brand.program}
-        </Link>
+        <div className="flex-1 min-w-0">
+          <Link to={isScholar ? '/dashboard' : '/'} className="text-primary font-bold text-sm tracking-wide inline-block max-w-full truncate align-middle">
+            {brand.program}
+          </Link>
+        </div>
 
         {/* Nav — centered */}
         <nav className="hidden md:flex items-center gap-5 text-sm shrink-0">

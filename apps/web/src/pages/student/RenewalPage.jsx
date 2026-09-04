@@ -35,7 +35,7 @@ function loadDraft() {
 
 function Section({ n, Icon, title, children, active }) {
   return (
-    <section className={`bg-surface border rounded-xl shadow-card overflow-hidden ${active ? 'border-l-4 border-l-primary border-y-border border-r-border' : 'border-border'}`}>
+    <section className={`bg-surface border rounded-xl shadow-card overflow-hidden ${active ? 'border-primary' : 'border-border'}`}>
       <div className="px-6 py-4 border-b border-border flex items-center gap-2.5">
         <Icon size={17} className="text-primary" />
         <h2 className="text-base font-bold text-content">{n}. {title}</h2>

@@ -1,0 +1,602 @@
+/* ============================================================================
+   Iskolar — platform marketing world  (scoped under .isk)
+   ----------------------------------------------------------------------------
+   A self-contained visual world for the Iskolar *platform* landing page — kept
+   deliberately separate from the tenant app's Corporate-Modern tokens
+   (globals.css) and the operator console's civic world (platform.css).
+
+   World: monochrome Municipal Blue, single hue from deep ink to near-white,
+   dark hero → light body. Neutrals are blue-biased so nothing reads as generic
+   dark-mode. Honor Gold is held in reserve as a single rare spark.
+   Type: Hanken Grotesk — a crisp humanist grotesque, clean & confident.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800;900&display=swap');
+
+.isk {
+  /* ── Monochrome blue ramp ── */
+  --ink-950: #050a18;
+  --ink-900: #081026;
+  --blue-850: #0a1c44;
+  --blue-800: #0a2456;
+  --blue-700: #002576;
+  --blue-600: #0038a8;
+  --blue-500: #1a56d6;
+  --blue-400: #4d82e8;
+  --blue-300: #85a9f0;
+  --blue-200: #b8cdf7;
+  --blue-100: #e8effe;
+  --mist-50: #f6f8fd;
+  --paper: #ffffff;
+
+  /* ── Blue-biased neutrals ── */
+  --ink: #0a0f1e;
+  --slate-600: #3a4256;
+  --slate-500: #586074;
+  --border-light: #e4eaf3;
+  --border-dark: rgba(255, 255, 255, 0.1);
+  --border-dark-strong: rgba(255, 255, 255, 0.16);
+
+  /* ── The single reserved spark ── */
+  --gold: #fecc00;
+
+  --shadow-frame: 0 40px 80px -24px rgba(3, 8, 26, 0.55), 0 8px 28px -12px rgba(3, 8, 26, 0.4);
+  --shadow-frame-light: 0 30px 60px -28px rgba(0, 56, 168, 0.28), 0 6px 20px -10px rgba(10, 15, 30, 0.12);
+  --shadow-btn: 0 1px 2px rgba(5, 10, 24, 0.4), 0 6px 20px -8px rgba(26, 86, 214, 0.5);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --tap: 200ms var(--ease-out);
+
+  font-family: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+.isk *,
+.isk *::before,
+.isk *::after { box-sizing: border-box; }
+
+/* Themed browser surfaces — the cheap tells (craft floor) */
+.isk ::selection { background: rgba(26, 86, 214, 0.28); color: #fff; }
+.isk-dark ::selection { background: var(--gold); color: var(--ink-950); }
+.isk :focus-visible { outline: 2px solid var(--blue-500); outline-offset: 3px; border-radius: 4px; }
+.isk-dark :focus-visible { outline-color: var(--blue-300); }
+.isk-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+.isk-scroll::-webkit-scrollbar-thumb { background: rgba(90, 96, 116, 0.35); border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
+.isk-scroll::-webkit-scrollbar-thumb:hover { background: rgba(90, 96, 116, 0.55); background-clip: content-box; }
+
+/* ── Layout ─────────────────────────────────────────────────────────────── */
+.isk-container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+@media (max-width: 640px) { .isk-container { padding: 0 20px; } }
+
+/* ── Type ───────────────────────────────────────────────────────────────── */
+.isk-eyebrow { /* not an eyebrow above a heading — used as a standalone chip */
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 0.8rem; font-weight: 600; letter-spacing: 0.01em;
+}
+.isk-display {
+  font-weight: 800; letter-spacing: -0.04em; line-height: 1.02;
+  font-size: clamp(2.6rem, 5.6vw, 4.75rem); text-wrap: balance;
+}
+.isk-display--giant { font-size: clamp(3rem, 9vw, 7rem); line-height: 0.98; }
+.isk-h2 {
+  font-weight: 750; letter-spacing: -0.03em; line-height: 1.08;
+  font-size: clamp(1.9rem, 3.6vw, 2.85rem); text-wrap: balance;
+}
+.isk-h3 { font-weight: 700; letter-spacing: -0.02em; font-size: 1.15rem; line-height: 1.25; }
+.isk-lead { font-size: clamp(1.05rem, 1.5vw, 1.24rem); line-height: 1.55; }
+.isk-tnum { font-variant-numeric: tabular-nums; }
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+.isk-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px;
+  font-weight: 650; font-size: 0.94rem; letter-spacing: -0.01em;
+  padding: 11px 18px; border-radius: 11px; border: 1px solid transparent;
+  cursor: pointer; transition: transform var(--tap), background var(--tap), border-color var(--tap), box-shadow var(--tap), color var(--tap);
+  text-decoration: none; white-space: nowrap; line-height: 1;
+}
+.isk-btn:active { transform: translateY(1px); }
+.isk-btn svg { transition: transform var(--tap); }
+.isk-btn:hover svg.isk-arrow { transform: translateX(2px); }
+
+.isk-btn-primary { background: var(--blue-600); color: #fff; box-shadow: var(--shadow-btn); }
+.isk-btn-primary:hover { background: var(--blue-500); }
+
+.isk-btn-invert { background: #fff; color: var(--ink-950); box-shadow: 0 1px 2px rgba(5,10,24,.5), 0 10px 30px -12px rgba(255,255,255,.35); }
+.isk-btn-invert:hover { background: var(--blue-100); }
+
+.isk-btn-ghost-dark { background: rgba(255,255,255,.04); color: #fff; border-color: var(--border-dark-strong); }
+.isk-btn-ghost-dark:hover { background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.28); }
+
+.isk-btn-ghost-light { background: #fff; color: var(--ink); border-color: var(--border-light); box-shadow: 0 1px 2px rgba(10,15,30,.04); }
+.isk-btn-ghost-light:hover { border-color: var(--blue-300); color: var(--blue-600); }
+
+/* ── Nav (fixed; darkens once scrolled past the hero top) ───────────────── */
+.isk-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; border-bottom: 1px solid transparent; transition: background var(--tap), border-color var(--tap), backdrop-filter var(--tap); }
+.isk-nav--stuck { background: rgba(5, 10, 24, 0.72); backdrop-filter: blur(12px); border-bottom-color: var(--border-dark); }
+.isk-nav-inner { display: flex; align-items: center; gap: 28px; height: 68px; }
+.isk-brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -0.03em; font-size: 1.12rem; color: #fff; text-decoration: none; }
+.isk-brand-mark {
+  width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center;
+  background: linear-gradient(150deg, var(--blue-400), var(--blue-600));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.18), 0 4px 14px -4px rgba(26,86,214,.7);
+  color: #fff;
+}
+.isk-navlinks { display: flex; align-items: center; gap: 4px; margin-left: 8px; }
+.isk-navlink {
+  color: rgba(255,255,255,.72); text-decoration: none; font-size: 0.92rem; font-weight: 550;
+  padding: 8px 12px; border-radius: 8px; transition: color var(--tap), background var(--tap);
+}
+.isk-navlink:hover { color: #fff; background: rgba(255,255,255,.06); }
+.isk-nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.isk-nav-signin { color: rgba(255,255,255,.82); text-decoration: none; font-size: 0.92rem; font-weight: 600; padding: 8px 6px; transition: color var(--tap); }
+.isk-nav-signin:hover { color: #fff; }
+@media (max-width: 860px) { .isk-navlinks { display: none; } }
+
+/* ── Hero (shared dark shell) ───────────────────────────────────────────── */
+.isk-hero {
+  position: relative; overflow: hidden; isolation: isolate;
+  background: var(--ink-950); color: #fff;
+  padding-bottom: 96px;
+}
+.isk-hero::before { /* cool radial light, not neon */
+  content: ''; position: absolute; inset: 0; z-index: -2;
+  background:
+    radial-gradient(120% 90% at 78% -10%, rgba(26,86,214,.42), transparent 55%),
+    radial-gradient(90% 70% at 8% 8%, rgba(10,36,86,.6), transparent 60%),
+    linear-gradient(180deg, var(--ink-950) 0%, var(--ink-900) 70%, #0a1730 100%);
+}
+.isk-hero::after { /* soft vignette floor so the product frame reads as lifting off the dark */
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  background: radial-gradient(70% 50% at 50% 118%, rgba(26,86,214,.28), transparent 70%);
+}
+.isk-hero-pilot {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 6px 12px 6px 8px; border-radius: 999px;
+  background: rgba(255,255,255,.05); border: 1px solid var(--border-dark);
+  color: rgba(255,255,255,.85); font-size: 0.82rem; font-weight: 550;
+  backdrop-filter: blur(4px);
+}
+.isk-hero-pilot b { color: #fff; font-weight: 700; }
+.isk-pilot-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 3px rgba(254,204,0,.18); }
+.isk-hero-sub { color: rgba(255,255,255,.66); max-width: 34ch; }
+.isk-hero-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* Hero A — statement + product */
+.isk-heroA { display: grid; grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr); gap: 56px; align-items: center; padding-top: 64px; }
+.isk-heroA .isk-hero-sub { margin: 22px 0 30px; }
+@media (max-width: 980px) { .isk-heroA { grid-template-columns: 1fr; gap: 44px; padding-top: 40px; } .isk-heroA .isk-hero-sub { max-width: 46ch; } }
+
+/* Hero B — giant type */
+.isk-heroB { padding-top: 92px; text-align: left; max-width: 20ch; }
+.isk-heroB .isk-hero-sub { font-size: 1.2rem; max-width: 40ch; margin: 26px 0 32px; }
+.isk-scrollhint { display: inline-flex; align-items: center; gap: 10px; margin-top: 64px; color: rgba(255,255,255,.5); font-size: 0.85rem; font-weight: 550; }
+.isk-scrollhint .isk-mouse { width: 22px; height: 34px; border: 2px solid rgba(255,255,255,.35); border-radius: 12px; position: relative; }
+.isk-scrollhint .isk-mouse::after { content: ''; position: absolute; top: 6px; left: 50%; width: 3px; height: 6px; border-radius: 2px; background: rgba(255,255,255,.7); transform: translateX(-50%); animation: isk-wheel 1.6s var(--ease-out) infinite; }
+@keyframes isk-wheel { 0% { opacity: 0; transform: translate(-50%, 0); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, 10px); } }
+@media (max-width: 640px) { .isk-heroB .isk-hero-sub { font-size: 1.05rem; } }
+
+/* Hero B — giant-type variations (chosen direction)
+   NB: width constraints live on the inner elements, never on .isk-giant itself —
+   that element is also .isk-container (max-width 1200 + margin auto), so capping
+   its width would shrink and re-center the whole column. */
+.isk-giant { padding-top: 118px; padding-bottom: 8px; }
+.isk-pilotwrap { margin-bottom: 24px; }
+.isk-giant .isk-display--giant { margin: 0; max-width: 14ch; }
+.isk-giant .isk-hero-sub { font-size: 1.2rem; margin: 26px 0 34px; max-width: 40ch; }
+.isk-giant--center { text-align: center; }
+.isk-giant--center .isk-pilotwrap { display: flex; justify-content: center; }
+.isk-giant--center .isk-display--giant { margin: 0 auto; max-width: 16ch; }
+.isk-giant--center .isk-hero-sub { margin: 26px auto 34px; max-width: 42ch; text-align: center; }
+.isk-giant--center .isk-hero-actions { justify-content: center; }
+@media (max-width: 640px) {
+  .isk-giant .isk-display--giant { max-width: 18ch; }
+  .isk-giant .isk-hero-sub { font-size: 1.05rem; }
+}
+
+/* B3 — emphasis: dim connectives, gold underline on the key phrase */
+.isk-dim { color: var(--blue-300); font-weight: 700; }
+.isk-emph { position: relative; white-space: nowrap; }
+.isk-emph::after {
+  content: ''; position: absolute; left: -0.02em; right: -0.02em; bottom: 0.03em; height: 0.09em;
+  background: var(--gold); border-radius: 3px; transform: scaleX(0); transform-origin: left;
+  animation: isk-underline 720ms var(--ease-out) 560ms both;
+}
+@keyframes isk-underline { to { transform: scaleX(1); } }
+
+/* B4 — kinetic verb */
+.isk-kinlead { display: block; }
+.isk-kinword { display: block; color: var(--blue-300); min-height: 1.02em; }
+@keyframes isk-kin-in { from { opacity: 0; transform: translateY(0.34em); filter: blur(7px); } to { opacity: 1; transform: none; filter: blur(0); } }
+.isk-kin-anim { animation: isk-kin-in 520ms var(--ease-out) both; }
+
+/* ── Product-peek variations (chosen direction) ─────────────────────────── */
+.isk-peek-cap { display: inline-flex; align-items: center; gap: 8px; color: rgba(255,255,255,.5); font-size: 0.85rem; font-weight: 550; margin-top: 6px; }
+
+/* P1 · rise */
+.isk-peek-clip {
+  max-width: 960px; margin: 24px auto 0; max-height: 234px; overflow: hidden; position: relative;
+  -webkit-mask-image: linear-gradient(#000 66%, transparent 100%);
+          mask-image: linear-gradient(#000 66%, transparent 100%);
+}
+
+/* P2 · tilt (3D perspective) */
+.isk-peek-tilt {
+  max-width: 1040px; margin: 30px auto 0; max-height: 322px; overflow: hidden; perspective: 1600px;
+  -webkit-mask-image: linear-gradient(#000 70%, transparent 100%);
+          mask-image: linear-gradient(#000 70%, transparent 100%);
+}
+.isk-peek-tilt .isk-frame { transform: rotateX(23deg) scale(1.06); transform-origin: 50% 0%; }
+
+/* P3 · split — left copy, right peek */
+.isk-peek-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.04fr); gap: 44px; align-items: center; padding-top: 74px; padding-bottom: 0; }
+.isk-peek-split .isk-display--giant { max-width: 12ch; margin: 0; }
+.isk-peek-split .isk-hero-sub { max-width: 38ch; margin: 24px 0 32px; font-size: 1.15rem; }
+.isk-peek-split-frame {
+  position: relative; margin-right: -90px;
+  -webkit-mask-image: linear-gradient(#000 80%, transparent 100%);
+          mask-image: linear-gradient(#000 80%, transparent 100%);
+}
+@media (max-width: 900px) {
+  .isk-peek-split { grid-template-columns: 1fr; gap: 30px; padding-top: 54px; }
+  .isk-peek-split-frame { margin-right: 0; }
+  .isk-peek-split .isk-display--giant { max-width: 16ch; }
+}
+
+/* P4 · bleed — near edge-to-edge */
+.isk-peek-bleed {
+  width: 100vw; margin-left: calc(50% - 50vw); margin-top: 32px; padding: 0 20px;
+  max-height: 250px; overflow: hidden;
+  -webkit-mask-image: linear-gradient(#000 64%, transparent 100%);
+          mask-image: linear-gradient(#000 64%, transparent 100%);
+}
+.isk-peek-bleed-inner { max-width: 1320px; margin: 0 auto; }
+
+/* P5 · layered — frame + floating card */
+.isk-peek-layer { position: relative; max-width: 960px; margin: 34px auto 0; }
+.isk-peek-layer-main {
+  max-height: 244px; overflow: hidden;
+  -webkit-mask-image: linear-gradient(#000 66%, transparent 100%);
+          mask-image: linear-gradient(#000 66%, transparent 100%);
+}
+.isk-peek-float {
+  position: absolute; top: -22px; right: 14px; z-index: 2; display: flex; align-items: center; gap: 11px;
+  background: #fff; color: var(--ink); border: 1px solid var(--border-light); border-radius: 13px;
+  padding: 12px 15px; box-shadow: 0 22px 44px -16px rgba(3, 8, 26, 0.6);
+  animation: isk-rise 720ms var(--ease-out) 320ms both;
+}
+.isk-peek-float i { width: 30px; height: 30px; border-radius: 8px; background: #eaf7ed; color: #004f1e; display: grid; place-items: center; flex-shrink: 0; }
+.isk-peek-float b { font-size: 0.82rem; font-weight: 700; display: block; line-height: 1.15; }
+.isk-peek-float span { font-size: 0.72rem; color: var(--slate-500); }
+@media (max-width: 520px) { .isk-peek-float { top: -16px; right: 6px; padding: 9px 12px; } }
+
+/* Hero C — lifecycle */
+.isk-heroC { padding-top: 60px; text-align: center; }
+.isk-heroC .isk-h2 { margin: 18px auto 6px; max-width: 18ch; }
+.isk-heroC .isk-hero-sub { margin: 0 auto 40px; max-width: 52ch; text-align: center; }
+.isk-life { max-width: 900px; margin: 0 auto; }
+.isk-life-track { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-bottom: 40px; }
+.isk-life-line { position: absolute; top: 21px; left: 12.5%; right: 12.5%; height: 2px; background: rgba(255,255,255,.12); overflow: hidden; }
+.isk-life-line span { position: absolute; inset: 0; transform-origin: left; background: linear-gradient(90deg, var(--blue-400), var(--blue-300)); transition: transform 640ms var(--ease-out); }
+.isk-life-node { display: flex; flex-direction: column; align-items: center; gap: 12px; position: relative; z-index: 1; cursor: pointer; background: none; border: 0; padding: 0; }
+.isk-life-dot {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ink-900); border: 2px solid rgba(255,255,255,.16); color: rgba(255,255,255,.55);
+  transition: all 360ms var(--ease-out);
+}
+.isk-life-node[data-active='true'] .isk-life-dot { background: var(--blue-500); border-color: var(--blue-300); color: #fff; box-shadow: 0 0 0 6px rgba(26,86,214,.18), 0 8px 24px -6px rgba(26,86,214,.7); }
+.isk-life-node[data-done='true'] .isk-life-dot { background: var(--blue-700); border-color: var(--blue-500); color: var(--blue-200); }
+.isk-life-label { font-size: 0.9rem; font-weight: 650; color: rgba(255,255,255,.55); transition: color 360ms var(--ease-out); }
+.isk-life-node[data-active='true'] .isk-life-label { color: #fff; }
+.isk-life-panel {
+  text-align: left; background: rgba(255,255,255,.035); border: 1px solid var(--border-dark);
+  border-radius: 18px; padding: 26px 28px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center;
+  min-height: 132px; backdrop-filter: blur(6px);
+}
+.isk-life-panel h4 { font-size: 1.12rem; font-weight: 750; letter-spacing: -0.02em; margin: 0 0 6px; }
+.isk-life-panel p { color: rgba(255,255,255,.62); font-size: 0.95rem; margin: 0; max-width: 46ch; }
+.isk-life-badge { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--blue-300); margin-bottom: 10px; display: block; }
+.isk-life-stat { text-align: right; }
+.isk-life-stat b { font-size: 2.1rem; font-weight: 800; letter-spacing: -0.03em; display: block; line-height: 1; }
+.isk-life-stat span { font-size: 0.78rem; color: rgba(255,255,255,.5); }
+@media (max-width: 640px) {
+  .isk-life-label { font-size: 0.72rem; }
+  .isk-life-panel { grid-template-columns: 1fr; }
+  .isk-life-stat { text-align: left; }
+}
+
+/* Hero D — full-bleed product */
+.isk-heroD { padding-top: 44px; text-align: center; }
+.isk-heroD .isk-display { margin: 16px auto 16px; max-width: 16ch; }
+.isk-heroD .isk-hero-sub { margin: 0 auto 26px; text-align: center; max-width: 48ch; }
+.isk-heroD-actions { justify-content: center; margin-bottom: 52px; }
+.isk-heroD-frame { position: relative; }
+.isk-heroD-frame::after { /* light spill behind the frame */
+  content: ''; position: absolute; inset: -8% -4% -30% -4%; z-index: -1;
+  background: radial-gradient(60% 60% at 50% 20%, rgba(26,86,214,.5), transparent 70%);
+  filter: blur(20px);
+}
+
+/* ── Product frame (browser mock of the real admin app) ─────────────────── */
+.isk-frame {
+  border-radius: 16px; overflow: hidden; background: #0c1428;
+  border: 1px solid var(--border-dark-strong);
+  box-shadow: var(--shadow-frame);
+}
+.isk-frame-bar { display: flex; align-items: center; gap: 14px; padding: 11px 14px; background: #0e1830; border-bottom: 1px solid rgba(255,255,255,.07); }
+.isk-frame-dots { display: flex; gap: 7px; }
+.isk-frame-dots i { width: 11px; height: 11px; border-radius: 50%; background: rgba(255,255,255,.16); }
+.isk-frame-url {
+  flex: 1; max-width: 320px; margin: 0 auto; display: flex; align-items: center; gap: 7px; justify-content: center;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.07); border-radius: 7px;
+  padding: 5px 12px; font-size: 0.76rem; color: rgba(255,255,255,.6);
+}
+.isk-frame-tag { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--blue-300); background: rgba(26,86,214,.18); border: 1px solid rgba(77,130,232,.3); padding: 3px 7px; border-radius: 5px; }
+
+/* Mini app: light UI inside the frame (the real product is light) */
+.isk-app { display: grid; grid-template-columns: 176px 1fr; background: var(--mist-50); color: var(--ink); min-height: 340px; }
+.isk-app-side { background: var(--blue-700); padding: 14px 12px; display: flex; flex-direction: column; gap: 3px; }
+.isk-app-side-user { display: flex; align-items: center; gap: 9px; padding: 4px 4px 12px; border-bottom: 1px solid rgba(255,255,255,.12); margin-bottom: 10px; }
+.isk-app-side-user i { width: 28px; height: 28px; border-radius: 50%; background: var(--blue-500); display: grid; place-items: center; color: #fff; font-size: 0.7rem; font-weight: 700; font-style: normal; }
+.isk-app-side-user b { color: #fff; font-size: 0.78rem; font-weight: 650; line-height: 1.1; }
+.isk-app-side-user b span { display: block; color: rgba(255,255,255,.5); font-size: 0.66rem; font-weight: 500; }
+.isk-app-nav { display: flex; align-items: center; gap: 9px; padding: 7px 9px; border-radius: 8px; color: rgba(255,255,255,.72); font-size: 0.78rem; font-weight: 550; }
+.isk-app-nav svg { width: 15px; height: 15px; }
+.isk-app-nav[data-active='true'] { background: var(--gold); color: var(--blue-700); font-weight: 700; }
+.isk-app-main { padding: 16px 18px; overflow: hidden; }
+.isk-app-h { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+.isk-app-h h5 { font-size: 0.98rem; font-weight: 750; margin: 0; letter-spacing: -0.02em; color: var(--ink); }
+.isk-app-h span { font-size: 0.72rem; color: var(--slate-500); }
+.isk-app-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+.isk-app-stat { background: #fff; border: 1px solid var(--border-light); border-radius: 11px; overflow: hidden; }
+.isk-app-stat-body { padding: 10px 11px; }
+.isk-app-stat-body .lbl { font-size: 0.66rem; color: var(--slate-500); display: flex; align-items: center; justify-content: space-between; }
+.isk-app-stat-body .lbl i { width: 20px; height: 20px; border-radius: 6px; display: grid; place-items: center; }
+.isk-app-stat-body .val { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; margin-top: 4px; color: var(--ink); }
+.isk-app-stat .bar { height: 3px; }
+.isk-app-card { background: #fff; border: 1px solid var(--border-light); border-radius: 11px; overflow: hidden; }
+.isk-app-card-h { padding: 10px 13px; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; }
+.isk-app-card-h b { font-size: 0.82rem; font-weight: 700; color: var(--ink); }
+.isk-app-card-h em { font-size: 0.66rem; font-style: normal; color: #fff; background: var(--blue-600); padding: 3px 8px; border-radius: 6px; font-weight: 650; }
+.isk-app-row { display: flex; align-items: center; gap: 10px; padding: 8px 13px; border-bottom: 1px solid var(--border-light); }
+.isk-app-row:last-child { border-bottom: 0; }
+.isk-app-row i.av { width: 26px; height: 26px; border-radius: 50%; background: var(--blue-100); color: var(--blue-600); display: grid; place-items: center; font-size: 0.64rem; font-weight: 700; font-style: normal; flex-shrink: 0; }
+.isk-app-row .who { flex: 1; min-width: 0; }
+.isk-app-row .who b { display: block; font-size: 0.76rem; font-weight: 650; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.isk-app-row .who span { font-size: 0.66rem; color: var(--slate-500); }
+.isk-pill { font-size: 0.64rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.isk-pill--ok { background: var(--tertiary-light, #eaf7ed); color: #004f1e; }
+.isk-pill--wait { background: #fff9e0; color: #735c00; }
+.isk-pill--rev { background: var(--blue-100); color: var(--blue-600); }
+.isk-pill--risk { background: #fef2f2; color: #b91c1c; }
+@media (max-width: 520px) {
+  .isk-app { grid-template-columns: 1fr; }
+  .isk-app-side { display: none; }
+  .isk-app-stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Light body ─────────────────────────────────────────────────────────── */
+.isk-body { background: var(--paper); color: var(--ink); position: relative; }
+.isk-section { padding: 96px 0; }
+.isk-section--mist { background: var(--mist-50); border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); }
+.isk-sec-head { max-width: 40ch; margin-bottom: 48px; }
+.isk-sec-head .isk-h2 { margin: 0 0 14px; }
+.isk-sec-head p { color: var(--slate-500); font-size: 1.08rem; }
+.isk-kicker { color: var(--blue-600); font-weight: 700; font-size: 0.85rem; letter-spacing: 0.02em; }
+
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+.isk-footer { background: var(--ink-950); color: rgba(255,255,255,.6); padding: 56px 0 40px; }
+.isk-footer-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 40px; flex-wrap: wrap; padding-bottom: 36px; border-bottom: 1px solid var(--border-dark); }
+.isk-footer p { max-width: 34ch; font-size: 0.9rem; margin: 14px 0 0; }
+.isk-footer-cols { display: flex; gap: 56px; flex-wrap: wrap; }
+.isk-footer-col b { color: #fff; font-size: 0.82rem; font-weight: 700; display: block; margin-bottom: 12px; }
+.isk-footer-col a { display: block; color: rgba(255,255,255,.6); text-decoration: none; font-size: 0.88rem; padding: 4px 0; transition: color var(--tap); }
+.isk-footer-col a:hover { color: #fff; }
+.isk-footer-bottom { padding-top: 24px; font-size: 0.82rem; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+/* ── Entrance motion (once, from a visible resting state) ───────────────── */
+@keyframes isk-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+.isk-rise { animation: isk-rise 720ms var(--ease-out) both; }
+.isk-rise-1 { animation-delay: 60ms; }
+.isk-rise-2 { animation-delay: 140ms; }
+.isk-rise-3 { animation-delay: 220ms; }
+.isk-rise-4 { animation-delay: 320ms; }
+
+/* ── Hero switcher (temporary compare control) ──────────────────────────── */
+.isk-switch {
+  position: fixed; z-index: 60; bottom: 22px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 4px; padding: 6px;
+  background: rgba(10, 18, 38, 0.82); border: 1px solid var(--border-dark-strong); border-radius: 14px;
+  backdrop-filter: blur(14px); box-shadow: 0 18px 44px -14px rgba(3,8,26,.7);
+}
+.isk-switch-label { color: rgba(255,255,255,.45); font-size: 0.7rem; font-weight: 650; text-transform: uppercase; letter-spacing: 0.08em; padding: 0 10px 0 8px; }
+.isk-switch button {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 1px;
+  border: 0; background: transparent; color: rgba(255,255,255,.6); cursor: pointer;
+  padding: 7px 12px; border-radius: 9px; transition: all var(--tap); text-align: left;
+}
+.isk-switch button:hover { background: rgba(255,255,255,.06); color: #fff; }
+.isk-switch button[data-active='true'] { background: var(--blue-600); color: #fff; }
+.isk-switch button b { font-size: 0.9rem; font-weight: 750; line-height: 1; }
+.isk-switch button span { font-size: 0.66rem; opacity: 0.75; font-weight: 550; }
+@media (max-width: 560px) {
+  .isk-switch { bottom: 14px; gap: 2px; padding: 5px; }
+  .isk-switch-label { display: none; }
+  .isk-switch button span { display: none; }
+  .isk-switch button { padding: 9px 12px; }
+}
+
+/* ── Landing body sections ──────────────────────────────────────────────── */
+.isk-section { scroll-margin-top: 84px; }
+
+/* Dark punctuation section (product proof) */
+.isk-section--dark { background: var(--ink-950); color: #fff; position: relative; overflow: hidden; isolation: isolate; border-top: 1px solid var(--border-dark); border-bottom: 1px solid var(--border-dark); }
+.isk-section--dark::before { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(85% 65% at 82% -5%, rgba(26,86,214,.3), transparent 60%); }
+.isk-section--dark .isk-h2 { color: #fff; }
+.isk-section--dark .isk-sec-head p { color: rgba(255,255,255,.62); }
+
+/* Lifecycle journey */
+.isk-journey { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; position: relative; }
+.isk-journey::before { content: ''; position: absolute; top: 23px; left: 26px; right: 26px; height: 2px; background: linear-gradient(90deg, var(--blue-300), var(--blue-500)); opacity: .35; z-index: 0; }
+.isk-journey-step { position: relative; z-index: 1; }
+.isk-journey-ico { width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(150deg, var(--blue-500), var(--blue-700)); color: #fff; display: grid; place-items: center; box-shadow: 0 10px 22px -10px rgba(0,56,168,.6); margin-bottom: 18px; }
+.isk-journey-step h3 { font-size: 1.06rem; font-weight: 750; letter-spacing: -0.02em; margin: 0 0 7px; color: var(--ink); }
+.isk-journey-step h3 b { color: var(--blue-500); font-weight: 750; }
+.isk-journey-step p { margin: 0; font-size: 0.92rem; color: var(--slate-500); line-height: 1.5; }
+@media (max-width: 760px) { .isk-journey { grid-template-columns: 1fr 1fr; gap: 30px 22px; } .isk-journey::before { display: none; } }
+@media (max-width: 430px) { .isk-journey { grid-template-columns: 1fr; } }
+
+/* Product proof — interactive viewer (on dark) */
+.isk-seg-wrap { display: flex; justify-content: center; margin-bottom: 30px; }
+.isk-seg { display: inline-flex; gap: 4px; padding: 5px; background: rgba(255,255,255,.06); border: 1px solid var(--border-dark); border-radius: 13px; flex-wrap: wrap; justify-content: center; }
+.isk-seg button { border: 0; background: transparent; color: rgba(255,255,255,.66); font: inherit; font-size: 0.9rem; font-weight: 650; padding: 9px 17px; border-radius: 9px; cursor: pointer; transition: color var(--tap), background var(--tap); }
+.isk-seg button:hover { color: #fff; }
+.isk-seg button[data-active] { background: #fff; color: var(--ink); }
+.isk-proof-frame { max-width: 1000px; margin: 0 auto; }
+.isk-proof-frame .isk-app { min-height: 438px; }
+
+.isk-view-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 12px; }
+.isk-view-h h5 { font-size: 1.08rem; font-weight: 750; margin: 0; color: var(--ink); letter-spacing: -0.02em; }
+.isk-view-h .chip { font-size: 0.74rem; font-weight: 650; color: var(--slate-500); background: var(--mist-50); border: 1px solid var(--border-light); padding: 6px 11px; border-radius: 8px; white-space: nowrap; }
+.isk-view-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+.isk-tblwrap { overflow-x: auto; }
+.isk-tbl { width: 100%; border-collapse: collapse; min-width: 460px; }
+.isk-tbl th { text-align: left; font-size: 0.7rem; font-weight: 600; color: var(--slate-500); padding: 9px 12px; border-bottom: 1px solid var(--border-light); white-space: nowrap; }
+.isk-tbl td { padding: 11px 12px; border-bottom: 1px solid var(--border-light); font-size: 0.82rem; color: var(--ink); white-space: nowrap; }
+.isk-tbl tr:last-child td { border-bottom: 0; }
+.isk-tbl .who2 { display: flex; align-items: center; gap: 10px; font-weight: 650; }
+.isk-tbl .who2 i { width: 28px; height: 28px; border-radius: 50%; background: var(--blue-100); color: var(--blue-600); font-size: 0.62rem; font-weight: 700; font-style: normal; display: grid; place-items: center; flex-shrink: 0; }
+.isk-tbl .mut { color: var(--slate-500); }
+.isk-chart { border: 1px solid var(--border-light); border-radius: 12px; padding: 16px 18px; }
+.isk-chart-h { display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; color: var(--ink); margin-bottom: 16px; }
+.isk-chart-h .mut { color: var(--slate-500); font-weight: 500; }
+.isk-chart-bars { display: flex; align-items: flex-end; gap: 10px; height: 128px; }
+.isk-chart-bars > div { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 7px; height: 100%; }
+.isk-chart-bars i { width: 100%; background: var(--blue-200); border-radius: 5px 5px 0 0; min-height: 4px; }
+.isk-chart-bars i.hi { background: var(--blue-500); }
+.isk-chart-bars span { font-size: 0.62rem; color: var(--slate-500); }
+@media (max-width: 520px) { .isk-view-stats { grid-template-columns: 1fr; } }
+
+/* Mission — committed-blue emotional band */
+.isk-mission { background: linear-gradient(140deg, var(--blue-700), var(--blue-600)); color: #fff; text-align: center; position: relative; overflow: hidden; isolation: isolate; }
+.isk-mission::before { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(75% 90% at 50% -10%, rgba(133,169,240,.4), transparent 60%); }
+.isk-mission .isk-container { max-width: 760px; }
+.isk-mission h2 { font-size: clamp(1.9rem, 3.8vw, 3rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.08; margin: 0 0 18px; text-wrap: balance; }
+.isk-mission em { font-style: normal; color: var(--gold); }
+.isk-mission p { font-size: 1.12rem; color: rgba(255,255,255,.84); margin: 0 auto; max-width: 52ch; line-height: 1.55; }
+
+/* CTA — process band + actions */
+.isk-cta { text-align: center; max-width: 940px; }
+.isk-cta .isk-h2 { margin: 0 0 14px; }
+.isk-cta-sub { color: var(--slate-500); font-size: 1.1rem; margin: 0 auto 44px; max-width: 56ch; line-height: 1.55; }
+.isk-cta-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 40px; position: relative; }
+.isk-cta-steps::before { content: ''; position: absolute; top: 17px; left: 12.5%; right: 12.5%; height: 2px; background: linear-gradient(90deg, var(--blue-300), var(--blue-500)); opacity: .3; }
+.isk-cta-step { display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; }
+.isk-cta-n { width: 36px; height: 36px; border-radius: 50%; background: var(--blue-600); color: #fff; font-weight: 750; font-size: 0.98rem; display: grid; place-items: center; margin-bottom: 16px; box-shadow: 0 0 0 6px var(--mist-50); position: relative; z-index: 1; }
+.isk-cta-step b { font-size: 0.96rem; font-weight: 700; color: var(--ink); margin-bottom: 5px; letter-spacing: -0.01em; }
+.isk-cta-step p { font-size: 0.85rem; color: var(--slate-500); margin: 0; line-height: 1.45; max-width: 22ch; }
+.isk-cta-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+@media (max-width: 720px) { .isk-cta-steps { grid-template-columns: 1fr 1fr; gap: 30px 20px; } .isk-cta-steps::before { display: none; } }
+@media (max-width: 420px) { .isk-cta-steps { grid-template-columns: 1fr; } }
+
+/* Roles + phone */
+.isk-roles { display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 52px; align-items: center; }
+.isk-roles-list { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.isk-role { background: #fff; border: 1px solid var(--border-light); border-radius: 15px; padding: 20px; box-shadow: var(--shadow-frame-light); }
+.isk-role-ico { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; background: var(--blue-100); color: var(--blue-600); margin-bottom: 14px; }
+.isk-role b { font-size: 0.98rem; font-weight: 750; color: var(--ink); display: block; margin-bottom: 5px; letter-spacing: -0.01em; }
+.isk-role p { font-size: 0.87rem; color: var(--slate-500); margin: 0; line-height: 1.5; }
+@media (max-width: 900px) { .isk-roles { grid-template-columns: 1fr; gap: 40px; } .isk-roles-phone { order: -1; } }
+@media (max-width: 460px) { .isk-roles-list { grid-template-columns: 1fr; } }
+
+/* Phone mock */
+.isk-phone { width: 264px; margin: 0 auto; background: #0c1428; border-radius: 38px; padding: 12px; box-shadow: var(--shadow-frame); border: 1px solid var(--border-dark-strong); }
+.isk-phone-screen { background: var(--mist-50); border-radius: 28px; overflow: hidden; position: relative; }
+.isk-phone-notch { position: absolute; top: 9px; left: 50%; transform: translateX(-50%); width: 74px; height: 6px; border-radius: 99px; background: rgba(255,255,255,.28); z-index: 2; }
+.isk-phone-top { background: var(--blue-700); color: #fff; padding: 28px 16px 16px; }
+.isk-phone-top .who { font-size: 0.68rem; opacity: .7; }
+.isk-phone-top b { font-size: 0.98rem; font-weight: 750; display: block; }
+.isk-phone-body { padding: 14px; display: flex; flex-direction: column; gap: 11px; }
+.isk-phone-card { background: #fff; border: 1px solid var(--border-light); border-radius: 12px; padding: 13px; }
+.isk-phone-card .st { display: inline-flex; align-items: center; gap: 5px; font-size: 0.62rem; font-weight: 700; color: #004f1e; background: #eaf7ed; padding: 3px 8px; border-radius: 99px; margin-bottom: 9px; }
+.isk-phone-card .big { font-size: 0.86rem; color: var(--ink); font-weight: 700; display: block; }
+.isk-phone-card .sub { font-size: 0.68rem; color: var(--slate-500); }
+.isk-phone-row { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--border-light); border-radius: 11px; padding: 10px 12px; }
+.isk-phone-row > i { width: 26px; height: 26px; border-radius: 8px; background: var(--blue-100); color: var(--blue-600); display: grid; place-items: center; flex-shrink: 0; }
+.isk-phone-row .t { flex: 1; min-width: 0; }
+.isk-phone-row .t b { font-size: 0.74rem; color: var(--ink); display: block; }
+.isk-phone-row .t span { font-size: 0.64rem; color: var(--slate-500); }
+
+/* Trust */
+.isk-trust { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px 36px; }
+.isk-trust-item { display: flex; gap: 14px; }
+.isk-trust-ico { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; background: #fff; border: 1px solid var(--border-light); color: var(--blue-600); flex-shrink: 0; box-shadow: var(--shadow-frame-light); }
+.isk-trust-item b { font-size: 0.95rem; font-weight: 700; color: var(--ink); display: block; margin-bottom: 4px; letter-spacing: -0.01em; }
+.isk-trust-item p { font-size: 0.86rem; color: var(--slate-500); margin: 0; line-height: 1.5; }
+@media (max-width: 820px) { .isk-trust { grid-template-columns: 1fr 1fr; gap: 24px; } }
+@media (max-width: 520px) { .isk-trust { grid-template-columns: 1fr; } }
+
+/* ── Request onboarding page (light, focused) ───────────────────────────── */
+.isk-brand--dark { color: var(--ink); }
+.isk-brand--dark:hover { color: var(--blue-600); }
+.isk-req { background: var(--mist-50); min-height: 100dvh; display: flex; flex-direction: column; }
+.isk-req-top { background: #fff; border-bottom: 1px solid var(--border-light); }
+.isk-req-topbar { display: flex; align-items: center; height: 64px; }
+.isk-req-topbar .right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+.isk-back { display: inline-flex; align-items: center; gap: 6px; color: var(--slate-500); text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: color var(--tap); }
+.isk-back:hover { color: var(--blue-600); }
+.isk-req-main { flex: 1; padding: 52px 0 80px; }
+.isk-req-grid { display: grid; grid-template-columns: 0.82fr 1.18fr; gap: 56px; align-items: start; }
+@media (max-width: 900px) { .isk-req-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+.isk-req-aside .isk-h2 { margin: 0 0 14px; }
+.isk-req-aside > p { color: var(--slate-500); font-size: 1.05rem; margin: 0 0 32px; max-width: 40ch; }
+.isk-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 22px; }
+.isk-step { display: flex; gap: 15px; }
+.isk-step-n { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-weight: 750; font-size: 0.92rem; background: var(--blue-100); color: var(--blue-600); position: relative; }
+.isk-step:not(:last-child) .isk-step-n::after { content: ''; position: absolute; top: 34px; left: 50%; transform: translateX(-50%); width: 2px; height: 24px; background: var(--border-light); }
+.isk-step b { display: block; font-size: 0.98rem; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 3px; }
+.isk-step p { margin: 0; font-size: 0.9rem; color: var(--slate-500); line-height: 1.5; }
+.isk-req-pilot { margin-top: 34px; display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: #fff; border: 1px solid var(--border-light); border-radius: 13px; font-size: 0.88rem; color: var(--slate-600); }
+.isk-req-pilot .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 3px rgba(254,204,0,.2); flex-shrink: 0; }
+
+/* Form */
+.isk-form-card { background: #fff; border: 1px solid var(--border-light); border-radius: 20px; padding: 30px; box-shadow: var(--shadow-frame-light); }
+.isk-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 18px; }
+.isk-field { display: flex; flex-direction: column; gap: 7px; }
+.isk-field.full { grid-column: 1 / -1; }
+@media (max-width: 520px) { .isk-form-grid { grid-template-columns: 1fr; } }
+.isk-label { font-size: 0.84rem; font-weight: 600; color: var(--ink); display: flex; align-items: baseline; gap: 6px; }
+.isk-label em { font-style: normal; font-weight: 500; font-size: 0.76rem; color: var(--slate-500); }
+.isk-input, .isk-textarea {
+  width: 100%; font: inherit; font-size: 0.94rem; color: var(--ink);
+  background: var(--mist-50); border: 1px solid var(--border-light); border-radius: 10px; padding: 11px 13px;
+  transition: border-color var(--tap), box-shadow var(--tap), background var(--tap);
+}
+.isk-input::placeholder, .isk-textarea::placeholder { color: #97a1b5; }
+.isk-input:focus, .isk-textarea:focus { outline: none; background: #fff; border-color: var(--blue-500); box-shadow: 0 0 0 3px rgba(26,86,214,.14); }
+.isk-input[aria-invalid='true'], .isk-textarea[aria-invalid='true'] { border-color: #ef4444; }
+.isk-textarea { resize: vertical; min-height: 96px; }
+.isk-err { color: #ef4444; font-size: 0.76rem; font-weight: 500; }
+.isk-form-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 22px; flex-wrap: wrap; }
+.isk-form-foot .note { font-size: 0.8rem; color: var(--slate-500); max-width: 34ch; }
+.isk-btn-lg { padding: 13px 22px; font-size: 1rem; border-radius: 12px; }
+
+/* Success */
+.isk-success { text-align: center; padding: 20px 8px 8px; }
+.isk-success-ico { width: 62px; height: 62px; border-radius: 50%; margin: 0 auto 20px; display: grid; place-items: center; background: #eaf7ed; color: #004f1e; box-shadow: 0 0 0 8px rgba(97,197,116,.14); animation: isk-pop 520ms var(--ease-out) both; }
+@keyframes isk-pop { 0% { transform: scale(.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.isk-success h3 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 10px; color: var(--ink); }
+.isk-success p { color: var(--slate-500); font-size: 1rem; margin: 0 auto 8px; max-width: 42ch; line-height: 1.55; }
+.isk-success .recap { margin: 22px auto 0; max-width: 380px; text-align: left; background: var(--mist-50); border: 1px solid var(--border-light); border-radius: 13px; padding: 16px 18px; font-size: 0.9rem; }
+.isk-success .recap div { display: flex; justify-content: space-between; gap: 16px; padding: 5px 0; }
+.isk-success .recap div span { color: var(--slate-500); }
+.isk-success .recap div b { color: var(--ink); font-weight: 650; text-align: right; }
+
+@media (prefers-reduced-motion: reduce) {
+  .isk *, .isk *::before, .isk *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  .isk-rise { opacity: 1 !important; transform: none !important; }
+}
