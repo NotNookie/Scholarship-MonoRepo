@@ -104,7 +104,7 @@ function ThemePreview({ portalName, tagline }) {
         <PreviewBlock title="Status">
           <div className="flex flex-wrap items-center gap-2">
             <Pill cls="bg-tertiary-light text-tertiary-dark" Icon={CheckCircle2}>Approved</Pill>
-            <Pill cls="bg-secondary-light text-on-secondary" Icon={AlertTriangle}>Pending</Pill>
+            <Pill cls="bg-secondary-light text-secondary-dark" Icon={AlertTriangle}>Pending</Pill>
             <Pill cls="bg-danger-light text-danger" Icon={XCircle}>Rejected</Pill>
             <Pill cls="bg-primary-light text-primary" Icon={Info}>Under Review</Pill>
           </div>

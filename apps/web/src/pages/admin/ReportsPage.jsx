@@ -228,7 +228,7 @@ export function ReportsPage() {
                   </div>
                   <span className="text-xs text-content-muted shrink-0">{rows.length} rows</span>
                 </div>
-                {r.note && <p className="text-xs text-on-secondary bg-secondary-light border border-secondary/30 rounded-lg px-3 py-2 mt-3">{r.note}</p>}
+                {r.note && <p className="text-xs text-secondary-dark bg-secondary-light border border-secondary/30 rounded-lg px-3 py-2 mt-3">{r.note}</p>}
                 <div className="flex items-center gap-3 mt-4 pt-4 border-t border-border">
                   <button
                     onClick={() => downloadPdf(r.title, r.columns, r.rows(apps), `${brand.program} — Generated ${new Date().toLocaleString('en-PH')}`)}

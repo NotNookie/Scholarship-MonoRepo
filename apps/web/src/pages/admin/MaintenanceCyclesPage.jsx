@@ -20,7 +20,7 @@ import { Skeleton } from '../../components/shared/Skeleton'
 
 const CYCLE_STATUS = {
   active:   { label: 'Active',   cls: 'bg-tertiary-light text-tertiary-dark border-tertiary/30', accent: 'border-l-tertiary' },
-  upcoming: { label: 'Upcoming', cls: 'bg-secondary-light text-on-secondary border-secondary/30', accent: 'border-l-secondary' },
+  upcoming: { label: 'Upcoming', cls: 'bg-secondary-light text-secondary-dark border-secondary/30', accent: 'border-l-secondary' },
   past:     { label: 'Past',     cls: 'bg-surface-alt text-content-muted border-border',          accent: 'border-l-border' },
 }
 

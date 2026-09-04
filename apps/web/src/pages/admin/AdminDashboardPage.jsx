@@ -50,12 +50,12 @@ function formatDateTime(value) {
 
 const TONES = {
   neutral: { chip: 'bg-primary-light text-primary',       bar: 'bg-primary' },
-  amber:   { chip: 'bg-secondary-light text-on-secondary', bar: 'bg-secondary' },
+  amber:   { chip: 'bg-secondary-light text-secondary-dark', bar: 'bg-secondary' },
   green:   { chip: 'bg-tertiary-light text-tertiary-dark', bar: 'bg-tertiary' },
   red:     { chip: 'bg-danger-light text-danger',          bar: 'bg-danger' },
 }
 const ATT_TONE = {
-  amber: 'bg-secondary-light text-on-secondary',
+  amber: 'bg-secondary-light text-secondary-dark',
   red: 'bg-danger-light text-danger',
   blue: 'bg-primary-light text-primary',
   primary: 'bg-primary-light text-primary',

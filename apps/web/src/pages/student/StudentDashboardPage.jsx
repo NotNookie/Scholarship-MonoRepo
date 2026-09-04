@@ -208,8 +208,8 @@ export function StudentDashboardPage() {
             <StatCard
               Icon={Banknote}
               label="Scholarship Grant"
-              value={application?.grant_amount ? `₱${Number(application.grant_amount).toLocaleString()}` : '—'}
-              sub={application?.grant_amount ? 'Per semester' : 'Pending approval'}
+              value={application?.grant_amount ? `₱${Number(application.grant_amount).toLocaleString()}` : 'Not yet awarded'}
+              sub={application?.grant_amount ? 'Per semester' : 'Awarded once approved'}
             />
             <StatCard
               Icon={CalendarCheck}

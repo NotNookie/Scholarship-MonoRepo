@@ -20,7 +20,7 @@ import { useBrand } from '../../tenant/TenantContext'
 const SCHOLAR_STATUS = {
   active:      { label: 'Active Scholar', dot: 'bg-tertiary',  text: 'text-tertiary-dark' },
   renewed:     { label: 'Renewed',        dot: 'bg-tertiary',  text: 'text-tertiary-dark' },
-  renewal_due: { label: 'Renewal Due',    dot: 'bg-secondary', text: 'text-on-secondary' },
+  renewal_due: { label: 'Renewal Due',    dot: 'bg-secondary', text: 'text-secondary-dark' },
   at_risk:     { label: 'At Risk',        dot: 'bg-danger',    text: 'text-danger' },
   terminated:  { label: 'Terminated',     dot: 'bg-danger',    text: 'text-danger' },
   graduated:   { label: 'Graduated',      dot: 'bg-primary',   text: 'text-primary' },

@@ -77,6 +77,18 @@ const MyScholarshipPage = lazy(() =>
 const ReportsPage = lazy(() =>
   import('../pages/admin/ReportsPage').then((m) => ({ default: m.ReportsPage }))
 )
+// Iskolar platform marketing landing — its own full-bleed world (own nav +
+// footer), so it sits outside PublicLayout. Not the default route for now.
+const PlatformLandingPage = lazy(() =>
+  import('../pages/platform/PlatformLandingPage').then((m) => ({ default: m.PlatformLandingPage }))
+)
+const PlatformRequestPage = lazy(() =>
+  import('../pages/platform/PlatformRequestPage').then((m) => ({ default: m.PlatformRequestPage }))
+)
+// Design exploration — 5 switchable operator-console looks (preview only).
+const ConsolePreviewPage = lazy(() =>
+  import('../pages/platform/ConsolePreviewPage').then((m) => ({ default: m.ConsolePreviewPage }))
+)
 
 function RouteFallback() {
   return <div style={{ padding: '48px 24px', textAlign: 'center', color: '#64748b', fontSize: 14 }}>Loading…</div>
@@ -112,6 +124,11 @@ export const router = createBrowserRouter([
       { path: '/settings',               element: scholar(<StudentSettingsPage />) },
     ],
   },
+
+  // ── Iskolar platform landing (parked route; not yet the front door) ──
+  { path: '/iskolar', element: withSuspense(<PlatformLandingPage />) },
+  { path: '/iskolar/request', element: withSuspense(<PlatformRequestPage />) },
+  { path: '/console-preview', element: withSuspense(<ConsolePreviewPage />) },
 
   // ── Auth pages ─────────────────────────────────────────────
   // Login + Register share AuthLayout (persistent panel + tabs); verify is standalone.

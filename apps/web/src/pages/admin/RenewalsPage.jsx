@@ -29,7 +29,7 @@ const MODAL_CONFIG = {
     description: 'Ask the scholar to fix or re-upload something before a decision is made.',
     reasonLabel: 'What needs to be corrected?', reasonRequired: true,
     confirmLabel: 'Send Request', confirmCls: 'bg-secondary text-on-secondary hover:opacity-90',
-    Icon: Flag, iconCls: 'bg-secondary-light text-on-secondary',
+    Icon: Flag, iconCls: 'bg-secondary-light text-secondary-dark',
   },
   terminated: {
     title: 'Terminate Scholarship',
@@ -178,7 +178,7 @@ function Detail({ renewal, policy, onAction, onDoc, busy, onBack }) {
             <div className="bg-surface-alt rounded-xl p-5 flex flex-col items-center justify-center text-center">
               <p className="text-3xl font-bold text-content">{renewal.back_subjects ?? 0}</p>
               <p className="text-xs font-semibold text-content-muted uppercase tracking-wide mt-1">Back Subjects</p>
-              <span className={`mt-3 text-xs px-3 py-1.5 rounded-full ${(renewal.back_subjects ?? 0) > 0 ? 'bg-secondary-light text-on-secondary' : 'bg-primary-light text-primary'}`}>
+              <span className={`mt-3 text-xs px-3 py-1.5 rounded-full ${(renewal.back_subjects ?? 0) > 0 ? 'bg-secondary-light text-secondary-dark' : 'bg-primary-light text-primary'}`}>
                 {(renewal.back_subjects ?? 0) > 0 ? 'Needs review' : 'Cleared for current term'}
               </span>
             </div>
@@ -420,7 +420,7 @@ export function RenewalsPage() {
               <span className="text-xs font-semibold text-primary shrink-0">{checkedIds.length} selected</span>
               <div className="flex items-center gap-1.5 ml-auto">
                 <button onClick={() => setBulkType('approved')} className="text-xs font-semibold text-tertiary-dark border border-tertiary/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-tertiary-light transition-colors">Approve</button>
-                <button onClick={() => setBulkType('correction')} className="text-xs font-semibold text-on-secondary border border-secondary/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-secondary-light transition-colors">Correction</button>
+                <button onClick={() => setBulkType('correction')} className="text-xs font-semibold text-secondary-dark border border-secondary/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-secondary-light transition-colors">Correction</button>
                 <button onClick={() => setBulkType('terminated')} className="text-xs font-semibold text-danger border border-danger/40 bg-surface px-2.5 py-1 rounded-lg hover:bg-danger-light transition-colors">Terminate</button>
                 <button onClick={() => setChecked(new Set())} className="text-xs font-medium text-content-muted hover:text-content px-1.5 py-1" aria-label="Clear selection">Clear</button>
               </div>

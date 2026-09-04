@@ -32,3 +32,7 @@ desktop.ini
 .vscode/settings.json
 *.suo
 *.user
+
+# Impeccable design-skill scratch (screenshots + critique snapshots)
+.impeccable/review/
+.impeccable/critique/

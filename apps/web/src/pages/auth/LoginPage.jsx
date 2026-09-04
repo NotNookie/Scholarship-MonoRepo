@@ -169,6 +169,20 @@ export function LoginPage() {
                   </button>
                 ))}
               </div>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <Link
+                  to="/iskolar"
+                  className="flex items-center justify-center gap-1.5 text-xs font-semibold py-2 rounded-lg border border-dashed border-primary/40 text-primary hover:bg-primary-light/50 transition-colors"
+                >
+                  Iskolar landing →
+                </Link>
+                <Link
+                  to="/console-preview"
+                  className="flex items-center justify-center gap-1.5 text-xs font-semibold py-2 rounded-lg border border-dashed border-primary/40 text-primary hover:bg-primary-light/50 transition-colors"
+                >
+                  Console preview →
+                </Link>
+              </div>
             </div>
           )}
 

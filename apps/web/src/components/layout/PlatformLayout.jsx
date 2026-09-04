@@ -10,11 +10,6 @@ import { PlatformTools } from '../platform/PlatformTools'
 import { ReportIssueDrawer } from '../platform/ReportIssueDrawer'
 import '../../styles/platform.css'
 
-// Locked design combo for the platform console. The stylesheet still carries
-// the other treatments (top/right/bottom/float placements, other headers/navs/
-// buttons); change these four values to re-theme the whole surface.
-const LOOK = { variant: 'compact', header: 'slab', nav: 'underline', place: 'left', buttons: 'outline' }
-
 const navItems = [
   { to: '/platform', end: true, label: 'Overview', Icon: LayoutGrid },
   { to: '/platform/municipalities', label: 'Municipalities', Icon: Building2 },
@@ -44,56 +39,48 @@ export function PlatformLayout() {
   }
 
   return (
-    <div className="platform-root" data-variant={LOOK.variant} data-header={LOOK.header} data-nav={LOOK.nav} data-btn={LOOK.buttons} data-place={LOOK.place}>
-      {/* Masthead — the fixed brand anchor */}
-      <header className="pf-masthead">
-        <div className="pf-wrap pf-masthead-in">
-          <Crest />
-          <span className="pf-svc">
-            <span className="pf-brand">Iskolar</span>
-            <span className="pf-tag">Platform Console</span>
-          </span>
-          <PlatformTools />
-          <div className="pf-op">
-            <div className="pf-op-badge">{initials(user?.name)}</div>
-            <div className="pf-op-meta">
-              <div className="pf-op-name">{user?.name ?? 'Platform Admin'}</div>
-              <div className="pf-op-role">Super Admin</div>
-            </div>
-            <button className="pf-op-out" type="button" onClick={handleLogout} aria-label="Sign out" title="Sign out">
-              <LogOut size={17} />
-            </button>
+    <div className="platform-root">
+      {/* Deep-ink operator sidebar — a level darker than a tenant's admin blue,
+          with a gold "Platform" mark, so the operator context is never mistaken
+          for a municipality's own portal. */}
+      <aside className="pf-side">
+        <div className="pf-side-brand">
+          <Crest className="pf-side-crest" />
+          <span className="pf-side-word">Iskolar<span className="pf-side-tag">Platform</span></span>
+        </div>
+
+        <div className="pf-side-op">
+          <div className="pf-side-badge">{initials(user?.name)}</div>
+          <div className="pf-side-meta">
+            <div className="pf-side-name">{user?.name ?? 'Platform Admin'}</div>
+            <div className="pf-side-role">Super Admin</div>
           </div>
         </div>
-      </header>
 
-      {/* Phase banner — full width under the masthead */}
-      <div className="pf-phase">
-        <div className="pf-wrap pf-phase-in">
-          <span className="pf-badge">Platform</span>
-          <span>
-            Operator console for the Iskolar network — <button type="button" className="pf-inline-link" onClick={() => setReportOpen(true)}>report an issue</button>.
-          </span>
-          <span className="pf-live">
-            <span className="pf-dot" aria-hidden="true" />
-            Live · updated just now
-          </span>
-        </div>
-      </div>
-
-      {/* Nav + content — the nav's placement is set by data-place */}
-      <div className="pf-body">
-        <nav className="pf-nav" aria-label="Platform sections">
-          <div className="pf-wrap pf-nav-in">
-            {navItems.map(({ to, end, label, Icon }) => (
-              <NavLink key={to} to={to} end={end} className={({ isActive }) => `pf-navitem${isActive ? ' active' : ''}`}>
-                <Icon />
-                {label}
-              </NavLink>
-            ))}
-            <span className="pf-nav-stamp">Platform</span>
-          </div>
+        <nav className="pf-side-nav" aria-label="Platform sections">
+          {navItems.map(({ to, end, label, Icon }) => (
+            <NavLink key={to} to={to} end={end} className={({ isActive }) => `pf-navitem${isActive ? ' active' : ''}`}>
+              <Icon />
+              <span>{label}</span>
+            </NavLink>
+          ))}
         </nav>
+
+        <button className="pf-side-out" type="button" onClick={handleLogout}>
+          <LogOut size={16} /> Sign out
+        </button>
+      </aside>
+
+      {/* Content column */}
+      <div className="pf-shell">
+        <header className="pf-topbar">
+          <span className="pf-op-chip"><span className="pf-op-dot" aria-hidden="true" /> Operator console</span>
+          <span className="pf-op-sub">Iskolar network — live</span>
+          <div className="pf-topbar-right">
+            <button type="button" className="pf-inline-link" onClick={() => setReportOpen(true)}>Report an issue</button>
+            <PlatformTools />
+          </div>
+        </header>
 
         <main className="pf-main">
           <div className="pf-wrap">

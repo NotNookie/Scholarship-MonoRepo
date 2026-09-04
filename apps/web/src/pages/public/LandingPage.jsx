@@ -13,6 +13,9 @@ import {
   Phone,
   Mail,
   Globe,
+  CalendarDays,
+  Clock,
+  Banknote,
 } from 'lucide-react'
 
 // Facebook glyph (lucide dropped brand icons)
@@ -61,8 +64,12 @@ export function LandingPage() {
   return (
     <>
       {/* ── Hero ─────────────────────────────────────────────── */}
-      <section className="bg-primary text-on-primary">
-        <div className="max-w-6xl mx-auto px-6 py-16 md:py-24 flex flex-col md:flex-row items-center gap-10 md:gap-16">
+      <section className="relative overflow-hidden bg-primary text-on-primary">
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(55% 75% at 82% -5%, rgba(255,255,255,.12), transparent 60%), radial-gradient(45% 60% at 0% 105%, rgba(0,0,0,.18), transparent 60%)' }}
+        />
+        <div className="relative max-w-6xl mx-auto px-6 py-16 md:py-24 flex flex-col md:flex-row items-center gap-10 md:gap-16">
 
           <div className="flex-1 min-w-0">
             <div className="inline-flex items-center gap-2 bg-white/10 text-secondary text-xs font-semibold px-3 py-1.5 rounded-full mb-6 border border-white/20">
@@ -82,7 +89,7 @@ export function LandingPage() {
                 <>
                   <Link
                     to="/scholarship"
-                    className="inline-flex items-center gap-2 bg-secondary text-on-secondary px-6 py-3 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity shadow-sm"
+                    className="inline-flex items-center gap-2 bg-white/10 border border-white/25 text-on-primary px-6 py-3 rounded-lg font-semibold text-sm hover:bg-white/20 transition-colors"
                   >
                     Apply Now <ChevronRight size={15} />
                   </Link>
@@ -98,7 +105,7 @@ export function LandingPage() {
                 <>
                   <Link
                     to="/register"
-                    className="inline-flex items-center gap-2 bg-secondary text-on-secondary px-6 py-3 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity shadow-sm"
+                    className="inline-flex items-center gap-2 bg-white/10 border border-white/25 text-on-primary px-6 py-3 rounded-lg font-semibold text-sm hover:bg-white/20 transition-colors"
                   >
                     Apply Now <ChevronRight size={15} />
                   </Link>
@@ -114,8 +121,38 @@ export function LandingPage() {
             </div>
           </div>
 
-          <div className="hidden md:flex w-[380px] aspect-[4/3] rounded-2xl bg-white/5 items-center justify-center shrink-0 border border-white/10">
-            <Users size={80} strokeWidth={1.2} className="text-white/20" />
+          {/* At-a-glance card — real, useful info in place of a photo */}
+          <div className="w-full md:w-[380px] shrink-0">
+            <div className="bg-surface text-content rounded-2xl shadow-modal p-6">
+              <div className="flex items-center gap-3 mb-5">
+                <span className="w-10 h-10 rounded-xl bg-primary-light text-primary grid place-items-center shrink-0">
+                  <CalendarDays size={20} />
+                </span>
+                <div>
+                  <p className="text-sm font-bold">This cycle at a glance</p>
+                  <p className="text-xs text-content-muted">AY 2026–2027 applications</p>
+                </div>
+              </div>
+              <div className="flex flex-col divide-y divide-border">
+                {[
+                  { Icon: Clock, label: 'Deadline to apply', value: brand.applicationDeadline || 'See programs' },
+                  { Icon: Banknote, label: 'Cost to apply', value: 'Free' },
+                  { Icon: Globe, label: 'How it works', value: 'Fully online' },
+                ].map(({ Icon, label, value }) => (
+                  <div key={label} className="flex items-center gap-3 py-3">
+                    <Icon size={16} className="text-content-disabled shrink-0" />
+                    <span className="text-sm text-content-muted flex-1">{label}</span>
+                    <span className="text-sm font-semibold text-content text-right">{value}</span>
+                  </div>
+                ))}
+              </div>
+              <Link
+                to={isScholar ? '/scholarship' : '/scholarships'}
+                className="mt-5 w-full bg-primary text-on-primary text-sm font-semibold py-2.5 rounded-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-1.5"
+              >
+                {isScholar ? 'Go to My Scholarship' : 'Browse scholarships'} <ChevronRight size={15} />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -123,13 +160,12 @@ export function LandingPage() {
       {/* ── About the Program ────────────────────────────────── */}
       <section className="bg-surface border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-16">
-          <div className="text-center mb-4">
-            <h2 className="text-2xl font-bold text-primary">About the Program</h2>
-          </div>
-          <p className="text-sm text-content-muted text-center max-w-2xl mx-auto mb-12 leading-relaxed">
-            The {brand.office} of {brand.municipality} is committed to ensuring
-            every deserving student has access to higher education through a streamlined and
-            transparent application process.
+          <h2 className="text-3xl font-bold text-content text-center mb-3">
+            From application to grant, in five steps
+          </h2>
+          <p className="text-base text-content-muted text-center max-w-2xl mx-auto mb-12 leading-relaxed">
+            The {brand.office} of {brand.municipality} keeps the whole process online and
+            transparent. Here&rsquo;s how it works, start to finish.
           </p>
 
           <div className="relative">

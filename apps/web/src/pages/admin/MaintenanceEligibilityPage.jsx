@@ -17,7 +17,7 @@ import { Skeleton } from '../../components/shared/Skeleton'
 const RULE_TYPES = {
   residency:   { label: 'Residency',          Icon: MapPin,      cls: 'bg-primary-light text-primary',       value: 'years',  valueLabel: 'Minimum years of residency', unit: 'years' },
   voter:       { label: 'Voter Registration', Icon: CheckSquare, cls: 'bg-tertiary-light text-tertiary-dark', value: null },
-  income:      { label: 'Income Threshold',   Icon: Banknote,    cls: 'bg-secondary-light text-on-secondary', value: 'amount', valueLabel: 'Maximum household income (₱ / year)' },
+  income:      { label: 'Income Threshold',   Icon: Banknote,    cls: 'bg-secondary-light text-secondary-dark', value: 'amount', valueLabel: 'Maximum household income (₱ / year)' },
   attestation: { label: 'Attestation',        Icon: ShieldCheck, cls: 'bg-primary-light text-primary',       value: null },
   custom:      { label: 'Custom',             Icon: ListPlus,    cls: 'bg-surface-alt text-content-muted',    value: null },
 }

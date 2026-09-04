@@ -8,7 +8,7 @@ import { api } from '../../lib/axios'
 const TYPE_ICON = {
   status:       { Icon: BadgeCheck,   cls: 'bg-tertiary-light text-tertiary-dark' },
   document:     { Icon: FileText,     cls: 'bg-primary-light text-primary' },
-  announcement: { Icon: Megaphone,    cls: 'bg-secondary-light text-on-secondary' },
+  announcement: { Icon: Megaphone,    cls: 'bg-secondary-light text-secondary-dark' },
   renewal:      { Icon: CalendarClock, cls: 'bg-primary-light text-primary' },
   appeal:       { Icon: Gavel,        cls: 'bg-danger-light text-danger' },
 }

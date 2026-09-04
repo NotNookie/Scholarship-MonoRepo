@@ -21,7 +21,7 @@ import { Skeleton } from '../../components/shared/Skeleton'
 
 const STATUS_STYLES = {
   active:  { label: 'Active',       cls: 'bg-tertiary-light text-tertiary-dark border-tertiary/30', bar: 'bg-primary' },
-  draft:   { label: 'Draft Review', cls: 'bg-secondary-light text-on-secondary border-secondary/30', bar: 'bg-secondary' },
+  draft:   { label: 'Draft Review', cls: 'bg-secondary-light text-secondary-dark border-secondary/30', bar: 'bg-secondary' },
 }
 
 const GWA_DIRECTIONS = [
