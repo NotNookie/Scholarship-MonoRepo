@@ -66,12 +66,9 @@ export function PlatformAnalyticsPage() {
           <h2 id="health" style={{ scrollMarginTop: 24 }}>Platform health</h2>
           <p className="pf-sub">Live status of the services every municipality depends on.</p>
           <div
-            className="pf-banner"
-            style={
-              healthBanner.cls === 'ok'
-                ? undefined
-                : { background: healthBanner.cls === 'stop' ? 'var(--pf-stop-fg)' : '#946f00' }
-            }
+            className={`pf-banner${
+              healthBanner.cls === 'stop' ? ' pf-banner--stop' : healthBanner.cls === 'ok' ? '' : ' pf-banner--warn'
+            }`}
           >
             {allGood ? <CircleCheck size={30} strokeWidth={2} /> : <AlertTriangle size={30} strokeWidth={2} />}
             <div>

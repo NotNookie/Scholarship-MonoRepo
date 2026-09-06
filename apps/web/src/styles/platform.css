@@ -131,6 +131,11 @@
 .pf-banner svg { width: 28px; height: 28px; flex: none; color: #8ee0a1; }
 .pf-banner .bt { font-weight: 750; font-size: 1rem; color: #fff; }
 .pf-banner .bs { font-size: 0.86rem; color: var(--pf-ink-2); margin-top: 2px; }
+/* Severity variants — tinted chips, matching the pill language, never a solid fill */
+.pf-banner--warn { background: var(--pf-warn-bg); border-color: color-mix(in srgb, var(--pf-warn-fg) 34%, transparent); }
+.pf-banner--warn svg { color: var(--pf-warn-fg); }
+.pf-banner--stop { background: var(--pf-stop-bg); border-color: color-mix(in srgb, var(--pf-stop-fg) 34%, transparent); }
+.pf-banner--stop svg { color: var(--pf-stop-fg); }
 
 /* ── Cards / blocks ──────────────────────────────────────────────────────── */
 .pf-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-bottom: 26px; }
@@ -447,8 +452,8 @@
 .platform-root[data-theme="light"] .pf-feed-ic.b,
 .platform-root[data-theme="light"] .pf-notif-ic.info { background: #e8effe; color: #1a56d6; }
 .platform-root[data-theme="light"] .pf-notif-ic.warn { background: #fbf1cf; color: #8a6d00; }
-.platform-root[data-theme="light"] .pf-banner { background: #eef8f1; border-color: #cbe9d5; }
-.platform-root[data-theme="light"] .pf-banner svg { color: #12833a; }
+.platform-root[data-theme="light"] .pf-banner:not(.pf-banner--warn):not(.pf-banner--stop) { background: #eef8f1; border-color: #cbe9d5; }
+.platform-root[data-theme="light"] .pf-banner:not(.pf-banner--warn):not(.pf-banner--stop) svg { color: #12833a; }
 .platform-root[data-theme="light"] .pf-reg thead th { background: #f7f7f8; }
 .platform-root[data-theme="light"] .pf-reg tbody tr:hover { background: #f7f7f8; }
 .platform-root[data-theme="light"] .pf-mtool:hover,

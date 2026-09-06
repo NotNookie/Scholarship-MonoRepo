@@ -61,7 +61,7 @@ function RemoveUserDrawer({ open, user, onClose, onConfirm }) {
         </div>
 
         <div className="pf-drawer-body">
-          <div className="pf-banner" style={{ background: 'var(--pf-stop-fg)', margin: '0 0 22px' }}>
+          <div className="pf-banner pf-banner--stop" style={{ margin: '0 0 22px' }}>
             <AlertTriangle size={30} strokeWidth={2} />
             <div>
               <div className="bt">They lose access immediately</div>
