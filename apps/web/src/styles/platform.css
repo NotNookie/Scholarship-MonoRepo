@@ -380,6 +380,119 @@
 .pf-reveal:nth-child(2){animation-delay:.06s} .pf-reveal:nth-child(3){animation-delay:.12s} .pf-reveal:nth-child(4){animation-delay:.18s}
 @keyframes pf-rise { to { opacity: 1; transform: none; } }
 
+/* ── Light mode (data-theme="light") ────────────────────────────────────────
+   Only the content area flips; the deep-ink sidebar stays dark in both modes
+   (operator signal). Most surfaces are token-driven, so the bulk is a token
+   swap; the block below flips the colours that were hardcoded for dark. */
+.platform-root[data-theme="light"] {
+  --pf-ground: #fafafa; --pf-surface: #ffffff; --pf-surface-alt: #f4f4f5; --pf-panel: #ffffff;
+  --pf-ink: #18181b; --pf-ink-2: #52525b; --pf-ink-3: #9a9aa6;
+  --pf-line: #e7e7ec; --pf-line-soft: #f1f1f4;
+  --pf-accent: #0038a8; --pf-accent-2: #002576; --pf-accent-bright: #1a56d6;
+  --pf-ok-fg: #12833a; --pf-ok-bg: #e7f6ec; --pf-warn-fg: #8a6d00; --pf-warn-bg: #fbf1cf;
+  --pf-stop-fg: #b91c1c; --pf-stop-bg: #fbdada; --pf-info-fg: #0038a8; --pf-info-bg: #e8effe;
+  --pf-focus: #1a56d6;
+  --pf-side-line: #e7e7ec;
+}
+.platform-root[data-theme="light"] ::selection { background: rgba(0,56,168,.16); color: var(--pf-ink); }
+/* primary text: hardcoded white → ink */
+.platform-root[data-theme="light"] .pf-op-chip,
+.platform-root[data-theme="light"] .pf-block h2,
+.platform-root[data-theme="light"] .pf-empty b,
+.platform-root[data-theme="light"] .pf-feed-tx b,
+.platform-root[data-theme="light"] .pf-vital .fig,
+.platform-root[data-theme="light"] .pf-ten-name,
+.platform-root[data-theme="light"] .pf-kv .v,
+.platform-root[data-theme="light"] .pf-set-lbl,
+.platform-root[data-theme="light"] .pf-pn,
+.platform-root[data-theme="light"] .pf-rec-title,
+.platform-root[data-theme="light"] .pf-rec-panel h2,
+.platform-root[data-theme="light"] .pf-rec-fig,
+.platform-root[data-theme="light"] .pf-drawer-head h2,
+.platform-root[data-theme="light"] .pf-field label,
+.platform-root[data-theme="light"] .pf-bar-val,
+.platform-root[data-theme="light"] .pf-spark-n,
+.platform-root[data-theme="light"] .pf-board-col-head .t,
+.platform-root[data-theme="light"] .pf-board-card .nm,
+.platform-root[data-theme="light"] .pf-ticket-subj,
+.platform-root[data-theme="light"] .pf-ticket-meta b,
+.platform-root[data-theme="light"] .pf-bc-t,
+.platform-root[data-theme="light"] .pf-health-lbl,
+.platform-root[data-theme="light"] .pf-check.done,
+.platform-root[data-theme="light"] .pf-banner .bt,
+.platform-root[data-theme="light"] .pf-reg td,
+.platform-root[data-theme="light"] .pf-notif-item,
+.platform-root[data-theme="light"] .pf-notif-head b,
+.platform-root[data-theme="light"] .pf-cmd-item,
+.platform-root[data-theme="light"] .pf-cmd-top input,
+.platform-root[data-theme="light"] .pf-search input,
+.platform-root[data-theme="light"] .pf-input,
+.platform-root[data-theme="light"] .pf-select,
+.platform-root[data-theme="light"] .pf-textarea,
+.platform-root[data-theme="light"] .pf-field input,
+.platform-root[data-theme="light"] .pf-field textarea { color: var(--pf-ink); }
+/* muted text */
+.platform-root[data-theme="light"] .pf-feed-tx,
+.platform-root[data-theme="light"] .pf-bc-b,
+.platform-root[data-theme="light"] .pf-bar-lbl { color: var(--pf-ink-2); }
+/* chrome + overlays → light */
+.platform-root[data-theme="light"] .pf-topbar { background: rgba(255,255,255,.82); }
+.platform-root[data-theme="light"] .pf-btn { background: #18181b; color: #fff; }
+.platform-root[data-theme="light"] .pf-btn:hover { background: #34343a; }
+.platform-root[data-theme="light"] .pf-btn--ghost { background: #ffffff; color: var(--pf-ink); border-color: var(--pf-line); }
+.platform-root[data-theme="light"] .pf-btn--ghost:hover { background: #f4f4f5; border-color: #d4d4d8; }
+.platform-root[data-theme="light"] .pf-feed-ic { background: #f1f1f4; color: var(--pf-ink-2); }
+.platform-root[data-theme="light"] .pf-feed-ic.g,
+.platform-root[data-theme="light"] .pf-notif-ic.ok { background: #e7f6ec; color: #12833a; }
+.platform-root[data-theme="light"] .pf-feed-ic.b,
+.platform-root[data-theme="light"] .pf-notif-ic.info { background: #e8effe; color: #1a56d6; }
+.platform-root[data-theme="light"] .pf-notif-ic.warn { background: #fbf1cf; color: #8a6d00; }
+.platform-root[data-theme="light"] .pf-banner { background: #eef8f1; border-color: #cbe9d5; }
+.platform-root[data-theme="light"] .pf-banner svg { color: #12833a; }
+.platform-root[data-theme="light"] .pf-reg thead th { background: #f7f7f8; }
+.platform-root[data-theme="light"] .pf-reg tbody tr:hover { background: #f7f7f8; }
+.platform-root[data-theme="light"] .pf-mtool:hover,
+.platform-root[data-theme="light"] .pf-drawer-close:hover { background: #f4f4f5; color: var(--pf-ink); }
+.platform-root[data-theme="light"] .pf-notif-item:hover { background: #f4f4f5; }
+.platform-root[data-theme="light"] .pf-notif-item.unread { background: #eef1fb; }
+.platform-root[data-theme="light"] .pf-cmd-item:hover,
+.platform-root[data-theme="light"] .pf-cmd-item.on { background: #eef1fb; }
+.platform-root[data-theme="light"] .pf-tog { background: #d4d4d8; }
+.platform-root[data-theme="light"] .pf-bar-track { background: #ececf0; }
+.platform-root[data-theme="light"] .pf-subdomain .suffix,
+.platform-root[data-theme="light"] .pf-drawer-foot { background: #f7f7f8; }
+.platform-root[data-theme="light"] .pf-you,
+.platform-root[data-theme="light"] .pf-tag.neutral { background: #eeeef1; color: var(--pf-ink-2); }
+.platform-root[data-theme="light"] .pf-board-card { background: #ffffff; }
+.platform-root[data-theme="light"] .pf-board-card:hover { background: #f7f7f8; }
+.platform-root[data-theme="light"] .pf-progress i { background: #e6e6ec; }
+/* card elevation */
+.platform-root[data-theme="light"] .pf-block,
+.platform-root[data-theme="light"] .pf-vital,
+.platform-root[data-theme="light"] .pf-tscroll,
+.platform-root[data-theme="light"] .pf-rec-panel,
+.platform-root[data-theme="light"] .pf-chart,
+.platform-root[data-theme="light"] .pf-board-col,
+.platform-root[data-theme="light"] .pf-notif-panel,
+.platform-root[data-theme="light"] .pf-cmd { box-shadow: 0 1px 2px rgba(24,24,27,.05), 0 1px 3px rgba(24,24,27,.04); }
+/* charts readable on light */
+.platform-root[data-theme="light"] .pf-spark-bar { background: linear-gradient(180deg, #4d82e8, #dbe6fb); }
+.platform-root[data-theme="light"] .pf-spark-col:last-child .pf-spark-bar { background: linear-gradient(180deg, #0038a8, #9dbcf7); }
+
+/* light-mode sidebar — flips white with the content; the blue crest/tag and the
+   blue active rail stay as the operator accent. */
+.platform-root[data-theme="light"] .pf-side { background: #ffffff; }
+.platform-root[data-theme="light"] .pf-side-word,
+.platform-root[data-theme="light"] .pf-side-name { color: var(--pf-ink); }
+.platform-root[data-theme="light"] .pf-side-role { color: var(--pf-ink-3); }
+.platform-root[data-theme="light"] .pf-side-op { border-color: var(--pf-line); }
+.platform-root[data-theme="light"] .pf-navitem { color: var(--pf-ink-2); }
+.platform-root[data-theme="light"] .pf-navitem:hover { background: #f4f4f5; color: var(--pf-ink); }
+.platform-root[data-theme="light"] .pf-navitem.active { background: #eef1fb; color: #0038a8; box-shadow: inset 3px 0 0 #0038a8; }
+.platform-root[data-theme="light"] .pf-navitem.active svg { color: #0038a8; }
+.platform-root[data-theme="light"] .pf-side-out { color: var(--pf-ink-2); }
+.platform-root[data-theme="light"] .pf-side-out:hover { background: #f4f4f5; color: var(--pf-ink); }
+
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 960px) {
   .platform-root { display: block; }

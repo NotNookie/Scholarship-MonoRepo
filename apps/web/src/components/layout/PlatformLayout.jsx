@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutGrid, Building2, UserPlus, BarChart3, LifeBuoy, Megaphone,
-  Activity, Users, Settings, LogOut,
+  Activity, Users, Settings, LogOut, Sun, Moon,
 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { Crest } from '../platform/PlatformBits'
@@ -33,13 +33,22 @@ export function PlatformLayout() {
   const navigate = useNavigate()
   const [reportOpen, setReportOpen] = useState(false)
 
+  // Console light/dark mode — persisted per device. The deep-ink sidebar stays
+  // dark in both modes; only the content area flips.
+  const [theme, setTheme] = useState(() => {
+    try { return localStorage.getItem('iskolar-pf-theme') || 'dark' } catch { return 'dark' }
+  })
+  useEffect(() => {
+    try { localStorage.setItem('iskolar-pf-theme', theme) } catch { /* storage unavailable */ }
+  }, [theme])
+
   function handleLogout() {
     logout()
     navigate('/login')
   }
 
   return (
-    <div className="platform-root">
+    <div className="platform-root" data-theme={theme}>
       {/* Deep-ink operator sidebar — a level darker than a tenant's admin blue,
           with a gold "Platform" mark, so the operator context is never mistaken
           for a municipality's own portal. */}
@@ -78,6 +87,15 @@ export function PlatformLayout() {
           <span className="pf-op-sub">Iskolar network — live</span>
           <div className="pf-topbar-right">
             <button type="button" className="pf-inline-link" onClick={() => setReportOpen(true)}>Report an issue</button>
+            <button
+              type="button"
+              className="pf-mtool"
+              onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            >
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
             <PlatformTools />
           </div>
         </header>
