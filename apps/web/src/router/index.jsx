@@ -85,10 +85,6 @@ const PlatformLandingPage = lazy(() =>
 const PlatformRequestPage = lazy(() =>
   import('../pages/platform/PlatformRequestPage').then((m) => ({ default: m.PlatformRequestPage }))
 )
-// Design exploration — 5 switchable operator-console looks (preview only).
-const ConsolePreviewPage = lazy(() =>
-  import('../pages/platform/ConsolePreviewPage').then((m) => ({ default: m.ConsolePreviewPage }))
-)
 
 function RouteFallback() {
   return <div style={{ padding: '48px 24px', textAlign: 'center', color: '#64748b', fontSize: 14 }}>Loading…</div>
@@ -128,7 +124,6 @@ export const router = createBrowserRouter([
   // ── Iskolar platform landing (parked route; not yet the front door) ──
   { path: '/iskolar', element: withSuspense(<PlatformLandingPage />) },
   { path: '/iskolar/request', element: withSuspense(<PlatformRequestPage />) },
-  { path: '/console-preview', element: withSuspense(<ConsolePreviewPage />) },
 
   // ── Auth pages ─────────────────────────────────────────────
   // Login + Register share AuthLayout (persistent panel + tabs); verify is standalone.

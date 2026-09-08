@@ -83,7 +83,7 @@ const SUPPORT = [
 
 const BROADCASTS = [
   { id: 'b-3', title: 'Scheduled maintenance — Feb 25, 10 PM', audience: 'All municipalities', sentBy: 'Platform Admin', sentAt: '2026-02-19 · 14:00', body: 'The platform will be briefly unavailable on Feb 25 from 10:00–10:30 PM for a database upgrade. No action is needed on your end.' },
-  { id: 'b-2', title: 'New: document checklist templates', audience: 'All municipalities', sentBy: 'Platform Admin', sentAt: '2026-02-10 · 09:30', body: 'You can now start from a ready-made document checklist when setting up a program. Find it under Maintenance → Document Checklist.' },
+  { id: 'b-2', title: 'New: document checklist templates', audience: 'All municipalities', sentBy: 'Platform Admin', sentAt: '2026-02-10 · 09:30', body: 'You can now start from a ready-made document checklist when setting up a program. Find it under Maintenance → Application Cycles & Documents.' },
   { id: 'b-1', title: 'Reminder: verify staff accounts', audience: 'Active municipalities', sentBy: 'Platform Admin', sentAt: '2026-01-30 · 16:15', body: 'Please make sure every staff member has completed two-factor setup before your next application cycle opens.' },
 ]
 
