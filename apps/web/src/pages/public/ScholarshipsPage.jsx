@@ -166,6 +166,7 @@ export function ScholarshipsPage() {
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
+                aria-label="Sort programs"
                 className="text-xs border border-border rounded-lg px-3 py-1.5 bg-surface text-content focus:outline-none focus:border-primary"
               >
                 {SORT_OPTIONS.map((o) => (

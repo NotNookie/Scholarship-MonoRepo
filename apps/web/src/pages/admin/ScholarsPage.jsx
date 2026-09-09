@@ -256,15 +256,15 @@ export function ScholarsPage() {
               className="w-full text-sm pl-9 pr-3 py-2 rounded-lg border border-border bg-surface-alt focus:outline-none focus:border-primary" />
           </div>
           <div className="flex items-center gap-3 flex-wrap">
-            <select value={status} onChange={(e) => setStatus(e.target.value)} className="text-sm border border-border rounded-lg px-3 py-2 bg-surface text-content focus:outline-none focus:border-primary">
+            <select aria-label="Filter by status" value={status} onChange={(e) => setStatus(e.target.value)} className="text-sm border border-border rounded-lg px-3 py-2 bg-surface text-content focus:outline-none focus:border-primary">
               <option value="all">All Statuses</option>
               {STATUS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
-            <select value={program} onChange={(e) => setProgram(e.target.value)} className="text-sm border border-border rounded-lg px-3 py-2 bg-surface text-content focus:outline-none focus:border-primary">
+            <select aria-label="Filter by program" value={program} onChange={(e) => setProgram(e.target.value)} className="text-sm border border-border rounded-lg px-3 py-2 bg-surface text-content focus:outline-none focus:border-primary">
               <option value="all">All Programs</option>
               {programs.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
-            <select value={year} onChange={(e) => setYear(e.target.value)} className="text-sm border border-border rounded-lg px-3 py-2 bg-surface text-content focus:outline-none focus:border-primary">
+            <select aria-label="Filter by academic year" value={year} onChange={(e) => setYear(e.target.value)} className="text-sm border border-border rounded-lg px-3 py-2 bg-surface text-content focus:outline-none focus:border-primary">
               <option value="all">All A.Y.</option>
               {years.map((y) => <option key={y} value={y}>{y}</option>)}
             </select>

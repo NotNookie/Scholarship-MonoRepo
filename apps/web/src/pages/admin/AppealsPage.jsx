@@ -392,6 +392,7 @@ export function AppealsPage() {
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
+            aria-label="Filter appeals"
             className="text-sm border border-border rounded-lg px-3 py-2 bg-surface text-content focus:outline-none focus:border-primary"
           >
             {FILTERS.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}

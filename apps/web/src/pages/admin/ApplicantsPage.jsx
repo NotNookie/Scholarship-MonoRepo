@@ -262,6 +262,7 @@ export function ApplicantsPage() {
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
+              aria-label="Filter by status"
               className="text-sm border border-border rounded-lg px-3 py-2 bg-surface text-content focus:outline-none focus:border-primary"
             >
               <option value="all">All Statuses</option>
@@ -272,6 +273,7 @@ export function ApplicantsPage() {
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
+              aria-label="Filter by category"
               className="text-sm border border-border rounded-lg px-3 py-2 bg-surface text-content focus:outline-none focus:border-primary"
             >
               <option value="all">All Categories</option>

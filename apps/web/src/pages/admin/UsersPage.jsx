@@ -221,11 +221,11 @@ export function UsersPage() {
               className="w-full text-sm pl-9 pr-3 py-2 rounded-lg border border-border bg-surface-alt focus:outline-none focus:border-primary" />
           </div>
           <div className="flex items-center gap-3">
-            <select value={role} onChange={(e) => { setRole(e.target.value); setPage(0) }} className="text-sm border border-border rounded-lg px-3 py-2 bg-surface text-content focus:outline-none focus:border-primary">
+            <select aria-label="Filter by role" value={role} onChange={(e) => { setRole(e.target.value); setPage(0) }} className="text-sm border border-border rounded-lg px-3 py-2 bg-surface text-content focus:outline-none focus:border-primary">
               <option value="all">All Roles</option>
               {ROLE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
-            <select value={status} onChange={(e) => { setStatus(e.target.value); setPage(0) }} className="text-sm border border-border rounded-lg px-3 py-2 bg-surface text-content focus:outline-none focus:border-primary">
+            <select aria-label="Filter by status" value={status} onChange={(e) => { setStatus(e.target.value); setPage(0) }} className="text-sm border border-border rounded-lg px-3 py-2 bg-surface text-content focus:outline-none focus:border-primary">
               <option value="all">All Statuses</option>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
