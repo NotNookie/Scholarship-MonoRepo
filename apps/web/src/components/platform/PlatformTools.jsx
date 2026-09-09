@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import {
   Search, Bell, Building2, Users, LayoutGrid, Activity, Settings,
@@ -39,6 +40,15 @@ function GlobalSearch({ open, onClose }) {
     return () => cancelAnimationFrame(id)
   }, [open])
 
+  // Escape closes from anywhere while the palette is open, even if focus has
+  // left the input (the div-level handler only fires while focus is inside it).
+  useEffect(() => {
+    if (!open) return
+    function onEsc(e) { if (e.key === 'Escape') { e.preventDefault(); onClose() } }
+    document.addEventListener('keydown', onEsc)
+    return () => document.removeEventListener('keydown', onEsc)
+  }, [open, onClose])
+
   const results = useMemo(() => {
     const t = q.trim().toLowerCase()
     const match = (s) => s.toLowerCase().includes(t)
@@ -67,7 +77,11 @@ function GlobalSearch({ open, onClose }) {
     else if (e.key === 'Enter' && flat[0]) { e.preventDefault(); go(flat[0].to) }
   }
 
-  return (
+  // Render at the console root (not inside the sticky top bar) so the scrim
+  // covers the whole viewport evenly; keeps the .platform-root theme tokens.
+  const mount = document.querySelector('.platform-root') ?? document.body
+
+  return createPortal(
     <div
       className="pf-cmd-scrim"
       onMouseDown={(e) => { if (e.target === e.currentTarget) onClose() }}
@@ -129,7 +143,8 @@ function GlobalSearch({ open, onClose }) {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    mount
   )
 }
 
