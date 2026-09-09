@@ -10,12 +10,14 @@ import {
   Trash2,
   Info,
   CheckCircle2,
+  AlertTriangle,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { useBrand } from '../../tenant/TenantContext'
+import { validateFile, measureSharpness, BLUR_THRESHOLD } from '../../lib/fileValidation'
 
 const APPEAL_REASONS = [
   'Document was incorrectly marked as invalid',
@@ -53,6 +55,7 @@ export function AppealPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [file, setFile] = useState(null)
+  const [blurHint, setBlurHint] = useState(false)
 
   const {
     register,
@@ -95,9 +98,18 @@ export function AppealPage() {
     mutation.mutate(values)
   }
 
-  function handleFileChange(e) {
+  async function handleFileChange(e) {
     const selected = e.target.files?.[0]
-    if (selected) setFile(selected)
+    if (!selected) return
+    const err = validateFile(selected)
+    if (err) { toast.error(err); return }
+    setFile(selected)
+    setBlurHint(false)
+    // Soft, non-blocking blur hint (images only).
+    if (/\.(jpe?g|png)$/i.test(selected.name)) {
+      const sharpness = await measureSharpness(selected)
+      if (sharpness != null && sharpness < BLUR_THRESHOLD) setBlurHint(true)
+    }
   }
 
   return (
@@ -188,20 +200,31 @@ export function AppealPage() {
         {/* Supporting document upload */}
         <Field label="Supporting Document" id="supporting_document" optional hint="Attach one file (PDF, JPG, or PNG, max 5MB) if it supports your appeal.">
           {file ? (
-            <div className="flex items-center justify-between border border-border rounded-lg px-4 py-3 bg-surface-alt">
-              <div className="flex items-center gap-3 min-w-0">
-                <CheckCircle2 size={16} className="text-tertiary-dark shrink-0" />
-                <span className="text-sm text-content truncate">{file.name}</span>
+            <>
+              <div className="flex items-center justify-between border border-border rounded-lg px-4 py-3 bg-surface-alt">
+                <div className="flex items-center gap-3 min-w-0">
+                  <CheckCircle2 size={16} className="text-tertiary-dark shrink-0" />
+                  <span className="text-sm text-content truncate">{file.name}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setFile(null); setBlurHint(false) }}
+                  className="text-content-muted hover:text-danger transition-colors shrink-0"
+                  aria-label="Remove file"
+                >
+                  <Trash2 size={16} />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setFile(null)}
-                className="text-content-muted hover:text-danger transition-colors shrink-0"
-                aria-label="Remove file"
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
+              {blurHint && (
+                <div className="mt-3 flex items-start gap-2 bg-secondary/15 border border-secondary/40 rounded-lg px-3 py-2.5">
+                  <AlertTriangle size={15} className="text-content shrink-0 mt-0.5" />
+                  <p className="text-xs text-content leading-relaxed">
+                    This image looks a little blurry. A clearer photo is easier for staff to verify — retake it if you can,
+                    or keep this one if it's the best you have.
+                  </p>
+                </div>
+              )}
+            </>
           ) : (
             <label
               htmlFor="supporting_document"
