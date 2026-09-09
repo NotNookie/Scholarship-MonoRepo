@@ -6,7 +6,7 @@ import {
 import {
   GraduationCap, Banknote, BadgeCheck, CalendarClock, AlertTriangle, ArrowRight,
   CheckCircle2, Circle, FilePlus, IdCard, History, ChevronRight, ShieldAlert,
-  FileText, Upload, Download,
+  FileText, Upload, Download, RotateCw,
 } from 'lucide-react'
 import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
@@ -278,6 +278,31 @@ export function MyScholarshipPage() {
           {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-28 w-full rounded-xl" />)}
         </div>
         <Skeleton className="h-72 w-full rounded-xl" />
+      </div>
+    )
+  }
+
+  // ── Couldn't load ────────────────────────────────────────────
+  if (scholarshipQuery.isError && applicationsQuery.isError) {
+    return (
+      <div className="max-w-6xl mx-auto px-6 py-10">
+        <div className="bg-surface border border-border rounded-xl shadow-card p-12 flex flex-col items-center text-center gap-4">
+          <div className="w-14 h-14 bg-danger-light rounded-full flex items-center justify-center">
+            <AlertTriangle size={24} className="text-danger" />
+          </div>
+          <div>
+            <h1 className="text-lg font-bold text-content">We couldn't load your scholarship</h1>
+            <p className="text-sm text-content-muted mt-1 max-w-sm">
+              Something went wrong fetching your details. Check your connection and try again.
+            </p>
+          </div>
+          <button
+            onClick={() => { scholarshipQuery.refetch(); applicationsQuery.refetch() }}
+            className="inline-flex items-center gap-2 bg-primary text-on-primary text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-colors"
+          >
+            <RotateCw size={15} /> Try again
+          </button>
+        </div>
       </div>
     )
   }
