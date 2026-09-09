@@ -9,6 +9,7 @@ import {
   X,
   Loader2,
   ChevronLeft,
+  FileText,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
@@ -16,8 +17,10 @@ import { useDialog } from '../../lib/useDialog'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 
-// NOTE: grant amount, slots/quota, and per-program required-document lists are
-// intentionally NOT included yet — pending the user's decision on policy fields.
+// Formats a ₱ grant amount for display (accepts a number or numeric string).
+function peso(n) {
+  return n == null || n === '' ? null : `₱${Number(n).toLocaleString()}`
+}
 
 const STATUS_STYLES = {
   active:  { label: 'Active',       cls: 'bg-tertiary-light text-tertiary-dark border-tertiary/30', bar: 'bg-primary' },
@@ -54,6 +57,14 @@ function PolicyCard({ policy, onEdit, onDelete }) {
 
         <div className="bg-surface-alt rounded-lg p-4 mt-5 space-y-2.5">
           <div className="flex items-center justify-between text-sm">
+            <span className="text-content-muted">Grant Amount</span>
+            <span className="font-semibold text-content">{peso(policy.grant_amount) ? `${peso(policy.grant_amount)}/sem` : '—'}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-content-muted">Slots</span>
+            <span className="font-semibold text-content">{policy.slots != null && policy.slots !== '' ? Number(policy.slots).toLocaleString() : '—'}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
             <span className="text-content-muted">Min. GWA</span>
             <span className="font-semibold text-content">{policy.min_gwa != null ? `${dir} ${policy.min_gwa}` : '—'}</span>
           </div>
@@ -66,6 +77,19 @@ function PolicyCard({ policy, onEdit, onDelete }) {
             <span className="font-semibold text-content">{policy.residency_years != null ? `${policy.residency_years} Years` : '—'}</span>
           </div>
         </div>
+
+        {policy.documents?.length > 0 && (
+          <div className="mt-4">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-content-muted mb-2">
+              <FileText size={13} /> Required documents ({policy.documents.length})
+            </div>
+            <ul className="flex flex-wrap gap-2">
+              {policy.documents.map((d) => (
+                <li key={d} className="text-xs font-medium px-2.5 py-1 rounded-md bg-surface-alt border border-border text-content">{d}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {policy.tags?.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-4">
@@ -95,22 +119,32 @@ function PolicyModal({ policy, isPending, onClose, onSubmit }) {
     name: policy?.name ?? '',
     description: policy?.description ?? '',
     status: policy?.status ?? 'draft',
+    grant_amount: policy?.grant_amount ?? '',
+    slots: policy?.slots ?? '',
     min_gwa: policy?.min_gwa ?? '',
     gwa_direction: policy?.gwa_direction ?? 'lower_better',
     income_cap: policy?.income_cap ?? '',
     residency_years: policy?.residency_years ?? '',
     tags: (policy?.tags ?? []).join(', '),
   })
+  // Per-program required documents override the cycle-wide checklist; empty = inherit.
+  const [documents, setDocuments] = useState(() => policy?.documents ?? [])
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
+  const setDoc = (i) => (e) => setDocuments((d) => d.map((v, idx) => (idx === i ? e.target.value : v)))
+  const addDoc = () => setDocuments((d) => [...d, ''])
+  const removeDoc = (i) => setDocuments((d) => d.filter((_, idx) => idx !== i))
   const canSave = form.name.trim()
 
   function submit() {
     onSubmit({
       ...form,
+      grant_amount: form.grant_amount === '' ? null : Number(form.grant_amount),
+      slots: form.slots === '' ? null : Number(form.slots),
       min_gwa: form.min_gwa === '' ? null : Number(form.min_gwa),
       income_cap: form.income_cap === '' ? null : Number(form.income_cap),
       residency_years: form.residency_years === '' ? null : Number(form.residency_years),
       tags: parseTags(form.tags),
+      documents: documents.map((d) => d.trim()).filter(Boolean),
     })
   }
 
@@ -157,10 +191,60 @@ function PolicyModal({ policy, isPending, onClose, onSubmit }) {
               </select>
             </div>
           </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="p-grant" className="text-sm font-medium text-content">Grant Amount (₱ / sem)</label>
+              <input id="p-grant" type="number" min="0" value={form.grant_amount} onChange={set('grant_amount')} placeholder="10000" className={inputCls} />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="p-slots" className="text-sm font-medium text-content flex items-center gap-1.5">
+                Slots <span className="text-xs text-content-muted font-normal">(quota)</span>
+              </label>
+              <input id="p-slots" type="number" min="0" value={form.slots} onChange={set('slots')} placeholder="150" className={inputCls} />
+            </div>
+          </div>
           <div className="flex flex-col gap-1.5">
             <label htmlFor="p-income" className="text-sm font-medium text-content">Income Cap (₱ / year)</label>
             <input id="p-income" type="number" min="0" value={form.income_cap} onChange={set('income_cap')} placeholder="250000" className={inputCls} />
           </div>
+
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium text-content flex items-center gap-1.5">
+              Required Documents <span className="text-xs text-content-muted font-normal">(leave empty to use the cycle’s default checklist)</span>
+            </span>
+            {documents.length > 0 && (
+              <ul className="flex flex-col gap-2">
+                {documents.map((d, i) => (
+                  <li key={i} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={d}
+                      onChange={setDoc(i)}
+                      aria-label={`Required document ${i + 1}`}
+                      placeholder="e.g. Certificate of Enrollment"
+                      className={inputCls}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeDoc(i)}
+                      aria-label={`Remove document ${i + 1}`}
+                      className="text-content-muted hover:text-danger transition-colors p-2 shrink-0"
+                    >
+                      <X size={16} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <button
+              type="button"
+              onClick={addDoc}
+              className="self-start inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline mt-0.5"
+            >
+              <Plus size={14} /> Add document
+            </button>
+          </div>
+
           <div className="flex flex-col gap-1.5">
             <label htmlFor="p-tags" className="text-sm font-medium text-content flex items-center gap-1.5">
               Eligibility Tags <span className="text-xs text-content-muted font-normal">(comma-separated)</span>

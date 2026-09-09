@@ -159,6 +159,7 @@ const POLICIES = PROGRAMS.map((p, i) => ({
   income_cap: 250000,
   grant_amount: p.grant,
   slots: int(20, 80),
+  documents: ['Certificate of Enrollment', 'Latest Report Card / TOR', 'Certificate of Indigency'],
   active: true,
 }))
 

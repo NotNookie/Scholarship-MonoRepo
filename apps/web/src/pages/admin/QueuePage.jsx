@@ -98,11 +98,12 @@ const DECISION_LABEL = { approve: 'approved', approved: 'approved', rejected: 'r
 
 // ── Action modal ──────────────────────────────────────────────
 
-function ActionModal({ type, isPending, onConfirm, onClose }) {
+function ActionModal({ type, isPending, defaultGrant, onConfirm, onClose }) {
   const dialogRef = useDialog(onClose)
   const cfg = MODAL_CONFIG[type]
   const [reason, setReason] = useState('')
-  const [grant, setGrant] = useState('')
+  // Pre-fill the grant from the program policy; staff can still override it.
+  const [grant, setGrant] = useState(defaultGrant != null ? String(defaultGrant) : '')
 
   if (!cfg) return null
 
@@ -146,6 +147,9 @@ function ActionModal({ type, isPending, onConfirm, onClose }) {
                     className="w-full text-sm pl-9 pr-3 py-2.5 rounded-lg border border-border bg-surface focus:outline-none focus:border-primary"
                   />
                 </div>
+                {defaultGrant != null && (
+                  <p className="text-xs text-content-muted">Suggested from the program policy (₱{Number(defaultGrant).toLocaleString()}/sem). Adjust if needed.</p>
+                )}
               </div>
             )}
             <div className="flex flex-col gap-1.5">
@@ -299,6 +303,13 @@ function DetailPane({ id, onBack, actionSignal }) {
     retry: false,
   })
 
+  // Program policies drive the suggested grant amount on approval.
+  const { data: policiesData } = useQuery({
+    queryKey: [...queryKeys.maintenance.all, 'policies'],
+    queryFn: () => api.get('/admin/maintenance/policies').then((r) => r.data?.data ?? r.data),
+    staleTime: 5 * 60 * 1000,
+  })
+
   const application = data ?? null
   const decided = application ? ['approved', 'rejected'].includes(application.status) : false
 
@@ -387,6 +398,8 @@ function DetailPane({ id, onBack, actionSignal }) {
   const documents = application.documents ?? []
   const isDecided = ['approved', 'rejected'].includes(application.status)
   const busy = decisionMutation.isPending || docMutation.isPending
+  const policyList = Array.isArray(policiesData) ? policiesData : policiesData?.data ?? []
+  const policyGrant = policyList.find((p) => p.name === application.scholarship_name)?.grant_amount ?? null
 
   return (
     <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -517,6 +530,7 @@ function DetailPane({ id, onBack, actionSignal }) {
         <ActionModal
           type={modal.type}
           isPending={busy}
+          defaultGrant={policyGrant}
           onConfirm={handleConfirm}
           onClose={() => setModal(null)}
         />

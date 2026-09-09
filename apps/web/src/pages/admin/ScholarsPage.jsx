@@ -164,6 +164,15 @@ export function ScholarsPage() {
       cell: (info) => <span className="text-sm text-content">{info.getValue()}</span>,
     },
     {
+      id: 'grant',
+      header: 'Grant / sem',
+      accessorFn: (s) => resolvePolicy(s, policies)?.grant_amount ?? null,
+      cell: (info) => {
+        const amount = info.getValue()
+        return <span className="text-sm text-content whitespace-nowrap tabular-nums">{amount != null ? `₱${Number(amount).toLocaleString()}` : '—'}</span>
+      },
+    },
+    {
       id: 'status',
       header: 'Status',
       accessorFn: (s) => s.derived_status,
