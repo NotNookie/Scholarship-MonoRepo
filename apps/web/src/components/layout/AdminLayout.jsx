@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import {
@@ -44,6 +44,58 @@ const superAdminItems = [
   { to: '/admin/users', label: 'Users', Icon: UserCog },
   { to: '/admin/maintenance', label: 'Settings', Icon: Settings },
 ]
+
+// Standing "the platform team can enter your portal" state, shown as a compact
+// header chip (not a full-width banner) with a click-through popover to revoke.
+function SupportAccessChip({ onRevoke }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+  useEffect(() => {
+    if (!open) return
+    function onDoc(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    function onEsc(e) { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('mousedown', onDoc)
+    document.addEventListener('keydown', onEsc)
+    return () => { document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onEsc) }
+  }, [open])
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-label="Platform support access is active"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-warning/40 bg-warning-light text-warning hover:bg-warning/10 transition-colors"
+      >
+        <span className="w-1.5 h-1.5 rounded-full bg-warning shrink-0" aria-hidden="true" />
+        <ShieldAlert size={14} className="shrink-0" />
+        <span className="hidden sm:inline">Support access active</span>
+      </button>
+      {open && (
+        <div role="dialog" aria-label="Platform support access" className="absolute right-0 top-full mt-2 w-72 bg-surface border border-border rounded-xl shadow-modal p-4 z-30">
+          <div className="flex items-start gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-warning-light flex items-center justify-center shrink-0">
+              <ShieldAlert size={16} className="text-warning" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-content">Platform support access is active</p>
+              <p className="text-xs text-content-muted mt-1 leading-relaxed">
+                The platform team can enter your portal to help resolve your request. You can revoke this at any time.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => { onRevoke(); setOpen(false) }}
+            className="mt-3 w-full inline-flex items-center justify-center gap-1.5 text-xs font-semibold border border-warning/50 text-content px-3 py-2 rounded-lg hover:bg-warning/10 transition-colors"
+          >
+            <ShieldOff size={13} /> Revoke access
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
 
 function getInitials(name) {
   if (!name) return 'A'
@@ -117,8 +169,8 @@ export function AdminLayout() {
 
   return (
     <div className="h-screen overflow-hidden flex flex-col print:h-auto print:overflow-visible">
-      {/* Top banner: operator impersonation (dark), else the tenant's own
-          "support access is active" indicator (amber) with revoke. */}
+      {/* Top banner: operator impersonation only. The tenant's own "support
+          access is active" state lives as a header chip (SupportAccessChip). */}
       {isImpersonating ? (
         <div className="print:hidden bg-content text-white px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -133,22 +185,6 @@ export function AdminLayout() {
             className="shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold border border-white/30 text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors"
           >
             <LogOut size={13} /> Exit
-          </button>
-        </div>
-      ) : hasSupportAccess ? (
-        <div className="print:hidden bg-warning-light border-b border-warning/30 px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4 shrink-0">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <ShieldAlert size={16} className="text-warning shrink-0" />
-            <p className="text-sm text-content min-w-0 truncate">
-              <span className="font-semibold">Platform support access is active</span>
-              <span className="text-content-muted hidden sm:inline"> — the platform team can enter your portal to help.</span>
-            </p>
-          </div>
-          <button
-            onClick={handleRevoke}
-            className="shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold border border-warning/50 text-content px-3 py-1.5 rounded-lg hover:bg-warning/10 transition-colors"
-          >
-            <ShieldOff size={13} /> Revoke
           </button>
         </div>
       ) : null}
@@ -246,14 +282,17 @@ export function AdminLayout() {
           <span className="text-sm font-semibold text-content">
             {brand.officeShort} Management Portal
           </span>
-          <button
-            type="button"
-            onClick={() => window.dispatchEvent(new CustomEvent('admin:cmdk'))}
-            className="ml-auto inline-flex items-center gap-2 text-sm text-content-muted border border-border rounded-lg pl-3 pr-2 py-1.5 hover:border-primary hover:text-content transition-colors"
-          >
-            <Search size={14} /> Search…
-            <kbd className="text-[10px] font-mono border border-border rounded px-1.5 py-0.5 bg-surface-alt">⌘K</kbd>
-          </button>
+          <div className="ml-auto flex items-center gap-3">
+            {hasSupportAccess && !isImpersonating && <SupportAccessChip onRevoke={handleRevoke} />}
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('admin:cmdk'))}
+              className="inline-flex items-center gap-2 text-sm text-content-muted border border-border rounded-lg pl-3 pr-2 py-1.5 hover:border-primary hover:text-content transition-colors"
+            >
+              <Search size={14} /> Search…
+              <kbd className="text-[10px] font-mono border border-border rounded px-1.5 py-0.5 bg-surface-alt">⌘K</kbd>
+            </button>
+          </div>
         </header>
         <main className="flex-1 bg-surface-alt p-6 overflow-auto">
           <Outlet />
