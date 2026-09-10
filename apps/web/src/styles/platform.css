@@ -13,7 +13,7 @@
   /* Vercel-dark palette (pure black + hairline borders) on the Polaris structure */
   --pf-ground: #000000; --pf-surface: #0a0a0a; --pf-surface-alt: #171717;
   --pf-panel: #0a0a0a; /* opaque panels: drawers, popovers, palette */
-  --pf-ink: #ededed; --pf-ink-2: #a1a1a1; --pf-ink-3: #666666;
+  --pf-ink: #ededed; --pf-ink-2: #a1a1a1; --pf-ink-3: #858585;
   --pf-line: #1f1f1f; --pf-line-soft: #161616;
 
   /* Restrained blue for links/small active states; gold stays the operator spark */
@@ -391,10 +391,10 @@
    swap; the block below flips the colours that were hardcoded for dark. */
 .platform-root[data-theme="light"] {
   --pf-ground: #fafafa; --pf-surface: #ffffff; --pf-surface-alt: #f4f4f5; --pf-panel: #ffffff;
-  --pf-ink: #18181b; --pf-ink-2: #52525b; --pf-ink-3: #9a9aa6;
+  --pf-ink: #18181b; --pf-ink-2: #52525b; --pf-ink-3: #6f6f78;
   --pf-line: #e7e7ec; --pf-line-soft: #f1f1f4;
   --pf-accent: #0038a8; --pf-accent-2: #002576; --pf-accent-bright: #1a56d6;
-  --pf-ok-fg: #12833a; --pf-ok-bg: #e7f6ec; --pf-warn-fg: #8a6d00; --pf-warn-bg: #fbf1cf;
+  --pf-ok-fg: #0f7233; --pf-ok-bg: #e7f6ec; --pf-warn-fg: #7a6000; --pf-warn-bg: #fbf1cf;
   --pf-stop-fg: #b91c1c; --pf-stop-bg: #fbdada; --pf-info-fg: #0038a8; --pf-info-bg: #e8effe;
   --pf-focus: #1a56d6;
   --pf-side-line: #e7e7ec;

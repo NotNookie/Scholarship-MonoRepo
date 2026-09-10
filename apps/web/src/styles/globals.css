@@ -23,11 +23,13 @@
   --color-success: #61c574;
   --color-success-dark: #004f1e;
   --color-success-light: #eaf7ed;
-  --color-warning: #f59e0b;
+  /* Darkened for WCAG AA: these double as text on their -light tints and, for
+     danger/info, as white-text buttons — the brighter originals failed both. */
+  --color-warning: #b45309;
   --color-warning-light: #fffbeb;
-  --color-danger: #ef4444;
+  --color-danger: #d42020;
   --color-danger-light: #fef2f2;
-  --color-info: #3b82f6;
+  --color-info: #2563eb;
   --color-info-light: #eff6ff;
 
   /* ── Surface & Neutral ── */

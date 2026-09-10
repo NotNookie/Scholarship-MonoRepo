@@ -16,7 +16,7 @@ function preset(label, primary, secondary) {
 
 export const THEME_PRESETS = {
   corporate_blue: preset('Corporate Blue', '#0038a8', '#fecc00'),
-  civic_green: preset('Civic Green', '#158a3f', '#fecc00'),
+  civic_green: preset('Civic Green', '#0f7233', '#fecc00'),
   royal_purple: preset('Royal Purple', '#6d28d9', '#f59e0b'),
   maroon_gold: preset('Maroon & Gold', '#9f1239', '#eab308'),
   teal_coral: preset('Teal & Coral', '#0f766e', '#fb7185'),
@@ -47,9 +47,9 @@ export const DEFAULT_TOKENS = {
   '--color-tertiary': '#61c574',
   '--color-tertiary-light': '#eaf7ed',
   '--color-success': '#61c574',
-  '--color-warning': '#f59e0b',
-  '--color-danger': '#ef4444',
-  '--color-info': '#3b82f6',
+  '--color-warning': '#b45309',
+  '--color-danger': '#d42020',
+  '--color-info': '#2563eb',
   '--color-surface': '#ffffff',
   '--color-surface-alt': '#f8f9fc',
   '--color-border': '#e2e8f0',
@@ -61,7 +61,10 @@ export const DEFAULT_TOKENS = {
 function deriveFamily(prefix, base) {
   return {
     [`--color-${prefix}`]: base,
-    [`--color-${prefix}-dark`]: mix(base, '#000000', 0.34),
+    // 0.5 (was 0.34): the -dark shade is used as pill/badge TEXT on the -light
+    // tint, so it must be deep enough to clear WCAG AA on bright bases (gold,
+    // amber, sky) — the shallow mix failed those.
+    [`--color-${prefix}-dark`]: mix(base, '#000000', 0.5),
     [`--color-${prefix}-light`]: mix(base, '#ffffff', 0.90),
     [`--color-on-${prefix}`]: contrastText(base),
   }

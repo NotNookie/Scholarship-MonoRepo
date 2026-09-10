@@ -36,9 +36,21 @@ export function luminance(hex) {
   return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
 }
 
-// Pick readable text (near-black or white) for a given background.
+// WCAG contrast ratio between two hex colours (1–21).
+export function contrastRatio(a, b) {
+  const la = luminance(a)
+  const lb = luminance(b)
+  const hi = Math.max(la, lb)
+  const lo = Math.min(la, lb)
+  return (hi + 0.05) / (lo + 0.05)
+}
+
+// Pick readable text (near-black or white) for a given background — whichever
+// actually yields more contrast. (A fixed luminance threshold mis-picks white
+// on mid-tone accents like coral/sky, where dark text reads far better.)
 export function contrastText(hex) {
-  return luminance(hex) > 0.42 ? '#0f172a' : '#ffffff'
+  const dark = '#0f172a'
+  return contrastRatio(dark, hex) >= contrastRatio('#ffffff', hex) ? dark : '#ffffff'
 }
 
 // rgba() string at a given alpha — used for the translucent "-muted" token.
