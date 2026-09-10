@@ -33,6 +33,7 @@
   --pf-shadow: 0 24px 60px -26px rgba(0,0,0,.65);
   --pf-ease: cubic-bezier(0.16, 1, 0.3, 1);
 
+  color-scheme: dark;
   display: flex;
   min-height: 100dvh;
   background: var(--pf-ground);
@@ -213,7 +214,9 @@
 .pf-set-ctl { flex: none; }
 .pf-input, .pf-select, .pf-textarea { border: 1px solid var(--pf-line); border-radius: 10px; padding: 10px 12px; font: inherit; font-size: 0.9rem; color: #fff; background: var(--pf-surface); }
 .pf-input { width: 300px; max-width: 50vw; }
-.pf-select option { color: #0a0f1e; }
+/* Native option list follows the theme (dark popup → light text, and vice
+   versa); color-scheme on the root makes the browser paint the popup chrome. */
+.pf-select option { background: var(--pf-surface); color: var(--pf-ink); }
 .pf-textarea { width: 100%; resize: vertical; min-height: 96px; }
 .pf-input::placeholder, .pf-textarea::placeholder { color: var(--pf-ink-3); }
 .pf-input:focus, .pf-select:focus, .pf-textarea:focus { outline: none; border-color: var(--pf-focus); box-shadow: 0 0 0 3px rgba(77,130,232,.2); }
@@ -390,6 +393,7 @@
    (operator signal). Most surfaces are token-driven, so the bulk is a token
    swap; the block below flips the colours that were hardcoded for dark. */
 .platform-root[data-theme="light"] {
+  color-scheme: light;
   --pf-ground: #fafafa; --pf-surface: #ffffff; --pf-surface-alt: #f4f4f5; --pf-panel: #ffffff;
   --pf-ink: #18181b; --pf-ink-2: #52525b; --pf-ink-3: #6f6f78;
   --pf-line: #e7e7ec; --pf-line-soft: #f1f1f4;
