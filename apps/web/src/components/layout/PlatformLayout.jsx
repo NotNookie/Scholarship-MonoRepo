@@ -22,14 +22,8 @@ const navItems = [
   { to: '/platform/settings', label: 'Settings', Icon: Settings },
 ]
 
-function initials(name) {
-  if (!name) return 'PA'
-  const p = name.trim().split(/\s+/)
-  return (p.length >= 2 ? p[0][0] + p[p.length - 1][0] : name.slice(0, 2)).toUpperCase()
-}
-
 export function PlatformLayout() {
-  const { user, logout } = useAuthStore()
+  const { logout } = useAuthStore()
   const navigate = useNavigate()
   const [reportOpen, setReportOpen] = useState(false)
 
@@ -56,14 +50,6 @@ export function PlatformLayout() {
         <div className="pf-side-brand">
           <Crest className="pf-side-crest" />
           <span className="pf-side-word">Iskolar<span className="pf-side-tag">Platform</span></span>
-        </div>
-
-        <div className="pf-side-op">
-          <div className="pf-side-badge">{initials(user?.name)}</div>
-          <div className="pf-side-meta">
-            <div className="pf-side-name">{user?.name ?? 'Platform Admin'}</div>
-            <div className="pf-side-role">Super Admin</div>
-          </div>
         </div>
 
         <nav className="pf-side-nav" aria-label="Platform sections">
