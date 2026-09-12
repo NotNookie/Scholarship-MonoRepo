@@ -291,7 +291,7 @@ function OcrPanel({ ocr }) {
         className="w-full flex items-center gap-2 px-4 py-2 text-xs font-semibold text-content-muted hover:text-content transition-colors"
       >
         <ScanLine size={14} className="text-primary shrink-0" />
-        <span>OCR read</span>
+        <span>Auto-read</span>
         <span className="font-normal text-content-disabled">· {ocr.confidence}% confidence</span>
         {ocr.mismatches > 0 && (
           <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-warning-light text-warning border border-warning/30">
@@ -321,7 +321,7 @@ function OcrPanel({ ocr }) {
           </ul>
           <p className="text-[11px] text-content-muted mt-2.5 flex items-start gap-1.5 leading-snug">
             <Info size={12} className="shrink-0 mt-0.5" />
-            OCR is assistive only — it can misread low-quality scans. Verify against the document before deciding.
+            Auto-read is assistive only — it can misread low-quality scans. Verify against the document before deciding.
           </p>
         </div>
       )}

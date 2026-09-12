@@ -8,7 +8,7 @@ const FILTERS = ['All', 'Onboarding', 'Suspensions', 'Admin access', 'Configurat
 const EVENTS = [
   { icon: 'plus',   tone: 'b', cat: 'Onboarding',    tenant: 'Nagcarlan', text: 'Nagcarlan onboarded and activated', actor: 'Platform Admin', time: '2026-02-14 · 09:14' },
   { icon: 'invite', tone: '',  cat: 'Admin access',  tenant: 'Pila',      text: 'Head admin invite sent for Pila', actor: 'Platform Admin', time: '2026-02-12 · 11:02' },
-  { icon: 'shield', tone: '',  cat: 'Configuration', tenant: 'Pagsanjan', text: 'OCR validation enabled for Pagsanjan', actor: 'Platform Admin', time: '2026-02-10 · 14:20' },
+  { icon: 'shield', tone: '',  cat: 'Configuration', tenant: 'Pagsanjan', text: 'Automatic document reading enabled for Pagsanjan', actor: 'Platform Admin', time: '2026-02-10 · 14:20' },
   { icon: 'check',  tone: 'g', cat: 'Onboarding',    tenant: 'Pakil',     text: 'Pakil completed its first application cycle', actor: 'System', time: '2026-02-03 · 16:40' },
   { icon: 'invite', tone: '',  cat: 'Admin access',  tenant: '—',         text: 'Platform user Dan Lim added as Read-only', actor: 'Platform Admin', time: '2026-01-28 · 15:10' },
 ]

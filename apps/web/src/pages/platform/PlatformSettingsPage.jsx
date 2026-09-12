@@ -74,10 +74,10 @@ export function PlatformSettingsPage() {
         </div>
         <div className="pf-set-row">
           <div>
-            <div className="pf-set-lbl">OCR validation</div>
-            <div className="pf-set-desc">Assistive text extraction for staff — decision-support only, never auto-decides. Free, local.</div>
+            <div className="pf-set-lbl">Automatic document reading</div>
+            <div className="pf-set-desc">Reads details off uploaded documents to help staff verify — decision-support only, never auto-decides. Free, local.</div>
           </div>
-          <div className="pf-set-ctl"><Toggle label="OCR validation default" checked={s.defaultOcr} onChange={set('defaultOcr')} /></div>
+          <div className="pf-set-ctl"><Toggle label="Automatic document reading default" checked={s.defaultOcr} onChange={set('defaultOcr')} /></div>
         </div>
         <div className="pf-set-row">
           <div>

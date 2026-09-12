@@ -35,7 +35,7 @@ export function PlatformMunicipalityDetailPage() {
       ['Municipality', m.name], ['Province', m.province], ['Subdomain', `${m.subdomain}.iskolar.ph`],
       ['Status', m.status], ['Scholars', m.scholars], ['Applications', m.applications],
       ['Programs', m.programs], ['Active cycle', m.cycle], ['Admins', m.admins], ['Staff', m.staff],
-      ['OCR', m.ocr ? 'Enabled' : 'Off'], ['AI announcements', m.ai ? 'Enabled' : 'Off'], ['Onboarded', m.onboarded],
+      ['Automatic document reading', m.ocr ? 'Enabled' : 'Off'], ['AI announcements', m.ai ? 'Enabled' : 'Off'], ['Onboarded', m.onboarded],
     ]
     const csv = rows.map((r) => r.map(esc).join(',')).join('\r\n')
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }))
@@ -110,7 +110,7 @@ export function PlatformMunicipalityDetailPage() {
           <h2>Configuration</h2>
           <div className="pf-kv"><span className="k">Scholarship programs</span><span className="v tnum">{m.programs}</span></div>
           <div className="pf-kv"><span className="k">Active cycle</span><span className="v">{m.cycle}</span></div>
-          <div className="pf-kv"><span className="k">OCR validation</span><span className={`v ${m.ocr ? 'on' : 'off'}`}>{m.ocr ? 'Enabled' : 'Off'}</span></div>
+          <div className="pf-kv"><span className="k">Automatic document reading</span><span className={`v ${m.ocr ? 'on' : 'off'}`}>{m.ocr ? 'Enabled' : 'Off'}</span></div>
           <div className="pf-kv"><span className="k">AI announcements</span><span className={`v ${m.ai ? 'on' : 'off'}`}>{m.ai ? 'Enabled' : 'Off'}</span></div>
         </div>
 

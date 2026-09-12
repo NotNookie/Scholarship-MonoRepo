@@ -51,7 +51,7 @@ const CARDS = [
   {
     Icon: Sparkles,
     title: 'Assistive Features',
-    description: 'Turn optional tools on or off — document OCR checking and the AI announcement writer.',
+    description: 'Turn optional tools on or off — automatic document reading and the AI announcement writer.',
     to: '/admin/maintenance/features',
     action: 'Manage Features',
   },

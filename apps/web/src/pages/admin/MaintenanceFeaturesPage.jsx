@@ -17,9 +17,9 @@ const FEATURES = [
   {
     key: 'feature_ocr',
     Icon: ScanText,
-    name: 'Document OCR Validation',
+    name: 'Automatic Document Reading',
     recommended: true,
-    desc: 'Reads text from uploaded documents (report cards, certificates, IDs) to help staff verify details faster during review.',
+    desc: 'Reads the details off uploaded documents (report cards, certificates, IDs) and checks them against the applicant’s form, so staff verify faster.',
     note: 'Decision-support only — it never approves or rejects an application on its own. Staff always make the final call.',
     cost: { Icon: Zap, label: 'Free · runs locally', cls: 'text-success' },
   },
@@ -157,7 +157,7 @@ export function MaintenanceFeaturesPage() {
       <div className="flex items-start gap-2 text-xs text-content-muted">
         <Info size={14} className="shrink-0 mt-0.5" />
         <p className="leading-relaxed">
-          Changes apply to your municipality only. OCR runs on the server at no per-use cost; the AI assistant
+          Changes apply to your municipality only. Automatic document reading runs on the server at no per-use cost; the AI assistant
           calls an external service, so leave it off if you'd rather not use it.
         </p>
       </div>

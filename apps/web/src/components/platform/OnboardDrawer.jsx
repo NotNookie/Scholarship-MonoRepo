@@ -62,7 +62,7 @@ export function OnboardDrawer({ open, onClose }) {
       </div>
       <div className="pf-field">
         <span className="hint">
-          Starts with your platform defaults — Blur {onWord(defaultBlur)} · OCR {onWord(defaultOcr)} · AI {onWord(defaultAi)}.
+          Starts with your platform defaults — Blur {onWord(defaultBlur)} · Auto-read {onWord(defaultOcr)} · AI {onWord(defaultAi)}.
           Change these in Settings → New-municipality defaults.
         </span>
       </div>

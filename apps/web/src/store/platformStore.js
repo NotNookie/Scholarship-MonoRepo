@@ -92,7 +92,7 @@ const HEALTH = [
   { id: 'db',      label: 'Database',                 status: 'operational', detail: 'Primary + replica healthy', metric: 'Read/write normal' },
   { id: 'sms',     label: 'SMS / OTP provider',       status: 'degraded',    detail: 'Elevated delivery latency', metric: '~40s avg delivery' },
   { id: 'storage', label: 'Document storage',         status: 'operational', detail: 'Uploads accepted', metric: '62% of quota used' },
-  { id: 'ocr',     label: 'OCR service',              status: 'operational', detail: 'Queue clear', metric: 'Local · no external calls' },
+  { id: 'ocr',     label: 'Document reading service', status: 'operational', detail: 'Queue clear', metric: 'Local · no external calls' },
   { id: 'backup',  label: 'Backups',                  status: 'operational', detail: 'Nightly snapshot succeeded', metric: 'Last: today 03:00' },
 ]
 

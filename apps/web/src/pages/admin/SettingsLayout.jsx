@@ -42,7 +42,7 @@ const SEARCH_INDEX = [
   { label: 'Application periods / cycles', to: '/admin/maintenance/cycles', kw: 'deadline schedule' },
   { label: 'Document checklist', to: '/admin/maintenance/cycles', kw: 'required documents' },
   { label: 'Eligibility rules · residency · voter', to: '/admin/maintenance/eligibility', kw: 'baseline attestation' },
-  { label: 'Assistive features · OCR · AI', to: '/admin/maintenance/features', kw: 'ocr ai toggle' },
+  { label: 'Assistive features · Auto-read · AI', to: '/admin/maintenance/features', kw: 'ocr auto-read document reading ai toggle' },
 ]
 
 function SettingsSearch() {
