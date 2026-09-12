@@ -242,7 +242,7 @@ export function MaintenanceProfilePage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-medium text-content">Application walkthrough video</p>
-                <p className="text-xs text-content-muted mt-1 max-w-md">Not every municipality has one. Turn this off to hide the video player on the public Requirements page.</p>
+                <p className="text-xs text-content-muted mt-1 max-w-md">Not every municipality has one. Turn this off to hide the video player on the public Resources page.</p>
               </div>
               <Toggle
                 label="Show walkthrough video"

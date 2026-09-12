@@ -113,7 +113,7 @@ export function ScholarshipsPage() {
                 to="/requirements"
                 className="flex items-center justify-between text-sm text-primary hover:underline font-medium"
               >
-                View Full Requirements <ChevronRight size={15} />
+                Applicant resources <ChevronRight size={15} />
               </Link>
             </div>
           </div>

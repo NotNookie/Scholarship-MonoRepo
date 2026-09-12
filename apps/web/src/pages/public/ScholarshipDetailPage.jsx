@@ -111,9 +111,6 @@ export function ScholarshipDetailPage() {
                 </li>
               ))}
             </ul>
-            <Link to="/requirements" className="inline-flex items-center gap-1 text-sm text-primary hover:underline font-medium mt-5">
-              View full requirements <ChevronRight size={14} />
-            </Link>
           </section>
         </div>
 

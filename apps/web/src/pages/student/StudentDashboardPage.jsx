@@ -314,7 +314,7 @@ export function StudentDashboardPage() {
               <p className="text-sm font-bold text-content">Resources</p>
             </div>
             <div className="flex flex-col gap-2">
-              <Link to="/requirements" className="text-xs text-primary hover:underline">Applicant Requirements</Link>
+              <Link to="/requirements" className="text-xs text-primary hover:underline">Application Guide</Link>
               <Link to="/scholarships" className="text-xs text-primary hover:underline">Browse Scholarships</Link>
               <Link to="/requirements" className="text-xs text-primary hover:underline">Download Forms</Link>
             </div>

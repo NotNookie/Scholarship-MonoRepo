@@ -26,7 +26,7 @@ export const FALLBACK_ANNOUNCEMENTS = [
     id: 4,
     category: 'Requirements',
     title: 'Updated List of Valid Proof of Residency Documents',
-    body: 'The office has updated the list of accepted residency documents. Please review the Requirements page for the latest information.',
+    body: 'The office has updated the list of accepted residency documents. Please review the Resources page for the latest information.',
     created_at: '2026-06-05T14:00:00Z',
   },
   {

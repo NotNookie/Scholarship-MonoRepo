@@ -7,7 +7,7 @@ import { NotificationBell } from './NotificationBell'
 const PUBLIC_NAV_ALWAYS = [
   { to: '/', label: 'Home', end: true },
   { to: '/scholarships', label: 'Scholarships', end: false },
-  { to: '/requirements', label: 'Requirements', end: false },
+  { to: '/requirements', label: 'Resources', end: false },
 ]
 
 const PUBLIC_NAV_ANNOUNCEMENTS = { to: '/announcements', label: 'Announcements', end: false }
