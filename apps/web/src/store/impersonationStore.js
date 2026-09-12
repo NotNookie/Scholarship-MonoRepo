@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 import { findTenant, DEFAULT_TENANT } from '../tenant/tenants'
+import { useAuthStore } from './authStore'
+import { useAuditStore } from './auditStore'
 
 // Build a brand-shaped object for any municipality the operator enters. Use the
 // tenant registry when it has a full entry (Sta. Cruz, Pagsanjan); otherwise
@@ -42,8 +44,24 @@ function brandFor(m) {
 
 // Operator "view as tenant" state. When `tenant` is set, the whole app resolves
 // to that municipality (branding + admin access) with a persistent banner.
-export const useImpersonation = create((set) => ({
+// Entering/exiting also opens/closes an audit session (see auditStore) so the
+// access is accountable to both the platform and the municipality.
+export const useImpersonation = create((set, get) => ({
   tenant: null,
-  enter: (municipality) => set({ tenant: brandFor(municipality) }),
-  exit: () => set({ tenant: null }),
+  tenantId: null,
+  enter: (municipality, meta = {}) => {
+    const operator = useAuthStore.getState().user?.name ?? 'Platform operator'
+    useAuditStore.getState().startAccess({
+      operator,
+      tenantId: municipality.id,
+      tenantName: municipality.name,
+      ticketId: meta.ticketId,
+    })
+    set({ tenant: brandFor(municipality), tenantId: municipality.id })
+  },
+  exit: () => {
+    const { tenantId } = get()
+    if (tenantId) useAuditStore.getState().endAccess(tenantId)
+    set({ tenant: null, tenantId: null })
+  },
 }))

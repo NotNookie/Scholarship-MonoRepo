@@ -34,7 +34,7 @@ export function PlatformSupportPage() {
   function enter(t) {
     const m = municipalities.find((x) => x.id === t.tenantId)
       ?? { id: t.tenantId, name: t.tenant, subdomain: t.tenantId, province: '' }
-    enterTenant(m)
+    enterTenant(m, { ticketId: t.id })
     navigate('/admin/dashboard')
   }
 

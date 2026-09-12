@@ -7,6 +7,8 @@ import { api } from '../../lib/axios'
 import { useDialog } from '../../lib/useDialog'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { downloadCsv } from '../../lib/reportExport'
+import { useBrand } from '../../tenant/TenantContext'
+import { useAuditStore } from '../../store/auditStore'
 
 // ── Action-type config (colours per mockup) ───────────────────
 
@@ -19,6 +21,7 @@ const ACTION_TYPES = {
   error_flag:      { label: 'Error Flag',      cls: 'bg-danger-light text-danger border-danger/30' },
   announcement:    { label: 'Announcement',    cls: 'bg-tertiary-light text-tertiary-dark border-tertiary/30' },
   user_management: { label: 'User Management',  cls: 'bg-surface-alt text-content-muted border-border' },
+  support_access:  { label: 'Support Access',   cls: 'bg-secondary-light text-secondary-dark border-secondary/30' },
 }
 
 const TYPE_OPTIONS = Object.entries(ACTION_TYPES).map(([value, cfg]) => ({ value, label: cfg.label }))
@@ -104,13 +107,40 @@ export function ActivityLogsPage() {
   const [page, setPage] = useState(0)
   const [selected, setSelected] = useState(null)
 
+  const brand = useBrand()
+  const sessions = useAuditStore((s) => s.sessions)
+
   const { data, isPending } = useQuery({
     queryKey: ['admin', 'activity-logs'],
     queryFn: () => api.get('/admin/activity-logs').then((r) => r.data),
     retry: false,
   })
 
-  const logs = useMemo(() => data?.data ?? [], [data])
+  // Platform-operator access sessions for THIS tenant become audit entries, so
+  // the Head sees exactly when the platform team entered and left their portal.
+  const accessLogs = useMemo(() => {
+    const out = []
+    for (const s of sessions.filter((x) => x.tenantId === brand.id)) {
+      out.push({
+        id: `${s.id}-in`, created_at: s.enteredAt, actor_type: 'operator', actor_name: s.operator,
+        actor_id: s.ticketId ?? 'platform', action_type: 'support_access',
+        description: `Platform support entered the portal${s.ticketId ? ` (ticket ${s.ticketId})` : ''}.`,
+      })
+      if (s.exitedAt) {
+        out.push({
+          id: `${s.id}-out`, created_at: s.exitedAt, actor_type: 'operator', actor_name: s.operator,
+          actor_id: s.ticketId ?? 'platform', action_type: 'support_access',
+          description: 'Platform support left the portal.',
+        })
+      }
+    }
+    return out
+  }, [sessions, brand.id])
+
+  const logs = useMemo(
+    () => [...accessLogs, ...(data?.data ?? [])].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)),
+    [data, accessLogs],
+  )
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()

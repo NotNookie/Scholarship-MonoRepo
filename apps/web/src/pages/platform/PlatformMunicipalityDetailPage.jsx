@@ -1,10 +1,16 @@
 import { useState } from 'react'
 import { useNavigate, useParams, Navigate } from 'react-router-dom'
-import { ChevronLeft, Ban, Check, CircleCheck, Download, Trash2 } from 'lucide-react'
+import { ChevronLeft, Ban, Check, CircleCheck, Download, Trash2, ShieldCheck } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { usePlatformStore, sigilOf, SETUP_STEPS } from '../../store/platformStore'
+import { useAuditStore } from '../../store/auditStore'
 import { StatusTag } from '../../components/platform/PlatformBits'
 import { OffboardDrawer } from '../../components/platform/OffboardDrawer'
+
+function fmtDT(v) {
+  if (!v) return '—'
+  return new Date(v).toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
 
 export function PlatformMunicipalityDetailPage() {
   const { id } = useParams()
@@ -12,11 +18,13 @@ export function PlatformMunicipalityDetailPage() {
   const municipality = usePlatformStore((s) => s.municipalities.find((m) => m.id === id))
   const toggleStatus = usePlatformStore((s) => s.toggleStatus)
   const offboard = usePlatformStore((s) => s.offboard)
+  const sessions = useAuditStore((s) => s.sessions)
   const [offboardOpen, setOffboardOpen] = useState(false)
 
   if (!municipality) return <Navigate to="/platform/municipalities" replace />
 
   const m = municipality
+  const accessSessions = sessions.filter((x) => x.tenantId === m.id)
   const suspended = m.status === 'suspended'
   const onboarding = m.status === 'onboarding'
 
@@ -144,6 +152,34 @@ export function PlatformMunicipalityDetailPage() {
             })}
           </div>
         </>
+      )}
+
+      <h2 className="pf-h2">Support access history</h2>
+      <p className="pf-sub">When the platform team entered this portal, and under which request. Actions taken during a session are attributed to the operator.</p>
+      {accessSessions.length === 0 ? (
+        <div className="pf-empty">
+          <ShieldCheck />
+          <b>No operator access yet</b>
+          No one from the platform team has entered this portal.
+        </div>
+      ) : (
+        <div className="pf-tscroll">
+          <table className="pf-reg">
+            <thead>
+              <tr><th>Operator</th><th>Entered</th><th>Left</th><th>Ticket</th></tr>
+            </thead>
+            <tbody>
+              {accessSessions.map((s) => (
+                <tr key={s.id} style={{ cursor: 'default' }}>
+                  <td>{s.operator}</td>
+                  <td className="tnum">{fmtDT(s.enteredAt)}</td>
+                  <td className="tnum">{s.exitedAt ? fmtDT(s.exitedAt) : <span className="pf-tag warn">Active now</span>}</td>
+                  <td className="pf-mono">{s.ticketId ?? '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <h2 className="pf-h2" style={{ borderTopColor: 'var(--pf-stop-fg)' }}>Danger zone</h2>
