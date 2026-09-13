@@ -508,11 +508,11 @@ function Body() {
                 <a href="#roles">Every role</a>
                 <a href="#trust">Trust &amp; security</a>
                 <Link to="/iskolar/request">Request onboarding</Link>
+                <a href="mailto:hello@iskolar.ph">Contact</a>
               </div>
               <div className="isk-footer-col">
-                <b>Account</b>
-                <Link to="/login">Sign in</Link>
-                <a href="mailto:hello@iskolar.ph">Contact</a>
+                <b>Operators</b>
+                <Link to="/login">Operator sign-in</Link>
               </div>
             </div>
           </div>
