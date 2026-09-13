@@ -41,9 +41,10 @@ const INCOME_RANGES = [
   'Above ₱500,000',
 ]
 
-// Essay / statement length rules — kept in sync with the on-screen guidance.
-const ESSAY_MIN_WORDS = 500
-const STATEMENT_MAX_WORDS = 500
+// Essay / statement length rules. Defaults; a municipality can override these in
+// Maintenance → Organization Profile → Application & Lifecycle (read via brand).
+const DEFAULT_ESSAY_MIN_WORDS = 500
+const DEFAULT_STATEMENT_MAX_WORDS = 500
 
 function countWords(s) {
   const t = (s ?? '').trim()
@@ -312,6 +313,8 @@ function Step2Academic({ register, errors }) {
 // ── Step 3: Family Background ─────────────────────────────────
 
 function Step3Family({ register, errors, values }) {
+  const brand = useBrand()
+  const STATEMENT_MAX_WORDS = brand.statementMaxWords ?? DEFAULT_STATEMENT_MAX_WORDS
   const statementWords = countWords(values.financial_need_statement)
   const numericRules = {
     required: 'Required',
@@ -402,7 +405,7 @@ function Step3Family({ register, errors, values }) {
       <SectionHeading>Statement of Financial Need</SectionHeading>
 
       <Field
-        label="Briefly explain your financial situation and why this scholarship is necessary for your education. (Max 500 words)"
+        label={`Briefly explain your financial situation and why this scholarship is necessary for your education. (Max ${STATEMENT_MAX_WORDS} words)`}
         id="financial_need_statement"
         error={errors.financial_need_statement}
       >
@@ -428,6 +431,8 @@ function Step3Family({ register, errors, values }) {
 // ── Step 4: Essay & Statement ─────────────────────────────────
 
 function Step4Essay({ register, errors, values }) {
+  const brand = useBrand()
+  const ESSAY_MIN_WORDS = brand.essayMinWords ?? DEFAULT_ESSAY_MIN_WORDS
   const essayWords = countWords(values.essay)
   return (
     <div className="space-y-6">
@@ -441,8 +446,8 @@ function Step4Essay({ register, errors, values }) {
       <SectionHeading>Personal Essay</SectionHeading>
 
       <p className="text-sm text-content-muted leading-relaxed">
-        Write a personal essay (500–800 words) describing your academic journey, personal
-        challenges, future goals, and how this scholarship will help you achieve them.
+        Write a personal essay of at least {ESSAY_MIN_WORDS} words describing your academic journey,
+        personal challenges, future goals, and how this scholarship will help you achieve them.
         Be honest and specific.
       </p>
 
@@ -555,7 +560,7 @@ function UploadCard({ doc, file, onChange }) {
           )}
         </>
       ) : (
-        <label className="border-2 border-dashed border-border hover:border-primary bg-surface-alt rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer group transition-colors">
+        <label className="border-2 border-dashed border-border hover:border-primary bg-surface-alt rounded-lg px-6 py-9 flex flex-col items-center justify-center text-center cursor-pointer group transition-colors">
           <input
             type="file"
             accept=".pdf,.jpg,.jpeg,.png"
@@ -581,9 +586,9 @@ function Step5Documents({ register, errors, documents, values, uploads, setUploa
     })
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Upload cards */}
-      <div className="lg:col-span-2 space-y-5">
+      <div className="lg:col-span-2 space-y-6">
         <div>
           <h1 className="text-xl font-bold text-content">Document Upload & Review</h1>
           <p className="text-sm text-content-muted mt-1">

@@ -42,6 +42,8 @@ const DEFAULTS = {
   map_embed_url: '',
   application_deadline: '',
   essay_enabled: true,
+  essay_min_words: 500,
+  statement_max_words: 500,
   qualifying_exam_enabled: false,
   orientation_enabled: false,
   payout_tracking_enabled: false,
@@ -313,6 +315,39 @@ export function MaintenanceProfilePage() {
                   <input id="application_deadline" type="text" value={form.application_deadline} onChange={set('application_deadline')} placeholder="e.g. August 15, 2026" className={inputCls} />
                 </Field>
                 <p className="text-xs text-content-muted mt-2">Leave blank to hide the deadline banner.</p>
+              </div>
+
+              <div className="pt-5 border-t border-border">
+                <p className="text-sm font-semibold text-content mb-1">Essay &amp; statement length</p>
+                <p className="text-xs text-content-muted mb-4">How long applicants&rsquo; written answers must be, in words.</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="essay_min_words" className="text-sm font-medium text-content">Personal essay — minimum words</label>
+                    <input
+                      id="essay_min_words"
+                      type="number"
+                      min="0"
+                      value={form.essay_min_words ?? ''}
+                      onChange={(e) => setForm((s) => ({ ...s, essay_min_words: e.target.value === '' ? '' : Number(e.target.value) }))}
+                      placeholder="500"
+                      className={inputCls}
+                    />
+                    <p className="text-xs text-content-muted">Applies only when the personal essay is required.</p>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="statement_max_words" className="text-sm font-medium text-content">Financial-need statement — maximum words</label>
+                    <input
+                      id="statement_max_words"
+                      type="number"
+                      min="0"
+                      value={form.statement_max_words ?? ''}
+                      onChange={(e) => setForm((s) => ({ ...s, statement_max_words: e.target.value === '' ? '' : Number(e.target.value) }))}
+                      placeholder="500"
+                      className={inputCls}
+                    />
+                    <p className="text-xs text-content-muted">The cap for the financial-need statement in the Family step.</p>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
