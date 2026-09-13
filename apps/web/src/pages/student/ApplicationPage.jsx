@@ -599,6 +599,37 @@ function Step5Documents({ register, errors, documents, values, uploads, setUploa
           const name = docNameOf(doc)
           return <UploadCard key={name} doc={doc} file={uploads[name] ?? null} onChange={setDoc(name)} />
         })}
+
+        {/* Certifications — full width so the legal statements have room to breathe */}
+        <div className="bg-surface rounded-xl border border-border shadow-card p-6 space-y-3">
+          <p className="text-sm font-bold text-content">Certification</p>
+          <label className={`flex items-start gap-3 cursor-pointer rounded-lg p-4 border transition-colors ${errors.doc_acknowledged ? 'border-danger bg-danger-light' : 'border-border bg-surface-alt hover:border-primary/40'}`}>
+            <input
+              type="checkbox"
+              className="w-4 h-4 mt-0.5 accent-primary shrink-0"
+              {...register('doc_acknowledged', { required: 'Please confirm to continue.' })}
+            />
+            <span className="text-sm text-content leading-relaxed">
+              I certify that all information provided and documents uploaded are true, correct, and legally binding. I understand that false information may lead to disqualification.
+            </span>
+          </label>
+          {errors.doc_acknowledged && (
+            <p role="alert" className="text-xs text-danger">{errors.doc_acknowledged.message}</p>
+          )}
+          <label className={`flex items-start gap-3 cursor-pointer rounded-lg p-4 border transition-colors ${errors.attest ? 'border-danger bg-danger-light' : 'border-border bg-surface-alt hover:border-primary/40'}`}>
+            <input
+              type="checkbox"
+              className="w-4 h-4 mt-0.5 accent-primary shrink-0"
+              {...register('attest', { required: 'You must attest to submit.' })}
+            />
+            <span className="text-sm text-content leading-relaxed">
+              I attest that all information in this application is accurate and complete to the best of my knowledge.
+            </span>
+          </label>
+          {errors.attest && (
+            <p role="alert" className="text-xs text-danger">{errors.attest.message}</p>
+          )}
+        </div>
       </div>
 
       {/* Summary panel */}
@@ -608,17 +639,17 @@ function Step5Documents({ register, errors, documents, values, uploads, setUploa
             <p className="text-sm font-bold text-content">Application Summary</p>
           </div>
           <div className="p-4 space-y-3 border-b border-border">
-            <div className="flex justify-between items-center py-1.5 border-b border-border/50">
+            <div className="flex justify-between items-center py-2 border-b border-border/50">
               <span className="text-xs text-content-muted">Applicant Name</span>
               <span className="text-xs font-semibold text-content text-right">
                 {[values.first_name, values.last_name].filter(Boolean).join(' ') || '—'}
               </span>
             </div>
-            <div className="flex justify-between items-center py-1.5 border-b border-border/50">
+            <div className="flex justify-between items-center py-2 border-b border-border/50">
               <span className="text-xs text-content-muted">Course</span>
               <span className="text-xs font-semibold text-content text-right">{values.course || '—'}</span>
             </div>
-            <div className="flex justify-between items-center py-1.5">
+            <div className="flex justify-between items-center py-2">
               <span className="text-xs text-content-muted">School</span>
               <span className="text-xs font-semibold text-content text-right line-clamp-1 max-w-[120px]">
                 {values.school_name || '—'}
@@ -626,9 +657,9 @@ function Step5Documents({ register, errors, documents, values, uploads, setUploa
             </div>
           </div>
 
-          <div className="p-4 border-b border-border">
+          <div className="p-4">
             <p className="text-xs font-semibold text-content-muted uppercase tracking-wider mb-3">Document Status</p>
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {documents.map((doc) => {
                 const name = docNameOf(doc)
                 const done = !!uploads[name]
@@ -642,38 +673,6 @@ function Step5Documents({ register, errors, documents, values, uploads, setUploa
                 )
               })}
             </div>
-          </div>
-
-          <div className="p-4 space-y-4">
-            <label className={`flex items-start gap-3 cursor-pointer rounded-lg p-3 border ${errors.doc_acknowledged ? 'border-danger bg-danger-light' : 'border-border bg-surface-alt'}`}>
-              <input
-                type="checkbox"
-                className="w-4 h-4 mt-0.5 accent-primary shrink-0"
-                {...register('doc_acknowledged', {
-                  required: 'Please confirm to continue.',
-                })}
-              />
-              <span className="text-xs text-content leading-relaxed">
-                I certify that all information provided and documents uploaded are true, correct, and legally binding. I understand that false information may lead to disqualification.
-              </span>
-            </label>
-            {errors.doc_acknowledged && (
-              <p role="alert" className="text-xs text-danger">{errors.doc_acknowledged.message}</p>
-            )}
-
-            <label className={`flex items-start gap-3 cursor-pointer rounded-lg p-3 border ${errors.attest ? 'border-danger bg-danger-light' : 'border-border bg-surface-alt'}`}>
-              <input
-                type="checkbox"
-                className="w-4 h-4 mt-0.5 accent-primary shrink-0"
-                {...register('attest', { required: 'You must attest to submit.' })}
-              />
-              <span className="text-xs text-content leading-relaxed">
-                I attest that all information in this application is accurate and complete to the best of my knowledge.
-              </span>
-            </label>
-            {errors.attest && (
-              <p role="alert" className="text-xs text-danger">{errors.attest.message}</p>
-            )}
           </div>
         </div>
       </div>
