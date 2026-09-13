@@ -217,9 +217,16 @@ async function route(config) {
   }
   if (method === 'get' && path === '/admin/activity-logs') return ok({ data: store.activity }, config)
 
-  // Scholar data-erasure request (Data Privacy Act) — acknowledge the request.
-  if (method === 'post' && path === '/student/data-erasure-request') {
-    return ok({ data: { ok: true, status: 'received' } }, config)
+  // ── Student side ──
+  // No backend in the demo, so serve graceful fallbacks: the student pages fall
+  // back to their empty/static states instead of showing an error. `scholarship`
+  // and `profile` must be null (not []) so "not yet a scholar" resolves correctly.
+  if (method === 'get' && (path === '/student/scholarship' || path === '/student/profile')) {
+    return ok({ data: null }, config)
+  }
+  if (method === 'get' && path === '/applications') return ok({ data: [] }, config)
+  if (path.startsWith('/student/')) {
+    return ok(method === 'get' ? { data: [] } : { data: { ok: true } }, config)
   }
 
   // Unmatched admin endpoint → empty success so pages stay calm (no error state).
