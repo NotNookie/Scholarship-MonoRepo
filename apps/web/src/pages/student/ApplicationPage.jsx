@@ -14,19 +14,18 @@ import { queryKeys } from '../../lib/queryKeys'
 import { validateFile, measureSharpness, BLUR_THRESHOLD } from '../../lib/fileValidation'
 import { useBrand } from '../../tenant/TenantContext'
 import { useDialog } from '../../lib/useDialog'
+import { DRAFT_KEY, STEP_FIELDS } from '../../lib/applicationDraft'
 
 // ── Constants ────────────────────────────────────────────────
-
-const DRAFT_KEY = 'iskolar-application-draft'
 
 // Each step carries a stable `id` so optional steps (e.g. the essay) can be
 // filtered out per municipality without breaking numeric indexing.
 const STEP_DEFS = [
-  { id: 'personal',  label: 'Personal Info',     Icon: User,          fields: ['first_name', 'last_name', 'birthdate', 'sex', 'civil_status', 'street_address', 'barangay', 'mobile'] },
-  { id: 'academic',  label: 'Academic Records',  Icon: GraduationCap, fields: ['school_name', 'course', 'year_level', 'gwa'] },
-  { id: 'family',    label: 'Family Background', Icon: Users,         fields: ['annual_income_range', 'num_dependents', 'primary_earner', 'primary_earner_occupation', 'primary_earner_monthly_income', 'financial_need_statement'] },
-  { id: 'essay',     label: 'Essay & Statement', Icon: FileText,      fields: ['essay'] },
-  { id: 'documents', label: 'Document Upload',   Icon: Upload,        fields: ['doc_acknowledged', 'attest'] },
+  { id: 'personal',  label: 'Personal Info',     Icon: User,          fields: STEP_FIELDS.personal },
+  { id: 'academic',  label: 'Academic Records',  Icon: GraduationCap, fields: STEP_FIELDS.academic },
+  { id: 'family',    label: 'Family Background', Icon: Users,         fields: STEP_FIELDS.family },
+  { id: 'essay',     label: 'Essay & Statement', Icon: FileText,      fields: STEP_FIELDS.essay },
+  { id: 'documents', label: 'Document Upload',   Icon: Upload,        fields: STEP_FIELDS.documents },
 ]
 
 const FALLBACK_DOCUMENTS = [

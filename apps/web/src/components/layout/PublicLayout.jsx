@@ -1,4 +1,4 @@
-import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom'
+import { Outlet, Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { LogOut } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { useBrand } from '../../tenant/TenantContext'
@@ -14,7 +14,9 @@ const PUBLIC_NAV_ANNOUNCEMENTS = { to: '/announcements', label: 'Announcements',
 
 const STUDENT_NAV = [
   { to: '/dashboard', label: 'Dashboard', end: false },
-  { to: '/scholarship', label: 'My Scholarship', end: false },
+  // The whole application journey (apply, view, appeal, renew) lives under
+  // My Scholarship, so keep the tab highlighted on those routes too.
+  { to: '/scholarship', label: 'My Scholarship', end: false, activeOn: ['/apply', '/applications', '/appeal', '/scholarship'] },
   { to: '/student/announcements', label: 'Announcements', end: false },
   { to: '/settings', label: 'Profile', end: false },
 ]
@@ -30,6 +32,7 @@ export function PublicLayout() {
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const brand = useBrand()
 
   const orgLine = brand.municipality ? `${brand.office}, ${brand.municipality}` : brand.office
@@ -72,11 +75,14 @@ export function PublicLayout() {
           {isScholar && (
             <>
               <span className="w-px h-4 bg-border shrink-0" />
-              {STUDENT_NAV.map(({ to, label, end }) => (
-                <NavLink key={to} to={to} end={end} className={navLinkCls}>
-                  {label}
-                </NavLink>
-              ))}
+              {STUDENT_NAV.map(({ to, label, end, activeOn }) => {
+                const forced = activeOn?.some((p) => pathname === p || pathname.startsWith(`${p}/`))
+                return (
+                  <NavLink key={to} to={to} end={end} className={({ isActive }) => navLinkCls({ isActive: isActive || forced })}>
+                    {label}
+                  </NavLink>
+                )
+              })}
             </>
           )}
         </nav>

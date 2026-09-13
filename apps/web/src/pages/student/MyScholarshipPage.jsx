@@ -14,6 +14,7 @@ import { Skeleton } from '../../components/shared/Skeleton'
 import { StatusPill } from '../../components/shared/StatusPill'
 import { APPLICATION_STATUS } from '../../components/shared/statusConfig'
 import { ScholarshipCard } from '../../components/shared/ScholarshipCard'
+import { ResumeApplicationCard } from '../../components/student/ResumeApplicationCard'
 import { SCHOLARSHIPS } from '../../data/scholarships'
 import { useBrand } from '../../tenant/TenantContext'
 
@@ -311,6 +312,7 @@ export function MyScholarshipPage() {
   if (!s && applications.length === 0) {
     return (
       <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col gap-8">
+        <ResumeApplicationCard />
         <div className="bg-surface border border-border rounded-xl shadow-card p-12 flex flex-col items-center text-center gap-4">
           <div className="w-14 h-14 bg-primary-light rounded-full flex items-center justify-center">
             <GraduationCap size={24} className="text-primary" />

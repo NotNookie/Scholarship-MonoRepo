@@ -18,6 +18,8 @@ import { AnnouncementCard } from '../../components/shared/AnnouncementCard'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { StatusPill } from '../../components/shared/StatusPill'
 import { APPLICATION_STATUS } from '../../components/shared/statusConfig'
+import { ResumeApplicationCard } from '../../components/student/ResumeApplicationCard'
+import { readDraft, hasDraftInProgress } from '../../lib/applicationDraft'
 import { useBrand } from '../../tenant/TenantContext'
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -42,6 +44,11 @@ function StatCard({ Icon, label, value, sub, accent }) {
 // ── Application tracker ───────────────────────────────────────
 
 function ApplicationTracker({ application }) {
+  // A saved-but-unsubmitted draft takes precedence over the "no application" empty
+  // state, so a returning scholar is prompted to finish rather than start over.
+  if (!application && hasDraftInProgress(readDraft())) {
+    return <ResumeApplicationCard />
+  }
   if (!application) {
     return (
       <div className="bg-surface border border-border rounded-xl shadow-card p-8 flex flex-col items-center text-center gap-4">
