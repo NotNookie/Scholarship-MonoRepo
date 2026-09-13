@@ -217,6 +217,11 @@ async function route(config) {
   }
   if (method === 'get' && path === '/admin/activity-logs') return ok({ data: store.activity }, config)
 
+  // Scholar data-erasure request (Data Privacy Act) — acknowledge the request.
+  if (method === 'post' && path === '/student/data-erasure-request') {
+    return ok({ data: { ok: true, status: 'received' } }, config)
+  }
+
   // Unmatched admin endpoint → empty success so pages stay calm (no error state).
   if (path.startsWith('/admin/')) {
     return ok(method === 'get' ? { data: [] } : { data: { ok: true } }, config)
