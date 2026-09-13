@@ -85,6 +85,9 @@ function SortIcon({ dir }) {
 
 export function ApplicantsPage() {
   const navigate = useNavigate()
+  // Open the clicked applicant's full record in the review detail pane. status=all
+  // so a decided applicant still appears in the list beside the open detail.
+  const openRecord = (id) => navigate(`/admin/applications?select=${id}&status=all`)
   const [search, setSearch] = useState('')
   // Honor ?status= from the dashboard stat cards so the list lands pre-filtered.
   const [searchParams] = useSearchParams()
@@ -339,8 +342,12 @@ export function ApplicantsPage() {
                   {pageRows.map((row) => (
                     <tr
                       key={row.id}
-                      onClick={() => navigate('/admin/applications')}
-                      className="border-b border-border last:border-0 hover:bg-surface-alt cursor-pointer transition-colors"
+                      onClick={() => openRecord(row.original.id)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') openRecord(row.original.id) }}
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`Open ${applicantName(row.original)}'s record`}
+                      className="border-b border-border last:border-0 hover:bg-surface-alt cursor-pointer transition-colors focus:outline-none focus-visible:bg-surface-alt"
                     >
                       {row.getVisibleCells().map((cell) => (
                         <td key={cell.id} className="px-5 py-3.5">
