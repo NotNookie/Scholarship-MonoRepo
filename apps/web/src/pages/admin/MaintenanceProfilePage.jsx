@@ -36,7 +36,6 @@ const DEFAULTS = {
   logo_name: '',
   walkthrough_video_enabled: true,
   walkthrough_video_url: '',
-  website_url: '',
   facebook_url: '',
   manual_url: '',
   map_embed_url: '',
@@ -262,9 +261,6 @@ export function MaintenanceProfilePage() {
 
             <div className="mt-6 pt-6 border-t border-border flex flex-col gap-4">
               <p className="text-xs text-content-muted">Leave any of these blank and it simply won&rsquo;t appear on your public pages.</p>
-              <Field id="website_url" label="Website URL">
-                <input id="website_url" type="url" value={form.website_url} onChange={set('website_url')} placeholder="https://yourtown.gov.ph" className={inputCls} />
-              </Field>
               <Field id="facebook_url" label="Facebook page URL">
                 <input id="facebook_url" type="url" value={form.facebook_url} onChange={set('facebook_url')} placeholder="https://facebook.com/yourtown" className={inputCls} />
               </Field>

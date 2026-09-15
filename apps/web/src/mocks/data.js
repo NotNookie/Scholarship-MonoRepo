@@ -230,7 +230,7 @@ function buildActivity(apps) {
 function buildUsers() {
   return [
     { id: 'u1', name: 'Maria Santos', email: 'maria.santos@stacruz.gov.ph', role: 'super_admin', status: 'active', last_active_at: isoDaysAgo(0, 9) },
-    { id: 'u2', name: 'Ramon Bautista', email: 'ramon.bautista@stacruz.gov.ph', role: 'miso', status: 'active', last_active_at: isoDaysAgo(0, 14) },
+    { id: 'u2', name: 'Ramon Bautista', email: 'ramon.bautista@stacruz.gov.ph', role: 'admin', status: 'active', last_active_at: isoDaysAgo(0, 14) },
     { id: 'u3', name: 'Ana Reyes', email: 'ana.reyes@stacruz.gov.ph', role: 'admin', status: 'active', last_active_at: isoDaysAgo(1, 16) },
     { id: 'u4', name: 'Jose Mercado', email: 'jose.mercado@stacruz.gov.ph', role: 'admin', status: 'active', last_active_at: isoDaysAgo(2, 11) },
     { id: 'u5', name: 'Liza Cruz', email: 'liza.cruz@stacruz.gov.ph', role: 'admin', status: 'inactive', last_active_at: isoDaysAgo(21, 10) },

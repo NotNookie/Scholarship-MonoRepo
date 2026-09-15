@@ -13,7 +13,6 @@ import { useBrand } from '../../tenant/TenantContext'
 // Internal role keys map to LYDO-facing labels (per mockup #12).
 const ROLES = {
   super_admin: { label: 'Super Admin',    cls: 'bg-danger-light text-danger border-danger/30' },
-  miso:        { label: 'MISO Lead',      cls: 'bg-primary-light text-primary border-primary/20' },
   admin:       { label: 'Staff Evaluator', cls: 'bg-surface-alt text-content-muted border-border' },
 }
 const ROLE_OPTIONS = Object.entries(ROLES).map(([value, cfg]) => ({ value, label: cfg.label }))
