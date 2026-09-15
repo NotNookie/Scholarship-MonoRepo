@@ -2,14 +2,13 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   User, ShieldCheck, Bell, Lock, Camera, Loader2, Check, KeyRound, ShieldAlert, BadgeCheck,
-  Download, Trash2,
+  Download,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../../lib/axios'
 import { queryKeys } from '../../lib/queryKeys'
 import { useAuthStore } from '../../store/authStore'
 import { useBrand } from '../../tenant/TenantContext'
-import { useDialog } from '../../lib/useDialog'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { PrivacyModal } from '../../components/shared/PrivacyNotice'
 
@@ -300,44 +299,11 @@ function NotificationsTab({ data }) {
 
 // ── Privacy & Data tab ────────────────────────────────────────
 
-function ErasureConfirm({ busy, brand, onConfirm, onClose }) {
-  const ref = useDialog(onClose)
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div ref={ref} role="dialog" aria-modal="true" aria-labelledby="erase-title" className="relative bg-surface rounded-xl shadow-modal w-full max-w-sm p-6">
-        <div className="flex items-start gap-4">
-          <div className="w-11 h-11 rounded-lg bg-danger-light text-danger flex items-center justify-center shrink-0"><Trash2 size={20} /></div>
-          <div>
-            <h3 id="erase-title" className="text-base font-bold text-content">Request account deletion?</h3>
-            <p className="text-xs text-content-muted mt-1 leading-relaxed">
-              We&rsquo;ll send your request to the {brand.officeShort} office to review. If you have an active scholarship, deletion may affect it, and some records may be kept where the law requires.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center justify-end gap-3 mt-6">
-          <button onClick={onClose} className="text-sm font-medium text-content-muted px-4 py-2 rounded-lg hover:text-content">Cancel</button>
-          <button disabled={busy} onClick={onConfirm} className="inline-flex items-center gap-2 bg-danger text-white text-sm font-semibold px-5 py-2 rounded-lg hover:opacity-90 disabled:opacity-50">
-            {busy && <Loader2 size={15} className="animate-spin" />} Send request
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function PrivacyTab({ data, applications }) {
   const brand = useBrand()
   const [showNotice, setShowNotice] = useState(false)
-  const [confirmErase, setConfirmErase] = useState(false)
 
   const consentDate = longDate(data.privacy_consent_at ?? data.created_at)
-
-  const erase = useMutation({
-    mutationFn: () => api.post('/student/data-erasure-request'),
-    onSuccess: () => { toast.success('Your request has been sent to the office.'); setConfirmErase(false) },
-    onError: (e) => toast.error(e?.response?.data?.message ?? 'Could not send your request.'),
-  })
 
   function handleDownload() {
     const name = [data.first_name, data.last_name].filter(Boolean).join(' ')
@@ -401,23 +367,7 @@ function PrivacyTab({ data, applications }) {
         </button>
       </div>
 
-      {/* Erasure request */}
-      <div>
-        <p className="text-xs font-semibold text-danger uppercase tracking-wide mb-4">Delete account &amp; data</p>
-        <div className="border border-danger/30 bg-danger-light/40 rounded-xl p-5 flex items-start gap-4">
-          <div className="w-11 h-11 rounded-lg bg-danger-light text-danger flex items-center justify-center shrink-0"><Trash2 size={20} /></div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-content">Request account deletion</p>
-            <p className="text-xs text-content-muted mt-1 leading-relaxed">
-              Ask the {brand.officeShort} office to delete your account and personal data. The office will review your request and follow up. Some records may be retained where the law requires.
-            </p>
-          </div>
-          <button onClick={() => setConfirmErase(true)} className="text-xs font-semibold text-white bg-danger px-4 py-2 rounded-lg hover:opacity-90 transition-opacity shrink-0">Request deletion</button>
-        </div>
-      </div>
-
       {showNotice && <PrivacyModal brand={brand} onClose={() => setShowNotice(false)} />}
-      {confirmErase && <ErasureConfirm busy={erase.isPending} brand={brand} onConfirm={() => erase.mutate()} onClose={() => setConfirmErase(false)} />}
     </div>
   )
 }
