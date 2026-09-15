@@ -18,7 +18,6 @@ import { ScholarshipDetailPage } from '../pages/public/ScholarshipDetailPage'
 import { RequirementsPage } from '../pages/public/RequirementsPage'
 import { AnnouncementsPage } from '../pages/public/AnnouncementsPage'
 import { AnnouncementDetailPage } from '../pages/public/AnnouncementDetailPage'
-import { FormsPage } from '../pages/public/FormsPage'
 
 // Auth pages
 import { LoginPage } from '../pages/auth/LoginPage'
@@ -107,7 +106,6 @@ export const router = createBrowserRouter([
       { path: '/requirements', element: <RequirementsPage /> },
       { path: '/announcements', element: <AnnouncementsPage /> },
       { path: '/announcements/:id', element: <AnnouncementDetailPage /> },
-      { path: '/forms', element: <FormsPage /> },
 
       // Student pages (auth-gated individually)
       { path: '/dashboard',              element: scholar(<StudentDashboardPage />) },
