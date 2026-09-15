@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Search, ChevronRight } from 'lucide-react'
-import { usePlatformStore } from '../../store/platformStore'
+import { usePlatformStore, SETUP_STEPS } from '../../store/platformStore'
 import { StatusTag, Sigil } from '../../components/platform/PlatformBits'
 import { OnboardDrawer } from '../../components/platform/OnboardDrawer'
+
+const progressOf = (setup) => SETUP_STEPS.filter((s) => setup?.[s.key]).length
 
 const FILTERS = [
   { key: 'all', label: 'All' },
@@ -103,7 +105,19 @@ export function PlatformMunicipalitiesPage() {
                     </div>
                   </td>
                   <td><span className="pf-mono">{m.subdomain}.iskolar.ph</span></td>
-                  <td><StatusTag status={m.status} /></td>
+                  <td>
+                    <StatusTag status={m.status} />
+                    {m.status === 'onboarding' && (
+                      <div style={{ marginTop: 6, maxWidth: 130 }}>
+                        <div className="pf-progress" aria-hidden="true">
+                          {SETUP_STEPS.map((s) => (
+                            <i key={s.key} className={m.setup?.[s.key] ? 'on' : ''} />
+                          ))}
+                        </div>
+                        <div className="pf-progress-lbl">{progressOf(m.setup)} of {SETUP_STEPS.length} setup steps</div>
+                      </div>
+                    )}
+                  </td>
                   <td className="num tnum">{m.scholars.toLocaleString('en-US')}</td>
                   <td className="num tnum" style={{ color: 'var(--pf-ink-2)' }}>{m.staff}</td>
                   <td style={{ color: 'var(--pf-ink-2)' }}>{m.onboarded}</td>

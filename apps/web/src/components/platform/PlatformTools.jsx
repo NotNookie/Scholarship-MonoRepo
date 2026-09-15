@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import {
   Search, Bell, Building2, Users, LayoutGrid, Activity, Settings,
-  LifeBuoy, Megaphone, HeartPulse, BarChart3, UserPlus, CircleCheck, AlertTriangle, Info,
+  LifeBuoy, Megaphone, HeartPulse, BarChart3, CircleCheck, AlertTriangle, Info,
 } from 'lucide-react'
 import { usePlatformStore, sigilOf } from '../../store/platformStore'
 
@@ -11,7 +11,6 @@ import { usePlatformStore, sigilOf } from '../../store/platformStore'
 const PAGES = [
   { label: 'Overview', to: '/platform', Icon: LayoutGrid },
   { label: 'Municipalities', to: '/platform/municipalities', Icon: Building2 },
-  { label: 'Onboarding', to: '/platform/onboarding', Icon: UserPlus },
   { label: 'Analytics & Health', to: '/platform/analytics', Icon: BarChart3 },
   { label: 'Support', to: '/platform/support', Icon: LifeBuoy },
   { label: 'Broadcasts', to: '/platform/broadcasts', Icon: Megaphone },

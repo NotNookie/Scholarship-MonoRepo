@@ -6,7 +6,7 @@ import '../../styles/landing.css'
 
 // Onboarding request — an LGU asks to be provisioned. No backend in demo:
 // on submit we show a success state. The fields map to an onboarding-request
-// record that the super-admin console (Platform → Onboarding) would review.
+// record that the super-admin console (Platform → Municipalities) would review.
 const STEPS = [
   { b: 'Submit this request', p: 'Tell us about your municipality and program. Takes about a minute.' },
   { b: 'We review and reach out', p: 'Our team confirms details with your LYDO or scholarship office.' },

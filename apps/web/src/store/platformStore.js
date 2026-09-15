@@ -112,7 +112,7 @@ let notifId = 4
 const NOTIFICATIONS = [
   { id: 'n-3', kind: 'warn', text: 'SMS / OTP provider is reporting degraded delivery.', time: '25m ago', read: false, to: '/platform/analytics#health' },
   { id: 'n-2', kind: 'info', text: 'New support request from Pagsanjan.', time: '2h ago', read: false, to: '/platform/support' },
-  { id: 'n-1', kind: 'ok',   text: 'Nagcarlan completed onboarding and went live.', time: 'Yesterday', read: true, to: '/platform/onboarding' },
+  { id: 'n-1', kind: 'ok',   text: 'Nagcarlan completed onboarding and went live.', time: 'Yesterday', read: true, to: '/platform/municipalities' },
 ]
 
 function initials(name) {
@@ -254,7 +254,7 @@ export const usePlatformStore = create((set) => ({
   platformUsers: [
     { id: 'you', name: 'Platform Admin', email: 'admin@iskolar.ph', role: 'super_admin', lastActive: 'Just now', you: true },
     { id: 'mika', name: 'Mika Ramos', email: 'mika@iskolar.ph', role: 'support', lastActive: '2 hours ago' },
-    { id: 'dan', name: 'Dan Lim', email: 'dan@iskolar.ph', role: 'readonly', lastActive: 'Yesterday' },
+    { id: 'dan', name: 'Dan Lim', email: 'dan@iskolar.ph', role: 'support', lastActive: 'Yesterday' },
   ],
   invitePlatformUser: ({ name, email, role }) =>
     set((s) => ({
@@ -294,7 +294,6 @@ export const usePlatformStore = create((set) => ({
 export const PLATFORM_ROLES = {
   super_admin: { label: 'Super Admin', cls: 'accent', desc: 'Full control — onboard, suspend, manage the platform team.' },
   support: { label: 'Support', cls: 'info', desc: 'Read everything and assist tenants; can open support sessions.' },
-  readonly: { label: 'Read-only', cls: 'neutral', desc: 'Oversight only — can view, cannot change anything.' },
 }
 
 export const STATUS_META = {

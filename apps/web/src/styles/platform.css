@@ -343,7 +343,7 @@
 .pf-board-card .sd { font-family: var(--pf-mono); font-size: 0.76rem; color: var(--pf-ink-2); margin: 6px 0 12px; }
 .pf-board-empty { color: var(--pf-ink-3); font-size: 0.8rem; padding: 14px; border: 1px dashed var(--pf-line); border-radius: 10px; }
 .pf-progress { display: flex; gap: 4px; }
-.pf-progress i { flex: 1; height: 5px; border-radius: 3px; background: rgba(255,255,255,.1); }
+.pf-progress i { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,.12); }
 .pf-progress i.on { background: var(--pf-blue-500); }
 .pf-progress-lbl { font-size: 0.72rem; color: var(--pf-ink-2); margin-top: 7px; }
 
@@ -475,6 +475,7 @@
 .platform-root[data-theme="light"] .pf-board-card { background: #ffffff; }
 .platform-root[data-theme="light"] .pf-board-card:hover { background: #f7f7f8; }
 .platform-root[data-theme="light"] .pf-progress i { background: #e6e6ec; }
+.platform-root[data-theme="light"] .pf-progress i.on { background: var(--pf-blue-500); }
 /* card elevation */
 .platform-root[data-theme="light"] .pf-block,
 .platform-root[data-theme="light"] .pf-vital,
