@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
-  Palette, ChevronDown, Pipette, RotateCcw, Bell, Search, ShieldAlert,
+  Palette, ChevronLeft, ChevronDown, Pipette, RotateCcw, Bell, Search, ShieldAlert,
   CheckCircle2, AlertTriangle, XCircle, Info, ArrowRight, Lock,
 } from 'lucide-react'
 import { useUiTheme } from '../../store/uiThemeStore'
@@ -193,6 +194,9 @@ export function MaintenanceThemePage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
+        <Link to="/admin/maintenance" className="inline-flex items-center gap-1.5 text-sm text-content-muted hover:text-primary transition-colors mb-3">
+          <ChevronLeft size={15} /> Maintenance Hub
+        </Link>
         <h1 className="text-2xl font-bold text-content">Appearance</h1>
         <p className="text-sm text-content-muted mt-1">
           Choose a preset or set your own colours. Changes apply live across the whole interface and are remembered on this device.

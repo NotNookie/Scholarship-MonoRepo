@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import { useLocation, useBlocker } from 'react-router-dom'
+import { Link, useLocation, useBlocker } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Palette,
+  ChevronLeft,
   Building2,
   Contact,
   UploadCloud,
@@ -147,6 +148,9 @@ export function MaintenanceProfilePage() {
 
   return (
     <div className="flex flex-col gap-6">
+      <Link to="/admin/maintenance" className="inline-flex items-center gap-1.5 text-sm text-content-muted hover:text-primary transition-colors -mb-3 w-fit">
+        <ChevronLeft size={15} /> Maintenance Hub
+      </Link>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div>
