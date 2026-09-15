@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 import {
   CircleCheck, Check, Plus, UserPlus, TrendingUp,
-  Ban, Trash2, UserMinus, Megaphone, LifeBuoy, Shield,
+  Ban, Trash2, UserMinus, Megaphone, LifeBuoy, Shield, Inbox,
 } from 'lucide-react'
 import { usePlatformStore } from '../../store/platformStore'
+import { useOnboardingRequests } from '../../store/onboardingRequestsStore'
 import { OnboardDrawer } from '../../components/platform/OnboardDrawer'
 import { useState } from 'react'
 
@@ -27,6 +28,10 @@ export function PlatformOverviewPage() {
   const navigate = useNavigate()
   const municipalities = usePlatformStore((s) => s.municipalities)
   const activity = usePlatformStore((s) => s.activity)
+  // Select the stable array reference, then derive — filtering inside the
+  // selector returns a new array every render and causes an infinite loop.
+  const requests = useOnboardingRequests((s) => s.requests)
+  const newRequests = requests.filter((r) => r.status === 'new')
   const [onboardOpen, setOnboardOpen] = useState(false)
 
   const total = municipalities.length
@@ -66,30 +71,49 @@ export function PlatformOverviewPage() {
       <div className="pf-cols pf-reveal">
         <div className="pf-block">
           <h2>Needs attention</h2>
-          {attention.length === 0 ? (
+          {attention.length === 0 && newRequests.length === 0 ? (
             <div className="pf-empty">
               <Check size={30} strokeWidth={1.8} />
               <b>Nothing needs attention</b>
-              Suspensions, failed onboardings and stalled tenants surface here.
+              Requests, suspensions, failed onboardings and stalled tenants surface here.
             </div>
           ) : (
-            attention.map((m) => (
-              <button
-                key={m.id}
-                type="button"
-                className="pf-feed"
-                style={{ width: '100%', textAlign: 'left', background: 'none', border: 0, borderBottom: '1px solid var(--pf-line-soft)', cursor: 'pointer' }}
-                onClick={() => navigate(`/platform/municipalities/${m.id}`)}
-              >
-                <div className="pf-feed-ic" style={{ background: 'var(--pf-stop-bg)', color: 'var(--pf-stop-fg)' }}>
-                  <UserPlus size={18} />
-                </div>
-                <div>
-                  <div className="pf-feed-tx"><b>{m.name}</b> is suspended</div>
-                  <div className="pf-feed-tm">Review and reactivate</div>
-                </div>
-              </button>
-            ))
+            <>
+              {newRequests.length > 0 && (
+                <button
+                  type="button"
+                  className="pf-feed"
+                  style={{ width: '100%', textAlign: 'left', background: 'none', border: 0, borderBottom: '1px solid var(--pf-line-soft)', cursor: 'pointer' }}
+                  onClick={() => navigate('/platform/requests')}
+                >
+                  <div className="pf-feed-ic b"><Inbox size={18} /></div>
+                  <div>
+                    <div className="pf-feed-tx">
+                      <b>{newRequests.length} new onboarding request{newRequests.length > 1 ? 's' : ''}</b>
+                      {newRequests.length === 1 ? <> from {newRequests[0].municipality}</> : null}
+                    </div>
+                    <div className="pf-feed-tm">Review in Requests</div>
+                  </div>
+                </button>
+              )}
+              {attention.map((m) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  className="pf-feed"
+                  style={{ width: '100%', textAlign: 'left', background: 'none', border: 0, borderBottom: '1px solid var(--pf-line-soft)', cursor: 'pointer' }}
+                  onClick={() => navigate(`/platform/municipalities/${m.id}`)}
+                >
+                  <div className="pf-feed-ic" style={{ background: 'var(--pf-stop-bg)', color: 'var(--pf-stop-fg)' }}>
+                    <UserPlus size={18} />
+                  </div>
+                  <div>
+                    <div className="pf-feed-tx"><b>{m.name}</b> is suspended</div>
+                    <div className="pf-feed-tm">Review and reactivate</div>
+                  </div>
+                </button>
+              ))}
+            </>
           )}
         </div>
 

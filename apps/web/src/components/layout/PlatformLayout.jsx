@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import {
-  LayoutGrid, Building2, BarChart3, LifeBuoy, Megaphone,
+  LayoutGrid, Building2, Inbox, BarChart3, LifeBuoy, Megaphone,
   Activity, Users, Settings, LogOut, Sun, Moon,
 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
@@ -13,6 +13,7 @@ import '../../styles/platform.css'
 const navItems = [
   { to: '/platform', end: true, label: 'Overview', Icon: LayoutGrid },
   { to: '/platform/municipalities', label: 'Municipalities', Icon: Building2 },
+  { to: '/platform/requests', label: 'Requests', Icon: Inbox },
   { to: '/platform/analytics', label: 'Analytics & Health', Icon: BarChart3 },
   { to: '/platform/support', label: 'Support', Icon: LifeBuoy },
   { to: '/platform/broadcasts', label: 'Broadcasts', Icon: Megaphone },

@@ -56,6 +56,7 @@ import { RequestSupportPage } from '../pages/admin/RequestSupportPage'
 import { PlatformOverviewPage } from '../pages/platform/PlatformOverviewPage'
 import { PlatformMunicipalitiesPage } from '../pages/platform/PlatformMunicipalitiesPage'
 import { PlatformMunicipalityDetailPage } from '../pages/platform/PlatformMunicipalityDetailPage'
+import { PlatformRequestsPage } from '../pages/platform/PlatformRequestsPage'
 import { PlatformAnalyticsPage } from '../pages/platform/PlatformAnalyticsPage'
 import { PlatformSupportPage } from '../pages/platform/PlatformSupportPage'
 import { PlatformBroadcastsPage } from '../pages/platform/PlatformBroadcastsPage'
@@ -190,6 +191,7 @@ export const router = createBrowserRouter([
       { path: 'municipalities', element: <PlatformMunicipalitiesPage /> },
       { path: 'municipalities/:id', element: <PlatformMunicipalityDetailPage /> },
       { path: 'onboarding', element: <Navigate to="/platform/municipalities" replace /> },
+      { path: 'requests', element: <PlatformRequestsPage /> },
       { path: 'analytics', element: <PlatformAnalyticsPage /> },
       { path: 'support', element: <PlatformSupportPage /> },
       { path: 'broadcasts', element: <PlatformBroadcastsPage /> },

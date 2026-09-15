@@ -2,15 +2,17 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import {
-  Search, Bell, Building2, Users, LayoutGrid, Activity, Settings,
+  Search, Bell, Building2, Inbox, Users, LayoutGrid, Activity, Settings,
   LifeBuoy, Megaphone, HeartPulse, BarChart3, CircleCheck, AlertTriangle, Info,
 } from 'lucide-react'
 import { usePlatformStore, sigilOf } from '../../store/platformStore'
+import { useOnboardingRequests } from '../../store/onboardingRequestsStore'
 
 // Static destinations the search can jump to.
 const PAGES = [
   { label: 'Overview', to: '/platform', Icon: LayoutGrid },
   { label: 'Municipalities', to: '/platform/municipalities', Icon: Building2 },
+  { label: 'Requests', to: '/platform/requests', Icon: Inbox },
   { label: 'Analytics & Health', to: '/platform/analytics', Icon: BarChart3 },
   { label: 'Support', to: '/platform/support', Icon: LifeBuoy },
   { label: 'Broadcasts', to: '/platform/broadcasts', Icon: Megaphone },
@@ -155,10 +157,17 @@ function Notifications() {
   const notifications = usePlatformStore((s) => s.notifications)
   const markRead = usePlatformStore((s) => s.markNotificationRead)
   const markAll = usePlatformStore((s) => s.markAllNotificationsRead)
+  const newReqCount = useOnboardingRequests((s) => s.requests.filter((r) => r.status === 'new').length)
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 
-  const unread = notifications.filter((n) => !n.read).length
+  // A live "pending requests" item sits on top while any request is unreviewed.
+  // It clears by acting on the requests, not by "mark all read".
+  const reqNotif = newReqCount > 0
+    ? { id: 'req-pending', kind: 'info', read: false, to: '/platform/requests', time: 'Pending review', text: `${newReqCount} new onboarding request${newReqCount > 1 ? 's' : ''} awaiting review.` }
+    : null
+  const items = reqNotif ? [reqNotif, ...notifications] : notifications
+  const unread = items.filter((n) => !n.read).length
 
   useEffect(() => {
     if (!open) return
@@ -195,10 +204,10 @@ function Notifications() {
             {unread > 0 && <button type="button" onClick={markAll}>Mark all read</button>}
           </div>
           <div className="pf-notif-list">
-            {notifications.length === 0 ? (
+            {items.length === 0 ? (
               <div className="pf-notif-empty">You’re all caught up.</div>
             ) : (
-              notifications.map((n) => {
+              items.map((n) => {
                 const Icon = NOTIF_ICON[n.kind] ?? Info
                 return (
                   <button

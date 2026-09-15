@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { ArrowLeft, GraduationCap, CheckCircle2, Send } from 'lucide-react'
+import { useOnboardingRequests } from '../../store/onboardingRequestsStore'
 import '../../styles/landing.css'
 
 // Onboarding request — an LGU asks to be provisioned. No backend in demo:
-// on submit we show a success state. The fields map to an onboarding-request
-// record that the super-admin console (Platform → Municipalities) would review.
+// on submit we show a success state AND record it so it appears in the super
+// admin's inbox (Platform → Requests).
 const STEPS = [
   { b: 'Submit this request', p: 'Tell us about your municipality and program. Takes about a minute.' },
   { b: 'We review and reach out', p: 'Our team confirms details with your LYDO or scholarship office.' },
@@ -28,11 +29,13 @@ function Field({ label, optional, error, children }) {
 
 export function PlatformRequestPage() {
   const [submitted, setSubmitted] = useState(null)
+  const submitRequest = useOnboardingRequests((s) => s.submit)
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm()
 
   const onSubmit = handleSubmit(async (data) => {
-    // Simulate the request landing in the onboarding pipeline.
+    // Record the request so it lands in the super admin's Requests inbox.
     await new Promise((r) => setTimeout(r, 650))
+    submitRequest(data)
     setSubmitted(data)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   })

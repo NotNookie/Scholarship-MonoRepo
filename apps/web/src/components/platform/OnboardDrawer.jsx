@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import { usePlatformStore } from '../../store/platformStore'
 import { usePlatformSettings } from '../../store/platformSettingsStore'
@@ -6,13 +6,19 @@ import { PlatformDrawer } from './PlatformDrawer'
 
 const EMPTY = { name: '', province: '', subdomain: '', email: '' }
 
-export function OnboardDrawer({ open, onClose }) {
+export function OnboardDrawer({ open, onClose, initial, onCharter }) {
   const onboard = usePlatformStore((s) => s.onboard)
   // New tenants inherit the platform's assistive-feature defaults (Settings).
   const defaultBlur = usePlatformSettings((s) => s.defaultBlur)
   const defaultOcr = usePlatformSettings((s) => s.defaultOcr)
   const defaultAi = usePlatformSettings((s) => s.defaultAi)
-  const [form, setForm] = useState(EMPTY)
+  const [form, setForm] = useState({ ...EMPTY, ...initial })
+  // Reset (and re-seed from a request) each time the drawer opens.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (open) setForm({ ...EMPTY, ...initial })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
   const valid = form.name.trim() && form.subdomain.trim()
 
@@ -25,6 +31,7 @@ export function OnboardDrawer({ open, onClose }) {
   function submit() {
     onboard({ ...form, ocr: defaultOcr, ai: defaultAi })
     toast.success(`${form.name.trim()} chartered · invitation sent`)
+    onCharter?.()
     close()
   }
 
