@@ -14,6 +14,7 @@ import { queryKeys } from '../../lib/queryKeys'
 import { validateFile, measureSharpness, BLUR_THRESHOLD } from '../../lib/fileValidation'
 import { useBrand } from '../../tenant/TenantContext'
 import { useDialog } from '../../lib/useDialog'
+import { useAuthStore } from '../../store/authStore'
 import { DRAFT_KEY, STEP_FIELDS } from '../../lib/applicationDraft'
 
 // ── Constants ────────────────────────────────────────────────
@@ -901,8 +902,29 @@ function ReviewModal({ steps, hasEssay, values, documents, uploads, onEdit, onCl
 export function ApplicationPage() {
   const navigate = useNavigate()
   const brand = useBrand()
+  const user = useAuthStore((s) => s.user)
   // The essay step is optional per municipality (Maintenance → Application).
   const hasEssay = brand.features?.essay !== false
+
+  // Pre-fill the personal step from the applicant's account so returning users
+  // review their details instead of retyping them. Account values fill only the
+  // fields a saved draft hasn't already set.
+  const defaultValues = useMemo(() => {
+    const draft = loadDraft()
+    const parts = (user?.name ?? '').trim().split(/\s+/)
+    const account = {
+      first_name: user?.first_name ?? parts[0] ?? '',
+      last_name: user?.last_name ?? (parts.length > 1 ? parts.slice(1).join(' ') : ''),
+      mobile: user?.mobile ?? '',
+      birthdate: user?.birthdate ?? '',
+      street_address: user?.address ?? '',
+    }
+    const merged = { ...draft }
+    for (const [key, value] of Object.entries(account)) {
+      if (value && (merged[key] == null || merged[key] === '')) merged[key] = value
+    }
+    return merged
+  }, [user])
   const steps = useMemo(
     () => STEP_DEFS.filter((d) => d.id !== 'essay' || hasEssay),
     [hasEssay],
@@ -919,7 +941,7 @@ export function ApplicationPage() {
     getValues,
     watch,
     formState: { errors },
-  } = useForm({ defaultValues: loadDraft() })
+  } = useForm({ defaultValues })
 
   useEffect(() => {
     const sub = watch((values) => {
