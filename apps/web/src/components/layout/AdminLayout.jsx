@@ -3,7 +3,6 @@ import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import {
   LayoutDashboard,
-  ClipboardList,
   ShieldCheck,
   Gavel,
   LineChart,
@@ -30,8 +29,7 @@ import { api } from '../../lib/axios'
 
 const navItems = [
   { to: '/admin/dashboard', label: 'Dashboard', Icon: LayoutDashboard },
-  { to: '/admin/applicants', label: 'Applicant Records', Icon: ClipboardList },
-  { to: '/admin/applications', label: 'Verification Queue', Icon: ShieldCheck },
+  { to: '/admin/applications', label: 'Applications', Icon: ShieldCheck },
   { to: '/admin/appeals', label: 'Appeals', Icon: Gavel },
   { to: '/admin/scholars', label: 'Scholar Monitoring', Icon: LineChart },
   { to: '/admin/communications', label: 'Announcements & Events', Icon: Megaphone },

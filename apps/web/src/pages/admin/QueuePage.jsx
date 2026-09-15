@@ -29,6 +29,7 @@ import { undoToast } from '../../lib/undoToast'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { StatusPill } from '../../components/shared/StatusPill'
+import { ApplicationTabs } from '../../components/admin/ApplicationTabs'
 
 // ── Filters ───────────────────────────────────────────────────
 
@@ -743,10 +744,7 @@ export function QueuePage() {
   return (
     <div className="flex flex-col h-[calc(100vh-7rem)] -m-6">
       <div className="px-6 py-4 border-b border-border bg-surface shrink-0 flex items-center justify-between gap-3">
-        <div>
-          <h1 className="text-lg font-bold text-content">Verification Queue</h1>
-          <p className="text-xs text-content-muted mt-0.5">Review submitted applications and verify documents.</p>
-        </div>
+        <ApplicationTabs />
         <p className="hidden lg:block text-xs text-content-muted">
           <kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">j</kbd>/<kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">k</kbd> move ·{' '}
           <kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">a</kbd>/<kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">r</kbd>/<kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt font-mono">i</kbd> decide

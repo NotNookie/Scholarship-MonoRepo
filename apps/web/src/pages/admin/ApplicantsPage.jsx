@@ -24,6 +24,7 @@ import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { StatusPill } from '../../components/shared/StatusPill'
 import { APPLICATION_STATUS } from '../../components/shared/statusConfig'
+import { ApplicationTabs } from '../../components/admin/ApplicationTabs'
 
 // ── Helpers ───────────────────────────────────────────────────
 
@@ -231,12 +232,7 @@ export function ApplicantsPage() {
 
       {/* ── Header ─────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-content">Applicant Records</h1>
-          <p className="text-sm text-content-muted mt-1">
-            Manage, filter, and review all incoming scholarship applications.
-          </p>
-        </div>
+        <ApplicationTabs />
         <button
           onClick={() => exportCsv(selectedRows.length ? selectedRows : filtered)}
           disabled={filtered.length === 0}
