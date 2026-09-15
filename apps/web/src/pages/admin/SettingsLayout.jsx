@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import {
-  LayoutGrid, Building2, Award, CalendarRange, SlidersHorizontal, Sparkles,
+  LayoutGrid, Building2, Award, CalendarRange, Sparkles,
   Palette, Search, CornerDownLeft,
 } from 'lucide-react'
 
@@ -11,9 +11,8 @@ const NAV = [
   { to: '/admin/maintenance', end: true, label: 'Overview', Icon: LayoutGrid },
   { to: '/admin/maintenance/profile', label: 'Organization Profile', Icon: Building2 },
   { to: '/admin/maintenance/appearance', label: 'Appearance', Icon: Palette },
-  { to: '/admin/maintenance/policies', label: 'Scholarship Policies', Icon: Award },
+  { to: '/admin/maintenance/policies', label: 'Policies & Eligibility', Icon: Award },
   { to: '/admin/maintenance/cycles', label: 'Cycles & Documents', Icon: CalendarRange },
-  { to: '/admin/maintenance/eligibility', label: 'Eligibility Rules', Icon: SlidersHorizontal },
   { to: '/admin/maintenance/features', label: 'Assistive Features', Icon: Sparkles },
 ]
 
@@ -27,7 +26,6 @@ const SEARCH_INDEX = [
   { label: 'Support email', to: '/admin/maintenance/profile#contact', kw: 'contact' },
   { label: 'Hotline number', to: '/admin/maintenance/profile#contact', kw: 'contact phone' },
   { label: 'Walkthrough video', to: '/admin/maintenance/profile#public', kw: 'public content' },
-  { label: 'Website URL', to: '/admin/maintenance/profile#public', kw: 'public content link' },
   { label: 'Facebook page', to: '/admin/maintenance/profile#public', kw: 'public content social' },
   { label: 'Manual / handbook', to: '/admin/maintenance/profile#public', kw: 'public content pdf' },
   { label: 'Map embed', to: '/admin/maintenance/profile#public', kw: 'public content location' },
@@ -38,10 +36,10 @@ const SEARCH_INDEX = [
   { label: 'Application deadline', to: '/admin/maintenance/profile#application', kw: 'lifecycle date' },
   { label: 'UI theme & custom colours', to: '/admin/maintenance/appearance', kw: 'brand colour palette appearance preset' },
   { label: 'Appearance · theme preview', to: '/admin/maintenance/appearance', kw: 'colour wheel custom' },
-  { label: 'Scholarship policies · GWA · income cap', to: '/admin/maintenance/policies', kw: 'programs threshold slots' },
+  { label: 'Scholarship policies · GWA · grant · slots', to: '/admin/maintenance/policies', kw: 'programs threshold documents' },
+  { label: 'Eligibility rules · residency · voter · income', to: '/admin/maintenance/policies', kw: 'baseline attestation' },
   { label: 'Application periods / cycles', to: '/admin/maintenance/cycles', kw: 'deadline schedule' },
   { label: 'Document checklist', to: '/admin/maintenance/cycles', kw: 'required documents' },
-  { label: 'Eligibility rules · residency · voter', to: '/admin/maintenance/eligibility', kw: 'baseline attestation' },
   { label: 'Assistive features · Auto-read · AI', to: '/admin/maintenance/features', kw: 'ocr auto-read document reading ai toggle' },
 ]
 

@@ -288,32 +288,9 @@ export function MaintenanceProfilePage() {
                 checked={!!form.essay_enabled}
                 onChange={() => setForm((s) => ({ ...s, essay_enabled: !s.essay_enabled }))}
               />
-              <ToggleRow
-                title="Qualifying exam milestone"
-                desc="Shows a “Qualifying Exam” stage in the scholar's journey between the decision and the award."
-                checked={!!form.qualifying_exam_enabled}
-                onChange={() => setForm((s) => ({ ...s, qualifying_exam_enabled: !s.qualifying_exam_enabled }))}
-              />
-              <ToggleRow
-                title="Orientation milestone"
-                desc="Shows an “Orientation” stage in the scholar's journey before the award is finalized."
-                checked={!!form.orientation_enabled}
-                onChange={() => setForm((s) => ({ ...s, orientation_enabled: !s.orientation_enabled }))}
-              />
-              <ToggleRow
-                title="Disbursement / payout tracking"
-                desc="Shows the payout report and the disbursement trends chart under Reports. Turn off if payouts aren't tracked in-app."
-                checked={!!form.payout_tracking_enabled}
-                onChange={() => setForm((s) => ({ ...s, payout_tracking_enabled: !s.payout_tracking_enabled }))}
-              />
-              <div className="pt-5 border-t border-border">
-                <Field id="application_deadline" label="Application deadline (shown on the public Scholarships page)">
-                  <input id="application_deadline" type="text" value={form.application_deadline} onChange={set('application_deadline')} placeholder="e.g. August 15, 2026" className={inputCls} />
-                </Field>
-                <p className="text-xs text-content-muted mt-2">Leave blank to hide the deadline banner.</p>
-              </div>
 
-              <div className="pt-5 border-t border-border">
+              {/* Word-limit settings — grouped right under the essay toggle */}
+              <div className="rounded-lg bg-surface-alt border border-border p-4">
                 <p className="text-sm font-semibold text-content mb-1">Essay &amp; statement length</p>
                 <p className="text-xs text-content-muted mb-4">How long applicants&rsquo; written answers must be, in words.</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -344,6 +321,31 @@ export function MaintenanceProfilePage() {
                     <p className="text-xs text-content-muted">The cap for the financial-need statement in the Family step.</p>
                   </div>
                 </div>
+              </div>
+
+              <ToggleRow
+                title="Qualifying exam milestone"
+                desc="Shows a “Qualifying Exam” stage in the scholar's journey between the decision and the award."
+                checked={!!form.qualifying_exam_enabled}
+                onChange={() => setForm((s) => ({ ...s, qualifying_exam_enabled: !s.qualifying_exam_enabled }))}
+              />
+              <ToggleRow
+                title="Orientation milestone"
+                desc="Shows an “Orientation” stage in the scholar's journey before the award is finalized."
+                checked={!!form.orientation_enabled}
+                onChange={() => setForm((s) => ({ ...s, orientation_enabled: !s.orientation_enabled }))}
+              />
+              <ToggleRow
+                title="Disbursement / payout tracking"
+                desc="Shows the payout report and the disbursement trends chart under Reports. Turn off if payouts aren't tracked in-app."
+                checked={!!form.payout_tracking_enabled}
+                onChange={() => setForm((s) => ({ ...s, payout_tracking_enabled: !s.payout_tracking_enabled }))}
+              />
+              <div className="pt-5 border-t border-border">
+                <Field id="application_deadline" label="Application deadline (shown on the public Scholarships page)">
+                  <input id="application_deadline" type="text" value={form.application_deadline} onChange={set('application_deadline')} placeholder="e.g. August 15, 2026" className={inputCls} />
+                </Field>
+                <p className="text-xs text-content-muted mt-2">Leave blank to hide the deadline banner.</p>
               </div>
             </div>
           </section>

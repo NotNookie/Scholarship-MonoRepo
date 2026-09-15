@@ -16,6 +16,7 @@ import { api } from '../../lib/axios'
 import { useDialog } from '../../lib/useDialog'
 import { queryKeys } from '../../lib/queryKeys'
 import { Skeleton } from '../../components/shared/Skeleton'
+import { EligibilitySection } from './MaintenanceEligibilityPage'
 
 // Formats a ₱ grant amount for display (accepts a number or numeric string).
 function peso(n) {
@@ -68,14 +69,6 @@ function PolicyCard({ policy, onEdit, onDelete }) {
             <span className="text-content-muted">Min. GWA</span>
             <span className="font-semibold text-content">{policy.min_gwa != null ? `${dir} ${policy.min_gwa}` : '—'}</span>
           </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-content-muted">Income Cap</span>
-            <span className="font-semibold text-content">{policy.income_cap != null ? `₱${Number(policy.income_cap).toLocaleString()}/yr` : '—'}</span>
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-content-muted">Residency</span>
-            <span className="font-semibold text-content">{policy.residency_years != null ? `${policy.residency_years} Years` : '—'}</span>
-          </div>
         </div>
 
         {policy.documents?.length > 0 && (
@@ -123,8 +116,6 @@ function PolicyModal({ policy, isPending, onClose, onSubmit }) {
     slots: policy?.slots ?? '',
     min_gwa: policy?.min_gwa ?? '',
     gwa_direction: policy?.gwa_direction ?? 'lower_better',
-    income_cap: policy?.income_cap ?? '',
-    residency_years: policy?.residency_years ?? '',
     tags: (policy?.tags ?? []).join(', '),
   })
   // Per-program required documents override the cycle-wide checklist; empty = inherit.
@@ -141,8 +132,6 @@ function PolicyModal({ policy, isPending, onClose, onSubmit }) {
       grant_amount: form.grant_amount === '' ? null : Number(form.grant_amount),
       slots: form.slots === '' ? null : Number(form.slots),
       min_gwa: form.min_gwa === '' ? null : Number(form.min_gwa),
-      income_cap: form.income_cap === '' ? null : Number(form.income_cap),
-      residency_years: form.residency_years === '' ? null : Number(form.residency_years),
       tags: parseTags(form.tags),
       documents: documents.map((d) => d.trim()).filter(Boolean),
     })
@@ -166,18 +155,12 @@ function PolicyModal({ policy, isPending, onClose, onSubmit }) {
             <label htmlFor="p-desc" className="text-sm font-medium text-content">Description</label>
             <textarea id="p-desc" rows={2} value={form.description} onChange={set('description')} placeholder="Short description of the program…" className={`${inputCls} resize-none`} />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="p-status" className="text-sm font-medium text-content">Status</label>
-              <select id="p-status" value={form.status} onChange={set('status')} className={inputCls}>
-                <option value="active">Active</option>
-                <option value="draft">Draft Review</option>
-              </select>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="p-residency" className="text-sm font-medium text-content">Residency (years)</label>
-              <input id="p-residency" type="number" min="0" value={form.residency_years} onChange={set('residency_years')} placeholder="3" className={inputCls} />
-            </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="p-status" className="text-sm font-medium text-content">Status</label>
+            <select id="p-status" value={form.status} onChange={set('status')} className={inputCls}>
+              <option value="active">Active</option>
+              <option value="draft">Draft Review</option>
+            </select>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
@@ -203,11 +186,6 @@ function PolicyModal({ policy, isPending, onClose, onSubmit }) {
               <input id="p-slots" type="number" min="0" value={form.slots} onChange={set('slots')} placeholder="150" className={inputCls} />
             </div>
           </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="p-income" className="text-sm font-medium text-content">Income Cap (₱ / year)</label>
-            <input id="p-income" type="number" min="0" value={form.income_cap} onChange={set('income_cap')} placeholder="250000" className={inputCls} />
-          </div>
-
           <div className="flex flex-col gap-1.5">
             <span className="text-sm font-medium text-content flex items-center gap-1.5">
               Required Documents <span className="text-xs text-content-muted font-normal">(leave empty to use the cycle’s default checklist)</span>
@@ -322,40 +300,53 @@ export function MaintenancePoliciesPage() {
   })
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       {/* Breadcrumb + header */}
       <div>
         <Link to="/admin/maintenance" className="inline-flex items-center gap-1.5 text-sm text-content-muted hover:text-primary transition-colors mb-3">
           <ChevronLeft size={15} /> Maintenance Hub
         </Link>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold text-content">Scholarship Policies &amp; Eligibility</h1>
-            <p className="text-sm text-content-muted mt-1">Manage baseline requirements, thresholds, and eligibility tags per program. Changes apply to future cycles.</p>
-          </div>
-          <button onClick={() => setModal({ mode: 'edit' })} className="inline-flex items-center gap-2 bg-primary text-on-primary text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-colors shrink-0">
-            <Plus size={15} /> New Program Policy
-          </button>
-        </div>
+        <h1 className="text-2xl font-bold text-content">Scholarship Policies &amp; Eligibility</h1>
+        <p className="text-sm text-content-muted mt-1">The specifics that differ per scholarship, plus the general requirements everyone must meet. Changes apply to future cycles.</p>
       </div>
 
-      {isPending ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {[1, 2, 3].map((i) => <Skeleton key={i} className="h-80 w-full rounded-xl" />)}
+      {/* Per-program policies */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-bold text-content">Scholarship Programs</h2>
+            <p className="text-sm text-content-muted mt-1 max-w-2xl">
+              The specifics that differ per scholarship — GWA cutoff, grant amount, slots, tags, and required documents.
+            </p>
+          </div>
+          <button onClick={() => setModal({ mode: 'edit' })} className="inline-flex items-center gap-2 bg-primary text-on-primary text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-colors shrink-0">
+            <Plus size={15} /> New Program
+          </button>
         </div>
-      ) : policies.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {policies.map((p) => (
-            <PolicyCard key={p.id} policy={p} onEdit={(pol) => setModal({ mode: 'edit', policy: pol })} onDelete={(pol) => setModal({ mode: 'delete', policy: pol })} />
-          ))}
-        </div>
-      ) : (
-        <div className="bg-surface border border-border rounded-xl shadow-card p-12 flex flex-col items-center text-center gap-3">
-          <Award size={30} className="text-content-disabled" />
-          <p className="text-sm font-semibold text-content">No scholarship policies yet.</p>
-          <button onClick={() => setModal({ mode: 'edit' })} className="text-sm text-primary hover:underline">Create your first program policy</button>
-        </div>
-      )}
+
+        {isPending ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            {[1, 2, 3].map((i) => <Skeleton key={i} className="h-80 w-full rounded-xl" />)}
+          </div>
+        ) : policies.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            {policies.map((p) => (
+              <PolicyCard key={p.id} policy={p} onEdit={(pol) => setModal({ mode: 'edit', policy: pol })} onDelete={(pol) => setModal({ mode: 'delete', policy: pol })} />
+            ))}
+          </div>
+        ) : (
+          <div className="bg-surface border border-border rounded-xl shadow-card p-12 flex flex-col items-center text-center gap-3">
+            <Award size={30} className="text-content-disabled" />
+            <p className="text-sm font-semibold text-content">No scholarship programs yet.</p>
+            <button onClick={() => setModal({ mode: 'edit' })} className="text-sm text-primary hover:underline">Create your first program</button>
+          </div>
+        )}
+      </div>
+
+      {/* General requirements (apply to all programs) */}
+      <div className="pt-6 border-t border-border">
+        <EligibilitySection />
+      </div>
 
       {(modal?.mode === 'edit') && (
         <PolicyModal

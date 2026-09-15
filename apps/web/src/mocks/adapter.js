@@ -229,6 +229,16 @@ async function route(config) {
     return ok(method === 'get' ? { data: [] } : { data: { ok: true } }, config)
   }
 
+  // Baseline eligibility rules (shown on the merged Policies & Eligibility page).
+  if (method === 'get' && path === '/admin/maintenance/eligibility-rules') {
+    return ok({ data: [
+      { id: 'elig-1', type: 'residency', label: 'Municipal residency', description: 'Bonafide resident of the municipality for at least 3 years.', value: 3, active: true },
+      { id: 'elig-2', type: 'voter', label: 'Registered voter', description: 'Applicant or parents must be registered voters of the municipality.', active: true },
+      { id: 'elig-3', type: 'income', label: 'Household income ceiling', description: 'Combined annual household income within the poverty threshold.', value: 250000, active: true },
+      { id: 'elig-4', type: 'attestation', label: 'No other major scholarship', description: 'Must not be a recipient of any other major government scholarship.', active: true },
+    ] }, config)
+  }
+
   // Unmatched admin endpoint → empty success so pages stay calm (no error state).
   if (path.startsWith('/admin/')) {
     return ok(method === 'get' ? { data: [] } : { data: { ok: true } }, config)

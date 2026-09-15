@@ -1,8 +1,7 @@
 import { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  Plus, ChevronLeft, MapPin, CheckSquare, Banknote, ShieldCheck, ListPlus,
+  Plus, MapPin, CheckSquare, Banknote, ShieldCheck, ListPlus,
   PencilLine, Trash2, X, Loader2, SlidersHorizontal,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -122,7 +121,8 @@ function DeleteModal({ rule, isPending, onClose, onConfirm }) {
 
 // ── Main ──────────────────────────────────────────────────────
 
-export function MaintenanceEligibilityPage() {
+// Rendered as a section inside the combined Policies & Eligibility page.
+export function EligibilitySection() {
   const queryClient = useQueryClient()
   const [modal, setModal] = useState(null)
 
@@ -152,23 +152,17 @@ export function MaintenanceEligibilityPage() {
   })
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <Link to="/admin/maintenance" className="inline-flex items-center gap-1.5 text-sm text-content-muted hover:text-primary transition-colors mb-3">
-          <ChevronLeft size={15} /> Maintenance Hub
-        </Link>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold text-content">Eligibility Rules</h1>
-            <p className="text-sm text-content-muted mt-1 max-w-2xl">
-              Baseline requirements that apply to <span className="font-semibold text-content">all</span> scholarship programs.
-              These drive the public "How to Qualify" list and the staff verification checklist.
-            </p>
-          </div>
-          <button onClick={() => setModal({ mode: 'edit' })} className="inline-flex items-center gap-2 bg-primary text-on-primary text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-colors shrink-0">
-            <Plus size={15} /> Add Requirement
-          </button>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-bold text-content">General Requirements</h2>
+          <p className="text-sm text-content-muted mt-1 max-w-2xl">
+            Requirements that apply to <span className="font-semibold text-content">all</span> programs — they drive the public "How to Qualify" list and the staff verification checklist.
+          </p>
         </div>
+        <button onClick={() => setModal({ mode: 'edit' })} className="inline-flex items-center gap-2 bg-primary text-on-primary text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-colors shrink-0">
+          <Plus size={15} /> Add Requirement
+        </button>
       </div>
 
       {isPending ? (
@@ -203,8 +197,8 @@ export function MaintenanceEligibilityPage() {
       ) : (
         <div className="bg-surface border border-border rounded-xl shadow-card p-12 flex flex-col items-center text-center gap-3">
           <SlidersHorizontal size={30} className="text-content-disabled" />
-          <p className="text-sm font-semibold text-content">No eligibility rules yet.</p>
-          <p className="text-xs text-content-muted max-w-sm">Add baseline requirements like residency, voter registration, income limits, or custom attestations.</p>
+          <p className="text-sm font-semibold text-content">No general requirements yet.</p>
+          <p className="text-xs text-content-muted max-w-sm">Add requirements like residency, voter registration, income limits, or attestations that apply to every program.</p>
           <button onClick={() => setModal({ mode: 'edit' })} className="text-sm text-primary hover:underline">Add your first requirement</button>
         </div>
       )}

@@ -10,10 +10,11 @@ import { undoToast } from '../../lib/undoToast'
 import { Skeleton } from '../../components/shared/Skeleton'
 import { useBrand } from '../../tenant/TenantContext'
 
-// Internal role keys map to LYDO-facing labels (per mockup #12).
+// A municipality manages its own Head (Admin) and Staff. Super Admin is a
+// platform-level role, managed only in the operator console — not assignable here.
 const ROLES = {
-  super_admin: { label: 'Super Admin',    cls: 'bg-danger-light text-danger border-danger/30' },
-  admin:       { label: 'Staff Evaluator', cls: 'bg-surface-alt text-content-muted border-border' },
+  admin: { label: 'Admin',  cls: 'bg-primary-light text-primary border-primary/20' },
+  staff: { label: 'Staff', cls: 'bg-surface-alt text-content-muted border-border' },
 }
 const ROLE_OPTIONS = Object.entries(ROLES).map(([value, cfg]) => ({ value, label: cfg.label }))
 const PAGE_SIZE = 10
@@ -52,7 +53,7 @@ function UserModal({ user, isPending, onClose, onSubmit }) {
   const [form, setForm] = useState({
     name: user?.name ?? '',
     email: user?.email ?? '',
-    role: user?.role ?? 'admin',
+    role: user?.role ?? 'staff',
     status: user?.status ?? 'active',
   })
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))

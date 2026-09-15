@@ -46,7 +46,6 @@ import { UsersPage } from '../pages/admin/UsersPage'
 import { MaintenancePage } from '../pages/admin/MaintenancePage'
 import { MaintenancePoliciesPage } from '../pages/admin/MaintenancePoliciesPage'
 import { MaintenanceCyclesPage } from '../pages/admin/MaintenanceCyclesPage'
-import { MaintenanceEligibilityPage } from '../pages/admin/MaintenanceEligibilityPage'
 import { MaintenanceProfilePage } from '../pages/admin/MaintenanceProfilePage'
 import { MaintenanceFeaturesPage } from '../pages/admin/MaintenanceFeaturesPage'
 import { MaintenanceThemePage } from '../pages/admin/MaintenanceThemePage'
@@ -169,7 +168,7 @@ export const router = createBrowserRouter([
           { index: true, element: <MaintenancePage /> },
           { path: 'policies', element: <MaintenancePoliciesPage /> },
           { path: 'cycles', element: <MaintenanceCyclesPage /> },
-          { path: 'eligibility', element: <MaintenanceEligibilityPage /> },
+          { path: 'eligibility', element: <Navigate to="/admin/maintenance/policies" replace /> },
           { path: 'profile', element: <MaintenanceProfilePage /> },
           { path: 'appearance', element: <MaintenanceThemePage /> },
           { path: 'features', element: <MaintenanceFeaturesPage /> },

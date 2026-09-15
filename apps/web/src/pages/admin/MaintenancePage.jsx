@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom'
 import {
   Wrench,
   Award,
-  SlidersHorizontal,
   CalendarRange,
   Building2,
   Palette,
@@ -15,8 +14,8 @@ import {
 const CARDS = [
   {
     Icon: Award,
-    title: 'Scholarship Policies',
-    description: 'Define programs, GWA thresholds, income caps, and eligibility tags for each scholarship.',
+    title: 'Scholarship Policies & Eligibility',
+    description: 'Set the baseline requirements everyone must meet (residency, voter, income, attestations) and each program’s specifics (GWA, grant, slots, documents).',
     to: '/admin/maintenance/policies',
     action: 'Manage Policies',
   },
@@ -40,13 +39,6 @@ const CARDS = [
     description: 'Choose a theme preset or set custom brand colours — with a live preview of every element.',
     to: '/admin/maintenance/appearance',
     action: 'Customize Theme',
-  },
-  {
-    Icon: SlidersHorizontal,
-    title: 'Eligibility Rules',
-    description: 'Set baseline requirements (residency, voter status, income limits, attestations) that apply to all programs.',
-    to: '/admin/maintenance/eligibility',
-    action: 'Manage Rules',
   },
   {
     Icon: Sparkles,
